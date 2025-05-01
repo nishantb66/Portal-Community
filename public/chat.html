@@ -43,6 +43,12 @@
             border-radius: 2px;
         }
 
+        .message-bubble,
+        .quote-bubble {
+            word-break: break-word;
+            white-space: normal;
+        }
+
         .message-bubble {
             max-width: 85%;
         }
@@ -70,9 +76,9 @@
     <!-- NAME ENTRY MODAL -->
     <div id="name-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-11/12 max-w-sm shadow-lg">
-            <h2 class="text-xl font-semibold mb-4 text-center">What people call you?</h2>
-            <input id="name-input" type="text" placeholder="Enter your name or nickname"
-                class="w-full border border-slate-300 rounded-full px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-400 transition" />
+            <h2 class="text-xl font-semibold mb-4 text-center">What should we call you?</h2>
+            <input id="name-input" type="text" placeholder="Enter your name or nickname" class="w-full border border-slate-300 rounded-full px-4 py-2 mb-4
+                    focus:outline-none focus:ring-2 focus:ring-brand-400 transition" />
             <button id="name-submit"
                 class="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-full shadow transition">
                 Join Chat
@@ -90,7 +96,8 @@
             <h1 class="text-xl sm:text-2xl font-semibold">Community Chat</h1>
         </div>
         <span id="user-name"
-            class="px-3 py-1.5 text-sm font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-full shadow-sm"></span>
+            class="px-3 py-1.5 text-sm font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-full shadow-sm">
+        </span>
     </header>
 
     <!-- MESSAGES -->
@@ -102,14 +109,14 @@
     <div id="typing-indicator" class="h-6 px-4 sm:px-6 text-sm font-medium text-slate-500 animate-pulse"></div>
 
     <!-- REPLY PREVIEW -->
-    <div id="reply-preview"
-        class="hidden mx-4 sm:mx-6 mb-2 flex items-center space-x-3 bg-brand-50 border border-brand-200 px-4 py-2.5 rounded-lg shadow-sm transition-all">
+    <div id="reply-preview" class="hidden mx-4 sm:mx-6 mb-2 flex items-center space-x-3 bg-brand-50 border border-brand-200
+              px-4 py-2.5 rounded-lg shadow-sm transition-all">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 10h10a4 4 0 0 1 4 4v2m-4-6l-4-4m4 4l-4 4" />
         </svg>
-        <p id="reply-text" class="flex-1 text-sm text-slate-700 truncate"></p>
+        <p id="reply-text" class="flex-1 text-sm text-slate-700"></p>
         <button id="cancel-reply" title="Cancel Reply"
             class="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
