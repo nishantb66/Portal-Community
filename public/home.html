@@ -19,6 +19,19 @@
                         display: ['Montserrat', 'system-ui', 'sans-serif']
                     },
                     colors: {
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        },
                         white: {
                             DEFAULT: '#ffffff',
                             'pure': '#ffffff',
@@ -26,23 +39,12 @@
                             'warm': '#f7f7f7',
                             'cool': '#f5f7fa',
                             'smoke': '#f0f2f5'
-                        },
-                        accent: {
-                            50: '#f5f7fa',
-                            100: '#eaeef4',
-                            200: '#d5dde8',
-                            300: '#b0c1d4',
-                            400: '#8aa3be',
-                            500: '#6b86a7',
-                            600: '#536b8e',
-                            700: '#435773',
-                            800: '#384760',
-                            900: '#2f3a4f'
                         }
                     },
                     boxShadow: {
                         'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
-                        'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)'
+                        'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)',
+                        'popup': '0 10px 50px -12px rgba(0, 0, 0, 0.25)'
                     }
                 }
             }
@@ -50,19 +52,20 @@
     </script>
     <style>
         .gradient-bg {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.6) 0%, rgba(247, 249, 252, 0.9) 100%);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(238, 242, 255, 0.6) 100%);
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
         }
+
         .glass-effect {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
         .bg-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239FA6B2' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366F1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         @keyframes fadeSlideUp {
@@ -90,107 +93,227 @@
             animation: fadeSlideUp 0.8s ease 0.4s forwards;
             opacity: 0;
         }
+
+        /* Disclaimer popup animation */
+        @keyframes fadeScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .popup-enter {
+            animation: fadeScale 0.3s ease forwards;
+        }
+
+        .popup-backdrop {
+            background-color: rgba(17, 24, 39, 0.7);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Pulse animation for attention */
+        @keyframes subtle-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .pulse-attention {
+            animation: subtle-pulse 2s infinite;
+        }
     </style>
 </head>
 
 <body
-    class="min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-700 bg-white-cool bg-pattern">
+    class="min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-700 bg-white-pure bg-pattern">
+    <!-- Disclaimer Popup -->
+    <div id="disclaimerPopup" class="hidden fixed inset-0 z-50 popup-backdrop flex items-center justify-center p-4">
+        <div class="popup-enter bg-white max-w-md w-full rounded-2xl shadow-popup p-6 relative">
+            <!-- Close button -->
+            <button id="closePopup"
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Popup header -->
+            <div class="flex items-center mb-4">
+                <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-display font-semibold text-gray-900">Important Information</h3>
+            </div>
+
+            <!-- Popup content -->
+            <div class="prose prose-sm max-w-none mb-5 text-gray-600">
+                <p class="mb-3">This platform is provided as an <strong class="text-indigo-700">experimental
+                        feature</strong> to the EP Platforms ecosystem, designed purely for casual communication
+                    purposes.</p>
+
+                <p class="mb-3">Please note:</p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>All conversations are public within the platform</li>
+                    <li>No confidential information about users is collected or shared</li>
+                    <li>You may participate anonymously with your chosen display name</li>
+                    <li>This is a supplementary feature to the main EP Platforms offerings</li>
+                </ul>
+
+                <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-indigo-800 text-sm">
+                    <p>By using this community chat, you acknowledge it is for casual communication only and not
+                        intended for sensitive or confidential information exchange.</p>
+                </div>
+            </div>
+
+            <!-- Confirm button -->
+            <button id="confirmPopup"
+                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                I Understand
+            </button>
+        </div>
+    </div>
+
     <div class="container max-w-screen-lg mx-auto">
         <!-- Modern Hero Layout -->
         <div class="flex flex-col-reverse md:flex-row md:items-center md:space-x-8 animate-fade-slide-up">
             <!-- Left Content -->
             <div class="w-full md:w-7/12 pt-8 md:pt-0">
                 <div class="glass-effect rounded-3xl p-8 md:p-10 shadow-soft">
-                    <!-- Subtle Brand Element -->
-                    <div class="flex items-center mb-8">
-                        <div class="h-10 w-10 rounded-xl bg-accent-600 shadow-md flex items-center justify-center mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
+                    <!-- Subtle Brand Element with Disclaimer Icon -->
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center">
+                            <div
+                                class="h-10 w-10 rounded-xl bg-indigo-600 shadow-md flex items-center justify-center mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-sm text-indigo-700 font-medium tracking-wider uppercase">Community Chat
+                                </h2>
+                                <div class="h-0.5 w-10 bg-indigo-400 mt-1"></div>
+                            </div>
+                        </div>
+
+                        <!-- Disclaimer Icon Button -->
+                        <button id="showDisclaimer"
+                            class="group relative flex items-center justify-center h-8 w-8 rounded-full bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-sm text-accent-700 font-medium tracking-wider uppercase">Community Forum
-                            </h2>
-                            <div class="h-0.5 w-10 bg-accent-400 mt-1"></div>
-                        </div>
+                            <span
+                                class="absolute -top-1 -right-1 h-2 w-2 bg-indigo-500 rounded-full pulse-attention"></span>
+                            <span class="sr-only">Disclaimer Information</span>
+
+                            <!-- Tooltip -->
+                            <div
+                                class="opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity absolute bottom-full mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap">
+                                Important Information
+                                <div
+                                    class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                                </div>
+                            </div>
+                        </button>
                     </div>
 
                     <!-- Main Content -->
                     <h1
-                        class="font-display font-semibold text-3xl md:text-4xl lg:text-5xl mb-4 text-accent-900 leading-tight">
+                        class="font-display font-semibold text-3xl md:text-4xl lg:text-5xl mb-4 text-indigo-900 leading-tight">
                         Connect with the<br class="hidden md:block"> EP Platforms Community
                     </h1>
 
                     <p class="text-slate-600 text-lg md:text-xl mb-8 leading-relaxed">
                         Join real-time discussions with other users, share insights, and collaborate in our
-                        secure community space and have light mode chatting.
+                        secure community space with an elegant, light interface.
                     </p>
 
                     <!-- Features Highlight -->
                     <div class="grid grid-cols-2 gap-4 mb-8 animate-fade-slide-up-delay-1">
                         <div class="flex items-start">
                             <div
-                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-accent-800">Secure Platform</h3>
+                                <h3 class="font-medium text-indigo-800">Secure Platform</h3>
                                 <p class="text-sm text-slate-500">End-to-end encrypted discussions</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-accent-800">Real-time</h3>
+                                <h3 class="font-medium text-indigo-800">Real-time</h3>
                                 <p class="text-sm text-slate-500">Instant messaging</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-accent-800">Community</h3>
+                                <h3 class="font-medium text-indigo-800">Community</h3>
                                 <p class="text-sm text-slate-500">Connect with industry professionals</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-accent-800">Safe Moderated</h3>
-                                <p class="text-sm text-slate-500">Moderation, to avoid suspisious activities</p>
+                                <h3 class="font-medium text-indigo-800">Safe Moderated</h3>
+                                <p class="text-sm text-slate-500">Moderation to ensure quality discussions</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- CTA Button -->
                     <button onclick="location.href='/chat'"
-                        class="animate-fade-slide-up-delay-2 w-full sm:w-auto px-8 py-4 bg-accent-600 hover:bg-accent-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+                        class="animate-fade-slide-up-delay-2 w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
                         <span>Join the Chat</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -201,12 +324,12 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="flex justify-between items-center mt-4 px-2 text-xs text-accent-400">
+                <div class="flex justify-between items-center mt-4 px-2 text-xs text-indigo-400">
                     <div>EP Platforms Community Forum © 2025</div>
                     <div class="flex gap-4">
-                        <a href="#" class="hover:text-accent-600 transition-colors">Privacy</a>
-                        <a href="#" class="hover:text-accent-600 transition-colors">Terms</a>
-                        <a href="#" class="hover:text-accent-600 transition-colors">Support</a>
+                        <a href="#" class="hover:text-indigo-600 transition-colors">Privacy</a>
+                        <a href="#" class="hover:text-indigo-600 transition-colors">Terms</a>
+                        <a href="#" class="hover:text-indigo-600 transition-colors">Support</a>
                     </div>
                 </div>
             </div>
@@ -214,17 +337,18 @@
             <!-- Right Illustration -->
             <div class="w-full md:w-5/12 flex justify-center md:justify-end">
                 <div class="relative w-full max-w-md">
-                    <!-- Abstract shapes -->
-                    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-accent-50 opacity-60"></div>
-                    <div class="absolute top-20 -right-5 w-16 h-16 rounded-full bg-accent-100 opacity-60"></div>
+                    <!-- Abstract shapes - now in indigo shades -->
+                    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-indigo-50 opacity-80"></div>
+                    <div class="absolute top-20 -right-5 w-16 h-16 rounded-full bg-indigo-100 opacity-70"></div>
 
                     <!-- Main illustration -->
                     <div class="glass-effect relative z-10 rounded-3xl overflow-hidden shadow-soft">
                         <div class="aspect-w-4 aspect-h-3 w-full">
-                            <img src="https://images.unsplash.com/photo-1522071901873-411886a10004?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                                alt="EP Platforms Team Collaboration" class="object-cover w-full h-full opacity-90" />
+                            <!-- Using a more white/indigo toned image -->
+                            <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                                alt="EP Platforms Team Collaboration" class="object-cover w-full h-full" />
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-tr from-accent-900/40 to-accent-600/10"></div>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-indigo-600/10"></div>
                         <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
                             <div class="text-sm font-medium opacity-90">EP Platforms</div>
                             <div class="text-2xl font-display font-bold">Community Forum</div>
@@ -234,6 +358,45 @@
             </div>
         </div>
     </div>
+
+    <!-- Script for popup functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const disclaimerPopup = document.getElementById('disclaimerPopup');
+            const showDisclaimer = document.getElementById('showDisclaimer');
+            const closePopup = document.getElementById('closePopup');
+            const confirmPopup = document.getElementById('confirmPopup');
+
+            // Show popup
+            showDisclaimer.addEventListener('click', function () {
+                disclaimerPopup.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+
+            // Hide popup functions
+            function hidePopup() {
+                disclaimerPopup.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
+
+            closePopup.addEventListener('click', hidePopup);
+            confirmPopup.addEventListener('click', hidePopup);
+
+            // Close when clicking outside the popup
+            disclaimerPopup.addEventListener('click', function (e) {
+                if (e.target === disclaimerPopup) {
+                    hidePopup();
+                }
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !disclaimerPopup.classList.contains('hidden')) {
+                    hidePopup();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
