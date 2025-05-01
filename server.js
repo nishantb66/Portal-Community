@@ -8,6 +8,11 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
+
+// ─── Raise timeouts to 120s to avoid idle drops on Render ─────────────────
+server.keepAliveTimeout = 120 * 1000;  // allow 2 minutes of keep-alive
+server.headersTimeout   = 120 * 1000;  // allow 2 minutes to receive headers
+
 const activeUsers = new Map(); // ─── Track socket → username mappings ─────────────────────────────────────────
 const io = new Server(server);
 
