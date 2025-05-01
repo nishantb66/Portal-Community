@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome • Community Chat</title>
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <title>EP Platforms • Community Forum</title>
+    <!-- Fonts: Montserrat for headings, Inter for body text -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -14,21 +15,34 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif']
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'system-ui', 'sans-serif']
                     },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#b9e6fe',
-                            300: '#7cd4fd',
-                            400: '#36bffa',
-                            500: '#0da2e7',
-                            600: '#0284c7',
-                            700: '#036ba1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                        white: {
+                            DEFAULT: '#ffffff',
+                            'pure': '#ffffff',
+                            'off': '#fafafa',
+                            'warm': '#f7f7f7',
+                            'cool': '#f5f7fa',
+                            'smoke': '#f0f2f5'
+                        },
+                        accent: {
+                            50: '#f5f7fa',
+                            100: '#eaeef4',
+                            200: '#d5dde8',
+                            300: '#b0c1d4',
+                            400: '#8aa3be',
+                            500: '#6b86a7',
+                            600: '#536b8e',
+                            700: '#435773',
+                            800: '#384760',
+                            900: '#2f3a4f'
                         }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
+                        'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)'
                     }
                 }
             }
@@ -36,13 +50,25 @@
     </script>
     <style>
         .gradient-bg {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.6) 0%, rgba(247, 249, 252, 0.9) 100%);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.75);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
-        @keyframes fadeIn {
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239FA6B2' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        @keyframes fadeSlideUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
@@ -51,52 +77,160 @@
             }
         }
 
-        .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out forwards;
+        .animate-fade-slide-up {
+            animation: fadeSlideUp 0.8s ease forwards;
+        }
+
+        .animate-fade-slide-up-delay-1 {
+            animation: fadeSlideUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .animate-fade-slide-up-delay-2 {
+            animation: fadeSlideUp 0.8s ease 0.4s forwards;
+            opacity: 0;
         }
     </style>
 </head>
 
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-800">
-    <div class="w-full max-w-md animate-fadeIn">
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <!-- Header with decorative element -->
-            <div class="bg-brand-600 h-2"></div>
+<body
+    class="min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-700 bg-white-cool bg-pattern">
+    <div class="container max-w-screen-lg mx-auto">
+        <!-- Modern Hero Layout -->
+        <div class="flex flex-col-reverse md:flex-row md:items-center md:space-x-8 animate-fade-slide-up">
+            <!-- Left Content -->
+            <div class="w-full md:w-7/12 pt-8 md:pt-0">
+                <div class="glass-effect rounded-3xl p-8 md:p-10 shadow-soft">
+                    <!-- Subtle Brand Element -->
+                    <div class="flex items-center mb-8">
+                        <div class="h-10 w-10 rounded-xl bg-accent-600 shadow-md flex items-center justify-center mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-sm text-accent-700 font-medium tracking-wider uppercase">Community Forum
+                            </h2>
+                            <div class="h-0.5 w-10 bg-accent-400 mt-1"></div>
+                        </div>
+                    </div>
 
-            <!-- Icon/Logo -->
-            <div class="flex justify-center -mt-8">
-                <div class="h-16 w-16 rounded-full bg-white shadow-md flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-brand-600" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+                    <!-- Main Content -->
+                    <h1
+                        class="font-display font-semibold text-3xl md:text-4xl lg:text-5xl mb-4 text-accent-900 leading-tight">
+                        Connect with the<br class="hidden md:block"> EP Platforms Community
+                    </h1>
+
+                    <p class="text-slate-600 text-lg md:text-xl mb-8 leading-relaxed">
+                        Join real-time discussions with fellow professionals, share insights, and collaborate in our
+                        secure community space.
+                    </p>
+
+                    <!-- Features Highlight -->
+                    <div class="grid grid-cols-2 gap-4 mb-8 animate-fade-slide-up-delay-1">
+                        <div class="flex items-start">
+                            <div
+                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-accent-800">Secure Platform</h3>
+                                <p class="text-sm text-slate-500">End-to-end encrypted discussions</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-accent-800">Real-time</h3>
+                                <p class="text-sm text-slate-500">Instant messaging</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-accent-800">Community</h3>
+                                <p class="text-sm text-slate-500">Connect with industry professionals</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="h-8 w-8 rounded-full bg-accent-50 flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-accent-800">Safe Moderated</h3>
+                                <p class="text-sm text-slate-500">Moderation, to avoid activities</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button onclick="location.href='/chat'"
+                        class="animate-fade-slide-up-delay-2 w-full sm:w-auto px-8 py-4 bg-accent-600 hover:bg-accent-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+                        <span>Join the Discussion</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center mt-4 px-2 text-xs text-accent-400">
+                    <div>EP Platforms Community Forum © 2025</div>
+                    <div class="flex gap-4">
+                        <a href="#" class="hover:text-accent-600 transition-colors">Privacy</a>
+                        <a href="#" class="hover:text-accent-600 transition-colors">Terms</a>
+                        <a href="#" class="hover:text-accent-600 transition-colors">Support</a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Content -->
-            <div class="p-6 pt-4 sm:p-8 text-center">
-                <h1 class="text-2xl sm:text-3xl font-bold mb-2 text-slate-800">Wassap</h1>
-                <div class="h-1 w-12 bg-brand-500 mx-auto mb-4 rounded-full"></div>
-                <p class="text-slate-600 mb-8 leading-relaxed">
-                    Welcome to our real-time chat platform. Connect instantly with community members in a secure and
-                    intuitive environment.
-                </p>
+            <!-- Right Illustration -->
+            <div class="w-full md:w-5/12 flex justify-center md:justify-end">
+                <div class="relative w-full max-w-md">
+                    <!-- Abstract shapes -->
+                    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-accent-50 opacity-60"></div>
+                    <div class="absolute top-20 -right-5 w-16 h-16 rounded-full bg-accent-100 opacity-60"></div>
 
-                <button onclick="location.href='/chat'"
-                    class="w-full py-3 px-6 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2">
-                    <span>Enter Chat</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Footer -->
-            <div class="bg-slate-50 px-6 py-4 text-center text-sm text-slate-500 border-t border-slate-100">
-                Secure, real-time communication for your team
+                    <!-- Main illustration -->
+                    <div class="glass-effect relative z-10 rounded-3xl overflow-hidden shadow-soft">
+                        <div class="aspect-w-4 aspect-h-3 w-full">
+                            <img src="https://images.unsplash.com/photo-1522071901873-411886a10004?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                                alt="EP Platforms Team Collaboration" class="object-cover w-full h-full opacity-90" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-accent-900/40 to-accent-600/10"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <div class="text-sm font-medium opacity-90">EP Platforms</div>
+                            <div class="text-2xl font-display font-bold">Community Forum</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -3,39 +3,61 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Chat • Community</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EP Platforms • Community Chat</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#b9e6fe',
-                            300: '#7cd4fd',
-                            400: '#36bffa',
-                            500: '#0da2e7',
-                            600: '#0284c7',
-                            700: '#036ba1',
-                            800: '#075985',
-                            900: '#0c4a6e'
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
                         }
                     },
                     boxShadow: {
-                        soft: '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)'
+                        soft: '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        message: '0 1px 2px rgba(0,0,0,0.05)',
+                        elevated: '0 10px 30px -5px rgba(0,0,0,0.1)',
+                        'inner-light': 'inset 0 1px 2px rgba(255,255,255,0.3)'
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Custom scrollbar */
         .scrollbar-thin::-webkit-scrollbar {
-            width: 4px
+            width: 4px;
         }
 
         .scrollbar-thin::-webkit-scrollbar-thumb {
@@ -43,95 +65,273 @@
             border-radius: 2px;
         }
 
-        .message-bubble,
-        .quote-bubble {
-            word-break: break-word;
-            white-space: normal;
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background-color: rgba(241, 245, 249, 0.7);
         }
 
+        /* Premium glass effect for header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+        }
+
+        /* Auto-expanding message bubbles */
         .message-bubble {
-            max-width: 85%;
+            display: inline-block;
+            word-break: break-word;
+            white-space: pre-wrap;
+            max-width: 90%;
+            min-width: 80px;
+            width: auto;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         }
 
-        @media (min-width:640px) {
+        .message-bubble-fit {
+            width: auto;
+            max-width: fit-content;
+        }
+
+        @media (min-width: 640px) {
             .message-bubble {
-                max-width: 70%;
+                max-width: 75%;
             }
         }
 
-        @media (min-width:1024px) {
+        @media (min-width: 1024px) {
             .message-bubble {
-                max-width: 55%;
-            }
-        }
-
-        .quote-bubble {
-            max-width: 80%;
-        }
-
-        @media (min-width:640px) {
-            .quote-bubble {
                 max-width: 60%;
             }
         }
 
-        @media (min-width:1024px) {
-            .quote-bubble {
-                max-width: 40%;
+        /* Quote bubble styling */
+        .quote-bubble {
+            display: inline-block;
+            word-break: break-word;
+            white-space: normal;
+            max-width: 95%;
+            font-size: 0.9em;
+        }
+
+        /* Subtle animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .message-appear {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Elegant typing indicator animation */
+        .typing-dot {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-right: 3px;
+            background: #4f46e5;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+
+            30% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+
+        /* Message time and user info fading */
+        .message-info {
+            transition: opacity 0.2s ease;
+        }
+
+        .hover-fade:hover .message-info {
+            opacity: 1 !important;
+        }
+
+        /* Subtle background pattern */
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239FA6B2' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Input focus effect */
+        .focus-ring {
+            transition: all 0.2s ease;
+        }
+
+        .focus-ring:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Enhanced modal blur */
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
     </style>
 </head>
 
-<body class="h-screen flex flex-col bg-slate-50 font-sans text-slate-800 antialiased">
+<body class="h-screen flex flex-col bg-gray-50 bg-pattern font-sans text-gray-800 antialiased">
 
     <!-- NAME ENTRY MODAL -->
-    <div id="name-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-11/12 max-w-sm shadow-lg">
-            <h2 class="text-xl font-semibold mb-4 text-center">What should we call you?</h2>
-            <input id="name-input" type="text" placeholder="Enter your name or nickname" class="w-full border border-slate-300 rounded-full px-4 py-2 mb-4
-                    focus:outline-none focus:ring-2 focus:ring-brand-400 transition" />
-            <button id="name-submit"
-                class="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-full shadow transition">
-                Join Chat
-            </button>
+    <div id="name-modal" class="fixed inset-0 bg-indigo-900/40 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 w-11/12 max-w-md shadow-elevated transform transition-all">
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <div
+                    class="h-16 w-16 rounded-full bg-indigo-50 border border-indigo-100 shadow-md flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-2xl font-display font-semibold mb-2 text-center text-indigo-900">Welcome to EP Platforms
+            </h2>
+            <p class="text-gray-600 text-center mb-6">Join our professional community discussion</p>
+            <div class="space-y-4">
+                <input id="name-input" type="text" placeholder="Your professional name" class="w-full border border-gray-300 rounded-xl px-4 py-3 
+                    focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" />
+                <button id="name-submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all
+                       font-medium flex items-center justify-center gap-2">
+                    <span>Join Discussion</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-6 text-center text-xs text-gray-500">
+                By joining, you agree to our <a href="#" class="text-indigo-600 hover:underline">Community
+                    Guidelines</a>
+            </div>
         </div>
     </div>
 
-    <!-- HEADER -->
-    <header class="flex items-center justify-between bg-white px-4 sm:px-6 py-4 border-b border-slate-200 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div
-                class="hidden sm:flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-white text-lg font-medium">
-                C
+    <!-- ENHANCED PROFESSIONAL HEADER -->
+    <header class="sticky top-0 z-10 glass-header">
+        <!-- Top Navigation Bar -->
+        <div class="flex items-center justify-between px-4 sm:px-8 py-3 border-b border-gray-100">
+            <!-- Company Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 bg-indigo-600 rounded-lg shadow-md flex items-center justify-center">
+                    <span class="font-display text-white text-lg font-bold">EP</span>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg sm:text-xl font-semibold text-gray-900">EP Platforms</h1>
+                    <p class="text-xs text-gray-500 hidden sm:block">Professional Community Forum</p>
+                </div>
             </div>
-            <h1 class="text-xl sm:text-2xl font-semibold">Community Chat</h1>
+
+            <!-- User Profile & Controls -->
+            <div class="flex items-center space-x-3">
+                <!-- Status Indicator -->
+                <div class="hidden sm:flex items-center px-3 py-1.5 rounded-full bg-green-50 border border-green-100">
+                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                    <span class="text-xs font-medium text-green-700">Online</span>
+                </div>
+
+                <!-- User Badge -->
+                <div id="user-name"
+                    class="px-3.5 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span id="username-display"></span>
+                </div>
+            </div>
         </div>
-        <span id="user-name"
-            class="px-3 py-1.5 text-sm font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-full shadow-sm">
-        </span>
+
+        <!-- Secondary Bar with Channel & Typing Indicator -->
+        <div class="flex items-center justify-between px-4 sm:px-8 py-2.5 bg-white/60">
+            <!-- Current Channel -->
+            <div class="flex items-center">
+                <div class="flex items-center bg-indigo-50 px-3 py-1.5 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 mr-1.5" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                    </svg>
+                    <span class="text-xs font-medium text-indigo-700">General Discussion</span>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator-inline" class="h-5 text-xs font-medium text-indigo-500 flex items-center">
+                <div class="typing-animation hidden mr-1">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <!-- MESSAGES -->
-    <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
-        <ul id="messages" class="space-y-5 pb-1"></ul>
+    <!-- MESSAGES WITH ENHANCED STYLING -->
+    <div id="messages-container"
+        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin bg-gradient-to-b from-white to-gray-50">
+        <ul id="messages" class="space-y-4 pb-1"></ul>
     </div>
 
-    <!-- TYPING INDICATOR -->
-    <div id="typing-indicator" class="h-6 px-4 sm:px-6 text-sm font-medium text-slate-500 animate-pulse"></div>
+    <!-- TYPING INDICATOR (PRIMARY) -->
+    <div id="typing-indicator"
+        class="px-4 sm:px-8 py-1.5 text-sm font-medium text-gray-500 flex items-center gap-1.5 h-8 bg-white/70 border-t border-gray-100">
+        <div class="typing-animation hidden">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+    </div>
 
     <!-- REPLY PREVIEW -->
-    <div id="reply-preview" class="hidden mx-4 sm:mx-6 mb-2 flex items-center space-x-3 bg-brand-50 border border-brand-200
-              px-4 py-2.5 rounded-lg shadow-sm transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
+    <div id="reply-preview" class="hidden mx-4 sm:mx-8 mb-2 flex items-center space-x-3 bg-indigo-50 border border-indigo-100
+              px-4 py-2.5 rounded-lg shadow-sm transition-all fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 flex-shrink-0" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 10h10a4 4 0 0 1 4 4v2m-4-6l-4-4m4 4l-4 4" />
         </svg>
-        <p id="reply-text" class="flex-1 text-sm text-slate-700 break-words whitespace-normal"></p>
+        <p id="reply-text" class="flex-1 text-sm text-gray-700 break-words whitespace-normal truncate"></p>
         <button id="cancel-reply" title="Cancel Reply"
-            class="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            class="p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-white transition-all flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 
                  011.414 1.414L11.414 10l4.293 4.293a1 1 0 
                  01-1.414 1.414L10 11.414l-4.293 
@@ -141,18 +341,23 @@
         </button>
     </div>
 
-    <!-- INPUT -->
-    <form id="chat-form" class="flex items-center gap-2 sm:gap-3 bg-white px-4 sm:px-6 py-4 border-t border-slate-200">
+    <!-- ENHANCED INPUT AREA -->
+    <form id="chat-form"
+        class="flex items-center gap-3 bg-white px-4 sm:px-8 py-4 border-t border-gray-200 shadow-inner-light">
         <div class="relative flex-1">
-            <input id="msg" type="text" autocomplete="off" placeholder="Type a message…" class="w-full border border-slate-300 bg-white rounded-full px-4 sm:px-5 py-2.5
-                    focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all" disabled />
+            <input id="msg" type="text" autocomplete="off" placeholder="Type your message..."
+                class="w-full border border-gray-300 bg-white rounded-full px-5 sm:px-6 py-3.5
+                   focus-ring focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" disabled />
+
+            <!-- Format options could go here -->
         </div>
-        <button type="submit" disabled class="flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white
-                   px-4 sm:px-5 py-2.5 rounded-full shadow-sm hover:shadow transition-all">
-            <span class="font-medium">Send</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+        <button type="submit" disabled class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                px-5 sm:px-6 py-3.5 rounded-full shadow hover:shadow-md transition-all">
+            <span class="hidden sm:inline font-medium">Send</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
         </button>
     </form>
