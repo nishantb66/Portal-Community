@@ -87,8 +87,6 @@
             font-size: var(--font-base);
         }
 
-
-
         /* Custom scrollbar */
         .scrollbar-thin::-webkit-scrollbar {
             width: 4px;
@@ -96,19 +94,19 @@
 
         .scrollbar-thin::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
-            border-radius: 2px;
+            border-radius: 10px;
         }
 
         .scrollbar-thin::-webkit-scrollbar-track {
-            background-color: rgba(241, 245, 249, 0.7);
+            background-color: transparent;
         }
 
         /* Premium glass effect for header */
         .glass-header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.06);
             border-bottom: 1px solid rgba(229, 231, 235, 0.7);
         }
 
@@ -120,14 +118,27 @@
             word-break: break-word;
             white-space: normal;
             max-width: 70%;
-            padding: 0.5rem 0.75rem;
-            /* tighter padding */
-            border-radius: 0.75rem;
-            /* slightly smaller corners */
+            padding: 0.75rem 1rem;
+            border-radius: 1.2rem;
             font-size: var(--font-base);
-            /* use our base font */
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-            transition: background 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Elegant bubble styling */
+        .message-bubble.sent {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            border-bottom-right-radius: 0.3rem;
+        }
+
+        .message-bubble.received {
+            background: white;
+            color: #374151;
+            border-bottom-left-radius: 0.3rem;
+            border: 1px solid rgba(229, 231, 235, 0.7);
         }
 
         /* own‐bubble: align contents (timestamp) to the right */
@@ -140,30 +151,28 @@
             align-items: flex-start;
         }
 
-
         .message-bubble-fit {
-            padding: 0.3rem 0.5rem;
+            padding: 0.5rem 0.75rem;
             min-width: auto;
         }
-
 
         @media (max-width: 640px) {
             .message-bubble {
                 max-width: 85%;
-                padding: 0.4rem 0.6rem;
+                padding: 0.625rem 0.875rem;
+                border-radius: 1rem;
             }
 
             #chat-form {
-                padding: 0.4rem 0.6rem;
+                padding: 0.75rem;
             }
 
             #chat-form input#msg,
             #chat-form button {
-                height: 2rem;
+                height: 2.75rem;
                 font-size: var(--font-base);
             }
         }
-
 
         @media (min-width: 1024px) {
             .message-bubble {
@@ -178,6 +187,11 @@
             white-space: normal;
             max-width: 95%;
             font-size: 0.9em;
+            background: rgba(241, 245, 249, 0.7);
+            border-left: 3px solid #6366f1;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            margin: 0.5rem 0;
         }
 
         /* Subtle animations */
@@ -199,15 +213,15 @@
 
         .message-appear {
             opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.3s ease forwards;
+            transform: translateY(12px);
+            animation: fadeIn 0.4s ease forwards;
         }
 
         /* Elegant typing indicator animation */
         .typing-dot {
             display: inline-block;
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             margin-right: 3px;
             background: #4f46e5;
@@ -232,7 +246,7 @@
             }
 
             30% {
-                transform: translateY(-3px);
+                transform: translateY(-4px);
                 opacity: 1;
             }
         }
@@ -241,6 +255,7 @@
         .message-info {
             font-size: var(--font-small);
             opacity: 0.7;
+            transition: opacity 0.2s ease;
         }
 
         .hover-fade:hover .message-info {
@@ -249,22 +264,119 @@
 
         /* Subtle background pattern */
         .bg-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239FA6B2' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #f9fafb;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239FA6B2' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         /* Input focus effect */
         .focus-ring {
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
 
         .focus-ring:focus {
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
         }
 
         /* Enhanced modal blur */
         .modal-backdrop {
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(79, 70, 229, 0.2);
+        }
+
+        /* Message timestamp positioning */
+        .message-timestamp {
+            font-size: 0.65rem;
+            margin-top: 0.3rem;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        /* User avatar */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4338ca;
+            font-weight: 600;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Improved message container */
+        .message-container {
+            display: flex;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s ease forwards;
+            position: relative;
+        }
+
+        /* Message day divider */
+        .day-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .day-divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(229, 231, 235, 0.7);
+        }
+
+        .day-divider-text {
+            padding: 0 1rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: #f9fafb;
+        }
+
+        /* Floating action button */
+        .floating-action {
+            position: fixed;
+            bottom: 5rem;
+            right: 1rem;
+            height: 3rem;
+            width: 3rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            opacity: 0.9;
+        }
+
+        .floating-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
+        /* Unread indicator */
+        .unread-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -277,21 +389,21 @@
             <!-- Logo -->
             <div class="flex justify-center mb-6">
                 <div
-                    class="h-16 w-16 rounded-full bg-indigo-50 border border-indigo-100 shadow-md flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none"
+                    class="h-20 w-20 rounded-full bg-indigo-50 border border-indigo-100 shadow-md flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-600" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                 </div>
             </div>
-            <h2 class="text-2xl font-display font-semibold mb-2 text-center text-indigo-900">Welcome to EP Platforms
+            <h2 class="text-2xl font-display font-semibold mb-3 text-center text-indigo-900">Welcome to EP Platforms
             </h2>
-            <p class="text-gray-600 text-center mb-6">Join our professional community discussion</p>
-            <div class="space-y-4">
-                <input id="name-input" type="text" placeholder="Your professional name" class="w-full border border-gray-300 rounded-xl px-4 py-3 
-                    focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" />
-                <button id="name-submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all
+            <p class="text-gray-600 text-center mb-7">Join our professional community discussion</p>
+            <div class="space-y-5">
+                <input id="name-input" type="text" placeholder="Your professional name" class="w-full border border-gray-300 rounded-xl px-5 py-3.5 
+                    focus:outline-none focus:ring-3 focus:ring-indigo-400/30 focus:border-indigo-400 transition-all" />
+                <button id="name-submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all
                        font-medium flex items-center justify-center gap-2">
                     <span>Join Discussion</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -301,7 +413,7 @@
                     </svg>
                 </button>
             </div>
-            <div class="mt-6 text-center text-xs text-gray-500">
+            <div class="mt-7 text-center text-xs text-gray-500">
                 By joining, you agree to our <a href="#" class="text-indigo-600 hover:underline">Community
                     Guidelines</a>
             </div>
@@ -311,19 +423,20 @@
     <!-- ENHANCED PROFESSIONAL HEADER -->
     <header class="sticky top-0 z-10 glass-header">
         <!-- Secondary Bar with Channel & Typing Indicator -->
-        <div class="flex items-center justify-between px-4 sm:px-8 py-2.5 bg-white/60">
+        <div class="flex items-center justify-between px-4 sm:px-8 py-3.5 bg-white/60">
 
             <!-- User Profile & Controls -->
             <div class="flex items-center space-x-3">
                 <!-- Status Indicator -->
                 <div class="hidden sm:flex items-center px-3 py-1.5 rounded-full bg-green-50 border border-green-100">
-                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                    <div class="h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
                     <span class="text-xs font-small text-green-700">Online</span>
                 </div>
 
                 <!-- User Badge -->
-                <div id="user-name" class="px-3.5 py-2 text-sm font-small text-indigo-700 shadow-sm flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500" fill="none"
+                <div id="user-name"
+                    class="px-3.5 py-2 bg-indigo-50 rounded-full text-sm font-medium text-indigo-700 shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-indigo-500" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -345,13 +458,21 @@
 
     <!-- MESSAGES WITH ENHANCED STYLING -->
     <div id="messages-container"
-        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin bg-gradient-to-b from-white to-gray-50">
-        <ul id="messages" class="space-y-4 pb-1"></ul>
+        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin bg-gradient-to-b from-gray-50 to-white">
+        <ul id="messages" class="space-y-6 pb-1"></ul>
+    </div>
+
+    <!-- FLOATING SCROLL BUTTON -->
+    <div class="floating-action hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
     </div>
 
     <!-- TYPING INDICATOR (PRIMARY) -->
     <div id="typing-indicator"
-        class="px-4 sm:px-8 py-1.5 text-sm font-medium text-gray-500 flex items-center gap-1.5 h-8 bg-white/70 border-t border-gray-100">
+        class="px-4 sm:px-8 py-2 text-sm font-medium text-gray-500 flex items-center gap-1.5 h-9 bg-white/90 border-t border-gray-100">
         <div class="typing-animation hidden">
             <span class="typing-dot"></span>
             <span class="typing-dot"></span>
@@ -360,8 +481,8 @@
     </div>
 
     <!-- REPLY PREVIEW -->
-    <div id="reply-preview" class="hidden mx-4 sm:mx-8 mb-2 flex items-center space-x-3 bg-indigo-50 border border-indigo-100
-              px-4 py-2.5 rounded-lg shadow-sm transition-all fade-in">
+    <div id="reply-preview" class="hidden mx-4 sm:mx-8 mb-2 flex items-center space-x-3 bg-indigo-50/80 border border-indigo-100
+              px-4 py-3 rounded-xl shadow-sm transition-all fade-in">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 flex-shrink-0" fill="none"
             viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -369,7 +490,7 @@
         </svg>
         <p id="reply-text" class="flex-1 text-sm text-gray-700 break-words whitespace-normal truncate"></p>
         <button id="cancel-reply" title="Cancel Reply"
-            class="p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-white transition-all flex-shrink-0">
+            class="p-1.5 text-gray-400 hover:text-gray-600 bg-white/80 rounded-full hover:bg-white transition-all flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 
                  011.414 1.414L11.414 10l4.293 4.293a1 1 0 
@@ -382,16 +503,16 @@
 
     <!-- ENHANCED INPUT AREA -->
     <form id="chat-form"
-        class="flex items-center gap-3 bg-white px-4 sm:px-8 py-4 border-t border-gray-200 shadow-inner-light">
+        class="flex items-center gap-3 bg-white px-4 sm:px-6 py-4 border-t border-gray-200 shadow-inner-light">
         <div class="relative flex-1">
             <input id="msg" type="text" autocomplete="off" placeholder="Type your message..."
-                class="w-full border border-gray-300 bg-white rounded-full px-5 sm:px-6 py-3.5
+                class="w-full border border-gray-300 bg-white rounded-full px-5 py-3.5
                    focus-ring focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" disabled />
 
             <!-- Format options could go here -->
         </div>
         <button type="submit" disabled class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
-                px-5 sm:px-6 py-3.5 rounded-full shadow hover:shadow-md transition-all">
+                px-5 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all">
             <span class="hidden sm:inline font-medium">Send</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -402,12 +523,67 @@
     </form>
 
     <!-- REACTION PICKER (hidden by default) -->
-    <div id="reaction-picker" class="fixed z-50 hidden bg-white p-2 rounded-lg shadow-xl grid grid-cols-5 gap-2">
+    <div id="reaction-picker" class="fixed z-50 hidden bg-white p-3 rounded-xl shadow-xl grid grid-cols-5 gap-3">
         <!-- emojis will be injected here -->
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
+    <script>
+        // Add these functions to enhance UI behavior
+        document.addEventListener('DOMContentLoaded', function () {
+            // Create message elements with enhanced styling
+            const originalMessageCreation = window.createMessageElement;
+            if (originalMessageCreation) {
+                window.createMessageElement = function (message, isMe) {
+                    const li = document.createElement('li');
+                    li.className = `message-container ${isMe ? 'justify-end' : 'justify-start'}`;
+
+                    // Only add avatar for others' messages
+                    if (!isMe) {
+                        const avatar = document.createElement('div');
+                        avatar.className = 'user-avatar mr-2 flex-shrink-0';
+                        const initial = message.username ? message.username.charAt(0).toUpperCase() : '?';
+                        avatar.textContent = initial;
+                        li.appendChild(avatar);
+                    }
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message-bubble ${isMe ? 'sent' : 'received'} message-appear`;
+
+                    const content = document.createElement('div');
+                    content.className = 'message-content';
+                    content.textContent = message.text;
+
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'message-timestamp';
+                    const time = new Date(message.time || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    timestamp.textContent = time;
+
+                    messageDiv.appendChild(content);
+                    messageDiv.appendChild(timestamp);
+                    li.appendChild(messageDiv);
+
+                    return li;
+                };
+            }
+
+            // Add scroll to bottom functionality
+            const messagesContainer = document.getElementById('messages-container');
+            const floatingAction = document.querySelector('.floating-action');
+
+            if (messagesContainer && floatingAction) {
+                messagesContainer.addEventListener('scroll', function () {
+                    const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
+                    floatingAction.style.display = isAtBottom ? 'none' : 'flex';
+                });
+
+                floatingAction.addEventListener('click', function () {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

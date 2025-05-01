@@ -5,9 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EP Platforms • Community Forum</title>
-    <!-- Fonts: Montserrat for headings, Inter for body text -->
+    <!-- Fonts: Outfit for headings, Plus Jakarta Sans for body text -->
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,8 +15,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Montserrat', 'system-ui', 'sans-serif']
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        display: ['Outfit', 'system-ui', 'sans-serif']
                     },
                     colors: {
                         indigo: {
@@ -44,7 +44,8 @@
                     boxShadow: {
                         'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
                         'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)',
-                        'popup': '0 10px 50px -12px rgba(0, 0, 0, 0.25)'
+                        'popup': '0 10px 50px -12px rgba(0, 0, 0, 0.25)',
+                        'fun': '0 15px 35px -5px rgba(99, 102, 241, 0.18)'
                     }
                 }
             }
@@ -62,6 +63,7 @@
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
         }
 
         .bg-pattern {
@@ -136,17 +138,142 @@
         .pulse-attention {
             animation: subtle-pulse 2s infinite;
         }
+
+        /* Blob shape animation */
+        @keyframes blob-morph {
+            0% {
+                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            }
+
+            34% {
+                border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+            }
+
+            67% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+            }
+
+            100% {
+                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            }
+        }
+
+        .animated-blob {
+            animation: blob-morph 8s ease-in-out infinite;
+        }
+
+        /* Button hover effect */
+        .btn-hover-effect {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .btn-hover-effect:after {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 100%;
+            top: 0;
+            left: -5%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 100%;
+            transform: scale(0);
+            opacity: 0;
+            transition: 0.5s ease;
+        }
+
+        .btn-hover-effect:hover:after {
+            width: 110%;
+            opacity: 1;
+            transform: scale(3);
+        }
+
+        /* Card hover effect */
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 50px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a5b4fc;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 640px) {
+            .mobile-full-height {
+                min-height: 100vh;
+            }
+
+            .mobile-testimonials {
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 1.5rem;
+            }
+
+            .mobile-testimonials>div {
+                scroll-snap-align: start;
+                min-width: 85%;
+                margin-right: 0.75rem;
+            }
+
+            .mobile-testimonials>div:last-child {
+                margin-right: 0;
+            }
+
+            .testimonial-scroll-indicator {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .testimonial-scroll-indicator>div {
+                width: 1rem;
+                height: 0.25rem;
+                background-color: #e0e7ff;
+                border-radius: 1rem;
+            }
+
+            .testimonial-scroll-indicator>div.active {
+                background-color: #4f46e5;
+            }
+
+            /* Better touch targets for mobile */
+            .mobile-touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
     </style>
 </head>
 
 <body
-    class="min-h-screen flex items-center justify-center p-4 font-sans antialiased text-slate-700 bg-white-pure bg-pattern">
+    class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 font-sans antialiased text-slate-700 bg-gradient-to-br from-white-pure to-indigo-50 bg-pattern">
     <!-- Disclaimer Popup -->
     <div id="disclaimerPopup" class="hidden fixed inset-0 z-50 popup-backdrop flex items-center justify-center p-4">
-        <div class="popup-enter bg-white max-w-md w-full rounded-2xl shadow-popup p-6 relative">
+        <div class="popup-enter bg-white max-w-md w-full rounded-3xl shadow-popup p-5 md:p-8 relative mx-3">
             <!-- Close button -->
             <button id="closePopup" title="Close popup"
-                class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors mobile-touch-target">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -155,224 +282,290 @@
             </button>
 
             <!-- Popup header -->
-            <div class="flex items-center mb-4">
-                <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+            <div class="flex items-center mb-5">
+                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-display font-semibold text-gray-900">Important Information</h3>
+                <h3 class="text-xl font-display font-semibold text-gray-900">Hey, real quick!</h3>
             </div>
 
             <!-- Popup content -->
-            <div class="prose prose-sm max-w-none mb-5 text-gray-600">
-                <p class="mb-3">This platform is provided as an <strong class="text-indigo-700">experimental
-                        feature</strong> to the EP Platforms ecosystem, designed purely for casual communication
-                    purposes.</p>
+            <div class="prose prose-sm max-w-none mb-6 text-gray-600">
+                <p class="mb-3">This is an <strong class="text-indigo-700">experimental feature</strong> in the EP
+                    Platforms world, just for casual chats and connections.</p>
 
-                <p class="mb-3">Please note:</p>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>All conversations are public within the platform</li>
-                    <li>No confidential information about users is collected or shared</li>
-                    <li>You may participate anonymously with your chosen display name</li>
-                    <li>This is a supplementary feature to the main EP Platforms offerings</li>
+                <p class="mb-2">Quick notes:</p>
+                <ul class="list-disc pl-5 space-y-1.5">
+                    <li>Everyone can see what you post (no private DMs)</li>
+                    <li>We don't collect or share your personal info</li>
+                    <li>Feel free to use any display name you like</li>
+                    <li>This is just a fun add-on to the main EP experience</li>
                 </ul>
 
-                <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-indigo-800 text-sm">
-                    <p>By using this community chat, you acknowledge it is for casual communication only and not
-                        intended for sensitive or confidential information exchange.</p>
+                <div class="mt-4 p-3 bg-indigo-50 rounded-xl text-indigo-800 text-sm">
+                    <p>Keep it casual and avoid sharing anything sensitive or confidential, cool?</p>
                 </div>
             </div>
 
             <!-- Confirm button -->
             <button id="confirmPopup"
-                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
-                I Understand
+                class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-300 btn-hover-effect">
+                Got it, let's go!
             </button>
         </div>
     </div>
 
-    <div class="container max-w-screen-lg mx-auto">
-        <!-- Modern Hero Layout -->
-        <div class="flex flex-col-reverse md:flex-row md:items-center md:space-x-8 animate-fade-slide-up">
-            <!-- Left Content -->
-            <div class="w-full md:w-7/12 pt-8 md:pt-0">
-                <div class="glass-effect rounded-3xl p-8 md:p-10 shadow-soft">
-                    <!-- Subtle Brand Element with Disclaimer Icon -->
-                    <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center">
-                            <div
-                                class="h-10 w-10 rounded-xl bg-indigo-600 shadow-md flex items-center justify-center mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-sm text-indigo-700 font-medium tracking-wider uppercase">Community Chat
-                                </h2>
-                                <div class="h-0.5 w-10 bg-indigo-400 mt-1"></div>
-                            </div>
-                        </div>
+    <!-- Header/Nav (Improved for mobile) -->
+    <nav
+        class="w-full fixed top-0 left-0 z-30 glass-effect px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+            </div>
+            <span class="font-display font-medium text-indigo-900">EP Community</span>
+        </div>
 
-                        <!-- Disclaimer Icon Button -->
-                        <button id="showDisclaimer"
-                            class="group relative flex items-center justify-center h-8 w-8 rounded-full bg-indigo-50 hover:bg-indigo-100 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span
-                                class="absolute -top-1 -right-1 h-2 w-2 bg-indigo-500 rounded-full pulse-attention"></span>
-                            <span class="sr-only">Disclaimer Information</span>
+        <button id="showDisclaimerNav"
+            class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 mobile-touch-target py-1.5 px-2.5">
+            <span>Info</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+    </nav>
 
-                            <!-- Tooltip -->
-                            <div
-                                class="opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity absolute bottom-full mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap">
-                                Important Information
-                                <div
-                                    class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900">
-                                </div>
-                            </div>
-                        </button>
+    <div class="container max-w-screen-lg mx-auto mt-14 sm:mt-16 px-3 sm:px-4">
+        <!-- Modern Hero Layout with better mobile spacing -->
+        <div class="flex flex-col-reverse md:flex-row md:items-center md:gap-8 animate-fade-slide-up">
+            <!-- Right Illustration (Mobile-first approach) -->
+            <div class="w-full md:w-5/12 flex justify-center md:justify-end mb-8 md:mb-0">
+                <div class="relative w-full max-w-md">
+                    <!-- Abstract shapes with animation -->
+                    <div
+                        class="absolute -top-10 -right-10 w-24 sm:w-32 h-24 sm:h-32 rounded-full bg-indigo-50 opacity-80 animated-blob">
+                    </div>
+                    <div class="absolute top-20 -right-5 w-12 sm:w-16 h-12 sm:h-16 rounded-full bg-indigo-100 opacity-70 animated-blob"
+                        style="animation-delay: -3s;"></div>
+                    <div class="absolute bottom-10 -left-10 w-20 sm:w-24 h-20 sm:h-24 rounded-full bg-indigo-50 opacity-80 animated-blob"
+                        style="animation-delay: -5s;"></div>
+
+                  
+
+                    <div
+                        class="absolute bottom-5 right-5 transform translate-x-1/4 z-10 bg-indigo-600 py-2 px-3 rounded-xl shadow-lg text-sm max-w-[120px] sm:max-w-[140px]">
+                        <p class="font-medium text-white">Welcome to the community!</p>
                     </div>
 
+                    <!-- Main illustration -->
+                    <div class="glass-effect relative z-0 rounded-3xl overflow-hidden shadow-fun">
+                        <div class="aspect-w-4 aspect-h-3 w-full">
+                            <!-- Using a more casual, modern image -->
+                            <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                                alt="People chatting and collaborating" class="object-cover w-full h-full" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-indigo-600/10"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
+                            <div class="text-sm font-medium opacity-90">Join the</div>
+                            <div class="text-xl sm:text-2xl font-display font-bold">Conversation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Content -->
+            <div class="w-full md:w-7/12 pt-4 sm:pt-8 md:pt-0">
+                <div class="glass-effect rounded-3xl p-5 sm:p-7 md:p-10 shadow-fun">
                     <!-- Main Content -->
                     <h1
-                        class="font-display font-semibold text-3xl md:text-4xl lg:text-5xl mb-4 text-indigo-900 leading-tight">
-                        Connect with the<br class="hidden md:block"> EP Platforms Community
+                        class="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 sm:mb-5 text-indigo-900 leading-tight">
+                        Chat, share & <span class="text-indigo-600">connect</span> with the community
                     </h1>
 
-                    <p class="text-slate-600 text-lg md:text-xl mb-8 leading-relaxed">
-                        Join real-time discussions with other users, share insights, and collaborate in our
-                        secure community space with an elegant, light interface.
+                    <p class="text-slate-600 text-base sm:text-lg mb-6 sm:mb-8 leading-relaxed">
+                        Jump into real-time conversations, exchange ideas, and hang out with fellow EP Platform users in
+                        our casual community space.
                     </p>
 
-                    <!-- Features Highlight -->
-                    <div class="grid grid-cols-2 gap-4 mb-8 animate-fade-slide-up-delay-1">
-                        <div class="flex items-start">
+                    <!-- Features Highlight (Responsive) -->
+                    <div
+                        class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 animate-fade-slide-up-delay-1">
+                        <div
+                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
                             <div
-                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
+                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-indigo-800">Secure Platform</h3>
-                                <p class="text-sm text-slate-500">End-to-end encrypted discussions</p>
+                                <h3 class="font-semibold text-indigo-800">Safe & Secure</h3>
+                                <p class="text-sm text-slate-500">End-to-end encrypted messaging</p>
                             </div>
                         </div>
-                        <div class="flex items-start">
+
+                        <div
+                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
                             <div
-                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
+                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-indigo-800">Real-time</h3>
-                                <p class="text-sm text-slate-500">Instant messaging</p>
+                                <h3 class="font-semibold text-indigo-800">Instant Chat</h3>
+                                <p class="text-sm text-slate-500">Real-time messaging</p>
                             </div>
                         </div>
-                        <div class="flex items-start">
+
+                        <div
+                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
                             <div
-                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
+                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-indigo-800">Community</h3>
-                                <p class="text-sm text-slate-500">Connect with industry professionals</p>
+                                <h3 class="font-semibold text-indigo-800">Cool People</h3>
+                                <p class="text-sm text-slate-500">Connect with the community</p>
                             </div>
                         </div>
-                        <div class="flex items-start">
+
+                        <div
+                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
                             <div
-                                class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none"
+                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-medium text-indigo-800">Safe Moderated</h3>
-                                <p class="text-sm text-slate-500">Moderation to ensure quality discussions</p>
+                                <h3 class="font-semibold text-indigo-800">Good Vibes</h3>
+                                <p class="text-sm text-slate-500">Friendly, moderated space</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CTA Button -->
-                    <button onclick="location.href='/chat'"
-                        class="animate-fade-slide-up-delay-2 w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                        <span>Join the Chat</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
+                    <!-- CTA Buttons (Improved for mobile) -->
+                    <div class="flex flex-col sm:flex-row gap-3 animate-fade-slide-up-delay-2">
+                        <button onclick="location.href='/chat'"
+                            class="px-5 sm:px-7 py-3.5 bg-indigo-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:shadow-indigo-200 transition-all duration-300 flex items-center justify-center gap-2 btn-hover-effect flex-1 mobile-touch-target">
+                            <span>Jump into chat</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
 
-                <!-- Footer -->
-                <div class="flex justify-between items-center mt-4 px-2 text-xs text-indigo-400">
-                    <div>EP Platforms Community Forum © 2025</div>
-                    <div class="flex gap-4">
-                        <a href="#" class="hover:text-indigo-600 transition-colors">Privacy</a>
-                        <a href="#" class="hover:text-indigo-600 transition-colors">Terms</a>
-                        <a href="#" class="hover:text-indigo-600 transition-colors">Support</a>
+                        <button id="showDisclaimer"
+                            class="px-5 sm:px-7 py-3.5 border-2 border-indigo-200 hover:border-indigo-300 text-indigo-700 font-medium rounded-xl transition-colors duration-300 flex items-center justify-center gap-2 flex-1 mobile-touch-target">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Learn more</span>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right Illustration -->
-            <div class="w-full md:w-5/12 flex justify-center md:justify-end">
-                <div class="relative w-full max-w-md">
-                    <!-- Abstract shapes - now in indigo shades -->
-                    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-indigo-50 opacity-80"></div>
-                    <div class="absolute top-20 -right-5 w-16 h-16 rounded-full bg-indigo-100 opacity-70"></div>
+                <!-- User testimonials (Mobile-optimized) -->
+                <div
+                    class="mt-6 sm:mt-8 mobile-testimonials overflow-x-auto pb-4 px-1 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent flex gap-3 sm:gap-4">
+                    <div
+                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div
+                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                                MS</div>
+                            <p class="font-medium">Morgan S.</p>
+                        </div>
+                        <p class="text-sm text-gray-600">"Love connecting with other users here! Super helpful
+                            community."</p>
+                    </div>
 
-                    <!-- Main illustration -->
-                    <div class="glass-effect relative z-10 rounded-3xl overflow-hidden shadow-soft">
-                        <div class="aspect-w-4 aspect-h-3 w-full">
-                            <!-- Using a more white/indigo toned image -->
-                            <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                                alt="EP Platforms Team Collaboration" class="object-cover w-full h-full" />
+                    <div
+                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div
+                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                                JD</div>
+                            <p class="font-medium">Jamie D.</p>
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-indigo-600/10"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <div class="text-sm font-medium opacity-90">EP Platforms</div>
-                            <div class="text-2xl font-display font-bold">Community Forum</div>
+                        <p class="text-sm text-gray-600">"Finally, a place to chat with others using the platform! 👏"
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
+                            <div
+                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                                AK</div>
+                            <p class="font-medium">Alex K.</p>
                         </div>
+                        <p class="text-sm text-gray-600">"Got my question answered in seconds. This is awesome!"</p>
+                    </div>
+                </div>
+
+                <!-- Testimonial scroll indicator for mobile -->
+                <div class="testimonial-scroll-indicator sm:hidden">
+                    <div class="active"></div>
+                    <div></div>
+                    <div></div>
+                </div>
+
+                <!-- Footer (Simplified and responsive) -->
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 px-2 text-xs text-indigo-400">
+                    <div class="mb-2 sm:mb-0">EP Platforms © 2025</div>
+                    <div class="flex gap-4">
+                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Privacy</a>
+                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Terms</a>
+                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Help</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script for popup functionality -->
+    <!-- Script for popup functionality and mobile enhancements -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const disclaimerPopup = document.getElementById('disclaimerPopup');
             const showDisclaimer = document.getElementById('showDisclaimer');
+            const showDisclaimerNav = document.getElementById('showDisclaimerNav');
             const closePopup = document.getElementById('closePopup');
             const confirmPopup = document.getElementById('confirmPopup');
 
-            // Show popup
-            showDisclaimer.addEventListener('click', function () {
+            // Show popup from both buttons
+            function showPopup() {
                 disclaimerPopup.classList.remove('hidden');
                 document.body.style.overflow = 'hidden'; // Prevent scrolling
-            });
+            }
+
+            showDisclaimer.addEventListener('click', showPopup);
+            showDisclaimerNav.addEventListener('click', showPopup);
 
             // Hide popup functions
             function hidePopup() {
@@ -396,6 +589,30 @@
                     hidePopup();
                 }
             });
+
+            // Mobile testimonial scroll indicator
+            const testimonialContainer = document.querySelector('.mobile-testimonials');
+            const indicators = document.querySelectorAll('.testimonial-scroll-indicator > div');
+
+            if (testimonialContainer && window.innerWidth < 640) {
+                testimonialContainer.addEventListener('scroll', function () {
+                    const scrollPosition = testimonialContainer.scrollLeft;
+                    const containerWidth = testimonialContainer.clientWidth;
+                    const maxScroll = testimonialContainer.scrollWidth - containerWidth;
+
+                    // Calculate which testimonial is in view
+                    const activeIndex = Math.round((scrollPosition / maxScroll) * (indicators.length - 1));
+
+                    // Update indicators
+                    indicators.forEach((indicator, index) => {
+                        if (index === activeIndex) {
+                            indicator.classList.add('active');
+                        } else {
+                            indicator.classList.remove('active');
+                        }
+                    });
+                });
+            }
         });
     </script>
 </body>
