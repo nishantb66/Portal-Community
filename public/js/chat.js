@@ -213,7 +213,9 @@ function appendMessage({
 
   li.innerHTML = `
     ${avatarHtml}
-    <div class="inline-block self-start ${bubbleBg} message-bubble ${bubbleFitClass} px-4 py-3 rounded-2xl ${cornerCls} shadow-message">
+    <div class="self-${
+      isSelf ? "end" : "start"
+    } ${bubbleBg} message-bubble ${bubbleFitClass}">
       ${quoteHtml}
       <div class="break-words whitespace-normal">${linkedMessage}</div>
       <div class="mt-1.5 text-xs flex items-center justify-between gap-2 message-info ${
