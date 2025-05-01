@@ -1,6 +1,4 @@
-// server.js
 require("dotenv").config();
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -11,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// ─── Health-check (for Render) ────────────────────────────────────────────────
+// ─── Health-check ─────────────────────────────────────────────────────────────
 app.get("/ping", (_req, res) => res.send("pong"));
 
 // ─── Static SPA ───────────────────────────────────────────────────────────────
@@ -43,7 +41,7 @@ initDb().catch((err) => {
 io.on("connection", (socket) => {
   console.log("🔌 user connected");
 
-  // Load up to last 50 messages (or empty array if DB not ready yet)
+  // 1) load last 50 messages
   if (!messagesCollection) {
     socket.emit("load messages", []);
   } else {
@@ -56,20 +54,31 @@ io.on("connection", (socket) => {
       .catch((err) => console.error("❌ load messages error:", err));
   }
 
-  // New incoming message
+  // 2) typing indicators
+  socket.on("typing", (user) => {
+    socket.broadcast.emit("user typing", user);
+  });
+  socket.on("stop typing", (user) => {
+    socket.broadcast.emit("user stop typing", user);
+  });
+
+  // 3) new chat message (with optional replyTo)
   socket.on("chat message", (data) => {
     const doc = {
       username: data.username,
       message: data.message,
       timestamp: new Date(),
+      replyTo: data.replyTo || null,
     };
 
-    if (messagesCollection) {
-      messagesCollection
-        .insertOne(doc)
-        .then(() => io.emit("chat message", doc))
-        .catch((err) => console.error("❌ insertOne error:", err));
-    }
+    if (!messagesCollection) return;
+    messagesCollection
+      .insertOne(doc)
+      .then((result) => {
+        doc._id = result.insertedId; // attach the new _id
+        io.emit("chat message", doc); // broadcast full doc
+      })
+      .catch((err) => console.error("❌ insertOne error:", err));
   });
 
   socket.on("disconnect", () => {
@@ -78,7 +87,6 @@ io.on("connection", (socket) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-// FALLBACK to 3000 locally if process.env.PORT is undefined
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Listening on port ${PORT}`);

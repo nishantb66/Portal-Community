@@ -3,27 +3,138 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Chat • Community</title>
-    <!-- Tailwind CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#b9e6fe',
+                            300: '#7cd4fd',
+                            400: '#36bffa',
+                            500: '#0da2e7',
+                            600: '#0284c7',
+                            700: '#036ba1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    boxShadow: {
+                        soft: '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 2px;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+        }
+
+        @media (min-width:640px) {
+            .message-bubble {
+                max-width: 70%;
+            }
+        }
+
+        @media (min-width:1024px) {
+            .message-bubble {
+                max-width: 55%;
+            }
+        }
+
+        .transition-all {
+            transition: all 0.2s ease;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 flex flex-col h-screen">
-    <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <h2 class="text-xl font-semibold">Community Chat</h2>
-        <span id="user-name" class="italic"></span>
+<body class="h-screen flex flex-col bg-slate-50 font-sans text-slate-800 antialiased">
+
+    <!-- NAME ENTRY MODAL -->
+    <div id="name-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-11/12 max-w-sm shadow-lg">
+            <h2 class="text-xl font-semibold mb-4 text-center">What people call you?</h2>
+            <input id="name-input" type="text" placeholder="Enter your name or nickname"
+                class="w-full border border-slate-300 rounded-full px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-400 transition" />
+            <button id="name-submit"
+                class="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-full shadow transition">
+                Join Chat
+            </button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="flex items-center justify-between bg-white px-4 sm:px-6 py-4 border-b border-slate-200 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div
+                class="hidden sm:flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-white text-lg font-medium">
+                C
+            </div>
+            <h1 class="text-xl sm:text-2xl font-semibold">Community Chat</h1>
+        </div>
+        <span id="user-name"
+            class="px-3 py-1.5 text-sm font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-full shadow-sm"></span>
     </header>
 
-    <ul id="messages" class="flex-1 overflow-y-auto p-4 space-y-2">
-        <!-- messages injected here -->
-    </ul>
+    <!-- MESSAGES -->
+    <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
+        <ul id="messages" class="space-y-5 pb-1"></ul>
+    </div>
 
-    <form id="chat-form" class="bg-white p-4 flex items-center border-t">
-        <input id="msg" autocomplete="off" placeholder="Type a message…"
-            class="flex-1 border rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 transition">
-            Send
+    <!-- TYPING INDICATOR -->
+    <div id="typing-indicator" class="h-6 px-4 sm:px-6 text-sm font-medium text-slate-500 animate-pulse"></div>
+
+    <!-- REPLY PREVIEW -->
+    <div id="reply-preview"
+        class="hidden mx-4 sm:mx-6 mb-2 flex items-center space-x-3 bg-brand-50 border border-brand-200 px-4 py-2.5 rounded-lg shadow-sm transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h10a4 4 0 0 1 4 4v2m-4-6l-4-4m4 4l-4 4" />
+        </svg>
+        <p id="reply-text" class="flex-1 text-sm text-slate-700 truncate"></p>
+        <button id="cancel-reply" title="Cancel Reply"
+            class="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 
+                 011.414 1.414L11.414 10l4.293 4.293a1 1 0 
+                 01-1.414 1.414L10 11.414l-4.293 
+                 4.293a1 1 0 01-1.414-1.414L8.586 
+                 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- INPUT -->
+    <form id="chat-form" class="flex items-center gap-2 sm:gap-3 bg-white px-4 sm:px-6 py-4 border-t border-slate-200">
+        <div class="relative flex-1">
+            <input id="msg" type="text" autocomplete="off" placeholder="Type a message…" class="w-full border border-slate-300 bg-white rounded-full px-4 sm:px-5 py-2.5
+                    focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all" disabled />
+        </div>
+        <button type="submit" disabled class="flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white
+                   px-4 sm:px-5 py-2.5 rounded-full shadow-sm hover:shadow transition-all">
+            <span class="font-medium">Send</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
         </button>
     </form>
 
