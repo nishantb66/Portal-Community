@@ -119,22 +119,36 @@ io.on("connection", (socket) => {
 
   // ─── Reaction handlers ──────────────────────────────────────────────────
   socket.on("add reaction", async ({ messageId, emoji, user }) => {
+    // —— if it's still a temp-ID, just broadcast
+    if (messageId.startsWith("temp-")) {
+      // build a minimal reactions object
+      io.emit("reactions updated", {
+        messageId,
+        reactions: { [emoji]: [user] },
+      });
+      return;
+    }
+    // —— otherwise, do the normal Mongo update
     if (!messagesCollection) return;
     await messagesCollection.updateOne(
       { _id: new ObjectId(messageId) },
       { $addToSet: { [`reactions.${emoji}`]: user } }
     );
-    // broadcast to all
-    // 2) re-fetch the full, updated reactions object
     const { reactions } = await messagesCollection.findOne(
       { _id: new ObjectId(messageId) },
       { projection: { reactions: 1 } }
     );
-    // 3) broadcast the brand-new state
     io.emit("reactions updated", { messageId, reactions });
   });
 
   socket.on("remove reaction", async ({ messageId, emoji, user }) => {
+    if (messageId.startsWith("temp-")) {
+      io.emit("reactions updated", {
+        messageId,
+        reactions: { [emoji]: [] },
+      });
+      return;
+    }
     if (!messagesCollection) return;
     await messagesCollection.updateOne(
       { _id: new ObjectId(messageId) },

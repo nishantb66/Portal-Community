@@ -266,8 +266,19 @@ function appendMessage({
     }`;
     span.textContent = `${emoji} ${count}`;
     // store for later lookup
-    span.dataset.msgId = _id;
     span.dataset.emoji = emoji;
+    // always read the *current* message-ID and reaction state
+    span.onclick = () => {
+      const msgId = li.getAttribute("data-message-id"); // ← dynamic
+      const hasReacted =
+        msgsById[msgId]?.reactions?.[emoji]?.includes(username);
+      socket.emit(hasReacted ? "remove reaction" : "add reaction", {
+        messageId: msgId,
+        emoji,
+        user: username,
+      });
+    };
+
     reactionsDiv.appendChild(span);
   }
   li.appendChild(reactionsDiv);
@@ -278,9 +289,10 @@ function appendMessage({
   // Add reply functionality
   const messageBubble = li.querySelector(".message-bubble");
 
-  // Double click for desktop
+  // “double-click” desktop reply
   messageBubble.addEventListener("dblclick", () => {
-    setReplyTo({ _id, user, message });
+    const msgId = li.getAttribute("data-message-id"); // ← dynamic
+    setReplyTo({ _id: msgId, user, message });
   });
 
   // Long press for mobile
@@ -291,9 +303,11 @@ function appendMessage({
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
 
-    pressTimer = setTimeout(() => {
-      setReplyTo({ _id, user, message });
-    }, 600);
+    // // “long-press” mobile reply
+    // pressTimer = setTimeout(() => {
+    //   const msgId = li.getAttribute("data-message-id"); // ← dynamic
+    //   setReplyTo({ _id: msgId, user, message });
+    // }, 600);
   });
 
   messageBubble.addEventListener("touchmove", (e) => {
@@ -389,14 +403,21 @@ socket.on("load messages", (msgs) => {
 socket.on("chat message", appendMessage);
 
 socket.on("chat message saved", ({ _tempId, _id }) => {
-  // find the LI with data-message-id = tempId
+  // find the optimistic LI
   const li = document.querySelector(`li[data-message-id="${_tempId}"]`);
   if (!li) return;
 
-  // update its attribute to the real _id
+  // 1) swap the LI’s data-attribute to the real _id
   li.setAttribute("data-message-id", _id);
 
-  // update in-memory msgsById
+  // 2) **also** rename the reactions <div> so renderReactions()
+  //    can pick it up under the new ID
+  const oldReacts = document.getElementById(`reactions-${_tempId}`);
+  if (oldReacts) {
+    oldReacts.id = `reactions-${_id}`;
+  }
+
+  // 3) move our in-memory slot
   msgsById[_id] = msgsById[_tempId];
   delete msgsById[_tempId];
 });
