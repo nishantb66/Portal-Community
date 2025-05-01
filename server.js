@@ -10,8 +10,8 @@ const app = express();
 const server = http.createServer(app);
 
 // ─── Raise timeouts to 120s to avoid idle drops on Render ─────────────────
-server.keepAliveTimeout = 120 * 1000;  // allow 2 minutes of keep-alive
-server.headersTimeout   = 120 * 1000;  // allow 2 minutes to receive headers
+server.keepAliveTimeout = 120 * 1000; // allow 2 minutes of keep-alive
+server.headersTimeout = 120 * 1000; // allow 2 minutes to receive headers
 
 const activeUsers = new Map(); // ─── Track socket → username mappings ─────────────────────────────────────────
 const io = new Server(server);
@@ -58,14 +58,14 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("user joined", user);
   });
 
-  // 1) load last 50 messages
+  // 1) load all messages
   if (!messagesCollection) {
     socket.emit("load messages", []);
   } else {
     messagesCollection
       .find({})
-      .sort({ timestamp: 1 })
-      .limit(50)
+      .sort({ timestamp: 1 }) // optional: keeps chronological order
+      // .limit(50)               // removed, so we load every document
       .toArray()
       .then((msgs) => socket.emit("load messages", msgs))
       .catch((err) => console.error("❌ load messages error:", err));
@@ -80,23 +80,41 @@ io.on("connection", (socket) => {
   });
 
   // 3) new chat message (with optional replyTo)
-  socket.on("chat message", (data) => {
-    const doc = {
+  // ─── 3) new chat message (optimistic broadcast + DB write) ──────────────────
+  socket.on("chat message", async (data) => {
+    const tempId = data._tempId; // client’s temp ID
+    const now = new Date();
+
+    // 1) broadcast immediately to everyone with tempId
+    io.emit("chat message", {
+      _id: tempId,
       username: data.username,
       message: data.message,
-      timestamp: new Date(),
+      timestamp: now.toISOString(),
       replyTo: data.replyTo || null,
       reactions: {},
-    };
+    });
 
+    // 2) write to MongoDB
     if (!messagesCollection) return;
-    messagesCollection
-      .insertOne(doc)
-      .then((result) => {
-        doc._id = result.insertedId; // attach the new _id
-        io.emit("chat message", doc); // broadcast full doc
-      })
-      .catch((err) => console.error("❌ insertOne error:", err));
+    try {
+      const doc = {
+        username: data.username,
+        message: data.message,
+        timestamp: now,
+        replyTo: data.replyTo || null,
+        reactions: {},
+      };
+      const result = await messagesCollection.insertOne(doc);
+      // 3) when we have the real _id, inform clients to swap
+      io.emit("chat message saved", {
+        _tempId: tempId,
+        _id: result.insertedId.toString(),
+      });
+    } catch (err) {
+      console.error("❌ insertOne error:", err);
+      // optionally: notify clients of failure and remove optimistic bubble
+    }
   });
 
   // ─── Reaction handlers ──────────────────────────────────────────────────

@@ -10,6 +10,12 @@ let replyTo = null;
 let username = null;
 let unreadCount = 0;
 
+// ─── Optimistic UI helper ────────────────────────────────────────────────────
+// Returns a unique temporary ID for new messages.
+function makeTempId() {
+  return `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 // ─── Element refs ──────────────────────────────────────────────────────────────
 const modal = document.getElementById("name-modal");
 const nameInput = document.getElementById("name-input");
@@ -161,6 +167,9 @@ function appendMessage({
   replyTo: pid,
   reactions = {},
 }) {
+  // ── Prevent duplicates: if we've already rendered this ID, bail out
+  if (msgsById[_id]) return;
+
   msgsById[_id] = { user, message, reactions };
   const isSelf = user === username;
   const li = document.createElement("li");
@@ -379,6 +388,19 @@ socket.on("load messages", (msgs) => {
 
 socket.on("chat message", appendMessage);
 
+socket.on("chat message saved", ({ _tempId, _id }) => {
+  // find the LI with data-message-id = tempId
+  const li = document.querySelector(`li[data-message-id="${_tempId}"]`);
+  if (!li) return;
+
+  // update its attribute to the real _id
+  li.setAttribute("data-message-id", _id);
+
+  // update in-memory msgsById
+  msgsById[_id] = msgsById[_tempId];
+  delete msgsById[_tempId];
+});
+
 // ─── System join/leave notifications ──────────────────────────────────────────
 socket.on("user joined", (user) => {
   appendSystemMessage(`🟢 ${user} has joined the chat.`);
@@ -404,12 +426,29 @@ document.getElementById("chat-form").addEventListener("submit", (e) => {
   const txt = msgInput.value.trim();
   if (!txt) return;
 
+  // generate a tempId and optimistic message object
+  const tempId = makeTempId();
+  const optimistic = {
+    _id: tempId,
+    username,
+    message: txt,
+    timestamp: new Date().toISOString(),
+    replyTo: replyTo?._id || null,
+    reactions: {},
+  };
+
+  // 1) append optimistically for everyone (it'll show in everyone's chat instantly)
+  appendMessage(optimistic);
+
+  // 2) send to server, including tempId
   socket.emit("chat message", {
     username,
     message: txt,
     replyTo: replyTo?._id || null,
+    _tempId: tempId,
   });
 
+  // 3) clear input & typing state
   msgInput.value = "";
   socket.emit("stop typing", username);
   typing = false;
