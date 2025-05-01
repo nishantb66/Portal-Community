@@ -12,7 +12,10 @@ const activeUsers = new Map(); // ─── Track socket → username mappings �
 const io = new Server(server);
 
 // ─── Health-check ─────────────────────────────────────────────────────────────
-app.get("/ping", (_req, res) => res.send("pong"));
+app.get("/ping", (_req, res) => {
+  console.log("⏰ keep-alive ping received at", new Date().toISOString());
+  res.send("pong");
+});
 
 // ─── Static SPA ───────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "public")));
