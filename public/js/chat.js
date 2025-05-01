@@ -551,3 +551,12 @@ socket.on("reactions updated", ({ messageId, reactions }) => {
   msgsById[messageId].reactions = reactions;
   renderReactions(messageId);
 });
+
+// ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
+// every 4 minutes, hit our health‐check so Render sees activity
+setInterval(() => {
+  fetch("/ping").catch((err) => {
+    // silent fail; if Render is down or network glitch, we'll try again
+    console.error("Keep‐alive ping failed:", err);
+  });
+}, 4 * 60 * 1000);
