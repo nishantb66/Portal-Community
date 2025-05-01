@@ -247,7 +247,7 @@
     <header class="sticky top-0 z-10 glass-header">
         <!-- Secondary Bar with Channel & Typing Indicator -->
         <div class="flex items-center justify-between px-4 sm:px-8 py-2.5 bg-white/60">
-     
+
             <!-- User Profile & Controls -->
             <div class="flex items-center space-x-3">
                 <!-- Status Indicator -->
@@ -257,8 +257,7 @@
                 </div>
 
                 <!-- User Badge -->
-                <div id="user-name"
-                    class="px-3.5 py-2 text-sm font-small text-indigo-700 shadow-sm flex items-center">
+                <div id="user-name" class="px-3.5 py-2 text-sm font-small text-indigo-700 shadow-sm flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -336,6 +335,11 @@
             </svg>
         </button>
     </form>
+
+    <!-- REACTION PICKER (hidden by default) -->
+    <div id="reaction-picker" class="fixed z-50 hidden bg-white p-2 rounded-lg shadow-xl grid grid-cols-5 gap-2">
+        <!-- emojis will be injected here -->
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>

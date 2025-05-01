@@ -159,8 +159,9 @@ function appendMessage({
   message,
   timestamp,
   replyTo: pid,
+  reactions = {},
 }) {
-  msgsById[_id] = { user, message };
+  msgsById[_id] = { user, message, reactions };
   const isSelf = user === username;
   const li = document.createElement("li");
   li.className = `flex items-start ${
@@ -238,6 +239,27 @@ function appendMessage({
   `;
 
   messagesEl.appendChild(li);
+
+  // --- render reaction bar ---
+  const reactionsDiv = document.createElement("div");
+  reactionsDiv.id = `reactions-${_id}`;
+  reactionsDiv.className = "flex flex-wrap gap-1 mt-1 text-sm";
+  const currentReacts = reactions;
+  for (const [emoji, users] of Object.entries(currentReacts)) {
+    if (!users.length) continue;
+    const count = users.length;
+    const reacted = users.includes(username);
+    const span = document.createElement("span");
+    span.className = `px-2 py-1 rounded-full cursor-pointer ${
+      reacted ? "bg-indigo-200" : "bg-gray-200"
+    }`;
+    span.textContent = `${emoji} ${count}`;
+    // store for later lookup
+    span.dataset.msgId = _id;
+    span.dataset.emoji = emoji;
+    reactionsDiv.appendChild(span);
+  }
+  li.appendChild(reactionsDiv);
 
   // Scroll to bottom with animation
   smoothScrollToBottom();
@@ -447,4 +469,85 @@ container.addEventListener("mouseout", (e) => {
       infoElement.style.opacity = "";
     }
   }
+});
+
+// ─── Reaction-picker logic ────────────────────────────────────────────────
+const EMOJIS = ["🩷", "😂", "😭", "🥹", "👍", "🙌🏻", "🎉", "😱", "🫡", "👎"];
+const picker = document.getElementById("reaction-picker");
+
+function showPicker(msgId, x, y) {
+  picker.innerHTML = "";
+  EMOJIS.forEach((e) => {
+    const btn = document.createElement("button");
+    btn.textContent = e;
+    btn.className = "text-xl";
+    btn.onclick = () => {
+      // toggle reaction
+      const hasReacted = msgsById[msgId]?.reactions?.[e]?.includes(username);
+      socket.emit(hasReacted ? "remove reaction" : "add reaction", {
+        messageId: msgId,
+        emoji: e,
+        user: username,
+      });
+      picker.classList.add("hidden");
+    };
+    picker.appendChild(btn);
+  });
+  picker.style.left = `${x}px`;
+  picker.style.top = `${y}px`;
+  picker.classList.remove("hidden");
+}
+// hide on outside click
+document.addEventListener("click", (e) => {
+  if (!picker.contains(e.target)) picker.classList.add("hidden");
+});
+
+// ─── Bind mobile long-press & desktop right-click ──────────────────────────
+container.addEventListener("contextmenu", (e) => {
+  const li = e.target.closest("li[data-message-id]");
+  if (!li) return;
+  e.preventDefault();
+  showPicker(li.dataset.messageId, e.pageX, e.pageY);
+});
+container.addEventListener("touchstart", (e) => {
+  const li = e.target.closest("li[data-message-id]");
+  if (!li) return;
+  let timer = setTimeout(() => {
+    const rect = li.getBoundingClientRect();
+    showPicker(li.dataset.messageId, rect.left + 20, rect.top + 20);
+  }, 600);
+  li.addEventListener("touchend", () => clearTimeout(timer), { once: true });
+});
+
+// ─── Listen for reaction updates & re-render ──────────────────────────────
+// ─── keep everyone in sync when reactions change ────────────────────────────
+
+function renderReactions(msgId) {
+  const div = document.getElementById(`reactions-${msgId}`);
+  if (!div) return;
+  div.innerHTML = "";
+  const current = msgsById[msgId].reactions;
+  for (const [e, uList] of Object.entries(current)) {
+    if (!uList.length) continue;
+    const span = document.createElement("span");
+    const reacted = uList.includes(username);
+    span.className = `px-2 py-1 rounded-full cursor-pointer ${
+      reacted ? "bg-indigo-200" : "bg-gray-200"
+    }`;
+    span.textContent = `${e} ${uList.length}`;
+    span.onclick = () => {
+      socket.emit(reacted ? "remove reaction" : "add reaction", {
+        messageId: msgId,
+        emoji: e,
+        user: username,
+      });
+    };
+    div.appendChild(span);
+  }
+}
+
+socket.on("reactions updated", ({ messageId, reactions }) => {
+  if (!msgsById[messageId]) return;
+  msgsById[messageId].reactions = reactions;
+  renderReactions(messageId);
 });

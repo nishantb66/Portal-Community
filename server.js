@@ -3,6 +3,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const { MongoClient } = require("mongodb");
+const { ObjectId } = require("mongodb");
 const path = require("path");
 
 const app = express();
@@ -77,6 +78,7 @@ io.on("connection", (socket) => {
       message: data.message,
       timestamp: new Date(),
       replyTo: data.replyTo || null,
+      reactions: {},
     };
 
     if (!messagesCollection) return;
@@ -84,9 +86,39 @@ io.on("connection", (socket) => {
       .insertOne(doc)
       .then((result) => {
         doc._id = result.insertedId; // attach the new _id
-        io.emit("chat message", doc);// broadcast full doc
+        io.emit("chat message", doc); // broadcast full doc
       })
       .catch((err) => console.error("❌ insertOne error:", err));
+  });
+
+  // ─── Reaction handlers ──────────────────────────────────────────────────
+  socket.on("add reaction", async ({ messageId, emoji, user }) => {
+    if (!messagesCollection) return;
+    await messagesCollection.updateOne(
+      { _id: new ObjectId(messageId) },
+      { $addToSet: { [`reactions.${emoji}`]: user } }
+    );
+    // broadcast to all
+    // 2) re-fetch the full, updated reactions object
+    const { reactions } = await messagesCollection.findOne(
+      { _id: new ObjectId(messageId) },
+      { projection: { reactions: 1 } }
+    );
+    // 3) broadcast the brand-new state
+    io.emit("reactions updated", { messageId, reactions });
+  });
+
+  socket.on("remove reaction", async ({ messageId, emoji, user }) => {
+    if (!messagesCollection) return;
+    await messagesCollection.updateOne(
+      { _id: new ObjectId(messageId) },
+      { $pull: { [`reactions.${emoji}`]: user } }
+    );
+    const { reactions } = await messagesCollection.findOne(
+      { _id: new ObjectId(messageId) },
+      { projection: { reactions: 1 } }
+    );
+    io.emit("reactions updated", { messageId, reactions });
   });
 
   socket.on("disconnect", () => {
