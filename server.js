@@ -137,6 +137,7 @@ io.on("connection", (socket) => {
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Listening on port ${PORT}`);
+const HOST = process.env.HOST || "0.0.0.0";
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Listening on http://${HOST}:${PORT}`);
 });
