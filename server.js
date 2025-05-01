@@ -7,6 +7,7 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
+const activeUsers = new Map(); // ─── Track socket → username mappings ─────────────────────────────────────────
 const io = new Server(server);
 
 // ─── Health-check ─────────────────────────────────────────────────────────────
@@ -40,6 +41,13 @@ initDb().catch((err) => {
 // ─── Socket.io Logic ─────────────────────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log("🔌 user connected");
+
+  // 0) handle our new "join" event
+  socket.on("join", (user) => {
+    activeUsers.set(socket.id, user);
+    // broadcast to everyone except the newly joined client
+    socket.broadcast.emit("user joined", user);
+  });
 
   // 1) load last 50 messages
   if (!messagesCollection) {
@@ -76,13 +84,19 @@ io.on("connection", (socket) => {
       .insertOne(doc)
       .then((result) => {
         doc._id = result.insertedId; // attach the new _id
-        io.emit("chat message", doc); // broadcast full doc
+        io.emit("chat message", doc);// broadcast full doc
       })
       .catch((err) => console.error("❌ insertOne error:", err));
   });
 
   socket.on("disconnect", () => {
     console.log("❌ user disconnected");
+    const user = activeUsers.get(socket.id);
+    if (user) {
+      // notify everyone else
+      socket.broadcast.emit("user left", user);
+      activeUsers.delete(socket.id);
+    }
   });
 });
 

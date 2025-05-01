@@ -40,6 +40,9 @@ nameSubmit.addEventListener("click", () => {
   modal.style.opacity = "0";
   modal.style.transition = "opacity 0.3s ease";
 
+  // tell the server we just joined
+  socket.emit("join", username);
+
   setTimeout(() => {
     modal.classList.add("hidden");
     modal.style.opacity = "1"; // Reset opacity for next time
@@ -134,6 +137,19 @@ function formatTime(timestamp) {
       day: "numeric",
     })} ${timeStr}`;
   }
+}
+
+// ─── Append a gray, centered “system” message ─────────────────────────────────
+function appendSystemMessage(text) {
+  const li = document.createElement("li");
+  li.className = "flex justify-center fade-in";
+  li.innerHTML = `
+    <div class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm">
+      ${text}
+    </div>
+  `;
+  messagesEl.appendChild(li);
+  smoothScrollToBottom();
 }
 
 // ─── Render a chat message ────────────────────────────────────────────────────
@@ -338,6 +354,14 @@ socket.on("load messages", (msgs) => {
 });
 
 socket.on("chat message", appendMessage);
+
+// ─── System join/leave notifications ──────────────────────────────────────────
+socket.on("user joined", (user) => {
+  appendSystemMessage(`🟢 ${user} has joined the chat.`);
+});
+socket.on("user left", (user) => {
+  appendSystemMessage(`🔴 ${user} has left the chat.`);
+});
 
 socket.on("user typing", (u) => {
   typingUsers.add(u);
