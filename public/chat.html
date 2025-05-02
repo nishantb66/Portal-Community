@@ -612,19 +612,6 @@
                         class="w-full border border-gray-300 bg-white rounded-full px-6 py-3.5
                         focus-ring focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all" disabled />
                 </div>
-                <!-- file‐picker (hidden) + camera icon -->
-                <label for="img-input" class="cursor-pointer flex-shrink-0" title="Upload image">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600 hover:text-primary-700"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 7h4l2-3h6l2 3h4v12H3V7z" />
-                        <circle cx="12" cy="13" r="3" />
-                    </svg>
-                    <span class="sr-only">Upload an image</span>
-                </label>
-                <input type="file" id="img-input" accept="image/*" class="hidden" aria-label="Upload image"
-                    title="Upload image" />
-
                 <button type="submit" disabled class="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white
                     px-6 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all whitespace-nowrap">
                     <span class="hidden sm:inline font-medium">Send</span>
@@ -643,14 +630,6 @@
             <!-- emojis will be injected here -->
         </div>
     </div>
-
-    <!-- IMAGE LIGHTBOX MODAL -->
-    <div id="img-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
-        <img id="img-modal-content" class="max-w-full max-h-full rounded-lg" alt="full-size image" />
-        <button id="img-modal-close" class="absolute top-4 right-4 text-white text-3xl leading-none">&times;</button>
-    </div>
-
-
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
@@ -755,33 +734,6 @@
                 window.unreadCount = 0;
             }
         });
-
-
-        // 1) open the modal when any .chat-image is clicked
-        messagesEl.addEventListener("click", e => {
-            if (!e.target.classList.contains("chat-image")) return;
-            const modal = document.getElementById("img-modal");
-            const modalImg = document.getElementById("img-modal-content");
-            modalImg.src = e.target.src;
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-        });
-
-        // 2) close button
-        document.getElementById("img-modal-close").addEventListener("click", () => {
-            const modal = document.getElementById("img-modal");
-            modal.classList.remove("flex");
-            modal.classList.add("hidden");
-        });
-
-        // 3) clicking outside the image also closes
-        document.getElementById("img-modal").addEventListener("click", e => {
-            if (e.target.id === "img-modal") {
-                e.currentTarget.classList.remove("flex");
-                e.currentTarget.classList.add("hidden");
-            }
-        });
-
     </script>
 </body>
 

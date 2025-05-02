@@ -48,6 +48,7 @@ initDb().catch((err) => {
   process.exit(1);
 });
 
+
 // ─── Socket.io Logic ─────────────────────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log("🔌 user connected");
@@ -119,14 +120,6 @@ io.on("connection", (socket) => {
       console.error("❌ insertOne error:", err);
       // optionally: notify clients of failure and remove optimistic bubble
     }
-  });
-
-  // ─── 4) real-time images (no persistence) ───────────────────
-  socket.on("chat image", ({ imageData }) => {
-    const user = activeUsers.get(socket.id) || "Unknown";
-    const now = new Date().toISOString();
-    // broadcast to everyone
-    io.emit("chat image", { username: user, imageData, timestamp: now });
   });
 
   // ─── Reaction handlers ──────────────────────────────────────────────────
