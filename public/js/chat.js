@@ -642,20 +642,48 @@ document.addEventListener("click", (e) => {
 
 // ─── Bind mobile long-press & desktop right-click ──────────────────────────
 container.addEventListener("contextmenu", (e) => {
-  const li = e.target.closest("li[data-message-id]");
-  if (!li) return;
+  const bubble = e.target.closest(".message-bubble");
+  if (!bubble) return; // ← only bubbles
   e.preventDefault();
+  const li = bubble.closest("li[data-message-id]");
   showPicker(li.dataset.messageId, e.pageX, e.pageY);
 });
-container.addEventListener("touchstart", (e) => {
-  const li = e.target.closest("li[data-message-id]");
-  if (!li) return;
-  let timer = setTimeout(() => {
-    const rect = li.getBoundingClientRect();
-    showPicker(li.dataset.messageId, rect.left + 20, rect.top + 20);
-  }, 600);
-  li.addEventListener("touchend", () => clearTimeout(timer), { once: true });
-});
+
+// ─── Mobile long-press ONLY on .message-bubble ─────────────────────────────
+(function () {
+  let longPressTimer;
+  const longPressDuration = 600;
+
+  // start the timer when touching a bubble
+  container.addEventListener("touchstart", (e) => {
+    const bubble = e.target.closest(".message-bubble");
+    if (!bubble) return;
+    e.preventDefault(); // prevent native text-selection
+
+    longPressTimer = setTimeout(() => {
+      // mark selected
+      bubble.classList.add("selected");
+      // grab its message-ID
+      const li = bubble.closest("li[data-message-id]");
+      const msgId = li.getAttribute("data-message-id");
+      // show picker just above the bubble
+      const rect = bubble.getBoundingClientRect();
+      showPicker(msgId, rect.left + 20, rect.top + 20);
+    }, longPressDuration);
+  });
+
+  // cancel if the finger moves or is lifted early
+  ["touchmove", "touchend", "touchcancel"].forEach((evt) =>
+    container.addEventListener(evt, () => clearTimeout(longPressTimer))
+  );
+
+  // when picker is clicked or anywhere else tapped, clear the selection highlight
+  document.addEventListener("click", () => {
+    document
+      .querySelectorAll(".message-bubble.selected")
+      .forEach((el) => el.classList.remove("selected"));
+  });
+})();
 
 // ─── Listen for reaction updates & re-render ──────────────────────────────
 // ─── keep everyone in sync when reactions change ────────────────────────────

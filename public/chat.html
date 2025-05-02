@@ -138,6 +138,16 @@
             transition: var(--transition-normal);
             position: relative;
             z-index: 1;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* when long-pressed/selected */
+        .message-bubble.selected {
+            outline: 2px solid #0c96e6;
+            /* slightly dim the background */
+            filter: brightness(0.95);
         }
 
         /* Elegant bubble styling */
@@ -173,7 +183,7 @@
 
         /* make bubbles span a bit more on small phones */
         @media (max-width: 640px) {
- 
+
             .message-bubble {
                 max-width: 88%;
                 padding: 0.8rem 1rem;
