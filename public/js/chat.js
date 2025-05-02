@@ -11,6 +11,7 @@ let username = null;
 let unreadCount = 0;
 let otherOnline = false;
 const readMsgs = new Set();
+let lastRenderedDate = null;
 
 // ─── UNREAD-BADGE HELPER ─────────────────────────────────────────────────────
 function updateArrowIndicator() {
@@ -188,6 +189,39 @@ function appendMessage({
   replyTo: pid,
   reactions = {},
 }) {
+  // ─── date‐separator (Today / Yesterday / DD-MM-YYYY) ────────────────
+  const msgDate = new Date(timestamp);
+  const msgKey = msgDate.toDateString();
+  if (msgKey !== lastRenderedDate) {
+    lastRenderedDate = msgKey;
+
+    // compute label
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    let label;
+    if (msgKey === today.toDateString()) {
+      label = "Today";
+    } else if (msgKey === yesterday.toDateString()) {
+      label = "Yesterday";
+    } else {
+      const dd = String(msgDate.getDate()).padStart(2, "0");
+      const mm = String(msgDate.getMonth() + 1).padStart(2, "0");
+      const yyyy = msgDate.getFullYear();
+      label = `${dd}-${mm}-${yyyy}`;
+    }
+
+    const divider = document.createElement("li");
+    divider.className = "day-divider flex items-center my-2";
+    divider.innerHTML = `
+    <div class="day-divider-line flex-1 h-px bg-gray-300"></div>
+    <div class="day-divider-text px-4 text-xs text-gray-500">${label}</div>
+    <div class="day-divider-line flex-1 h-px bg-gray-300"></div>
+  `;
+    messagesEl.appendChild(divider);
+  }
+
   // ── Prevent duplicates: if we've already rendered this ID, bail out
   if (msgsById[_id]) return;
 
@@ -428,6 +462,8 @@ msgInput.addEventListener("input", () => {
 
 // ─── Socket.io event handlers ─────────────────────────────────────────────────
 socket.on("load messages", (msgs) => {
+  // reset so we re-compute separators on every full load
+  lastRenderedDate = null;
   if (msgs.length === 0) {
     // If no messages, show welcome
     appendSystemMessage(
