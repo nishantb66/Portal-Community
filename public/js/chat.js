@@ -10,6 +10,25 @@ let replyTo = null;
 let username = null;
 let unreadCount = 0;
 
+// ─── UNREAD-BADGE HELPER ─────────────────────────────────────────────────────
+function updateArrowIndicator() {
+  const badge = document.getElementById("unread-count");
+  const action = document.querySelector(".floating-action");
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount;
+    badge.classList.remove("hidden");
+    action.style.display = "flex";
+  } else {
+    badge.classList.add("hidden");
+  }
+
+  // also keep the browser tab title in sync
+  document.title =
+    unreadCount > 0
+      ? `(${unreadCount}) EP Platforms • Chat`
+      : "EP Platforms • Chat";
+}
+
 // ─── Optimistic UI helper ────────────────────────────────────────────────────
 // Returns a unique temporary ID for new messages.
 function makeTempId() {
@@ -283,8 +302,18 @@ function appendMessage({
   }
   li.appendChild(reactionsDiv);
 
-  // Scroll to bottom with animation
-  smoothScrollToBottom();
+  // ─── Auto-scroll vs. unread bump ──────────────────────────────────────────────
+  const isScrolledToBottom =
+    container.scrollHeight - container.scrollTop <=
+    container.clientHeight + 100;
+
+  if (isScrolledToBottom) {
+    smoothScrollToBottom();
+  } else if (!isSelf) {
+    // only bump once per new message from others
+    unreadCount++;
+    updateArrowIndicator();
+  }
 
   // Add reply functionality
   const messageBubble = li.querySelector(".message-bubble");
@@ -323,12 +352,6 @@ function appendMessage({
   messageBubble.addEventListener("touchend", () => {
     clearTimeout(pressTimer);
   });
-
-  // Update unread count if window not focused
-  if (!windowFocused && !isSelf) {
-    unreadCount++;
-    updateDocumentTitle();
-  }
 }
 
 // Set up reply

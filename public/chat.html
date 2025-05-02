@@ -462,13 +462,16 @@
         <ul id="messages" class="space-y-6 pb-1"></ul>
     </div>
 
-    <!-- FLOATING SCROLL BUTTON -->
-    <div class="floating-action hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    <!-- FLOATING SCROLL BUTTON WITH UNREAD BADGE -->
+    <div class="floating-action relative hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" …>
+            <path … d="M19 9l-7 7-7-7" />
         </svg>
+        <!-- badge; hidden when count=0 -->
+        <span id="unread-count"
+            class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-green-500 text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
     </div>
+
 
     <!-- TYPING INDICATOR (PRIMARY) -->
     <div id="typing-indicator"
@@ -569,19 +572,35 @@
             }
 
             // Add scroll to bottom functionality
-            const messagesContainer = document.getElementById('messages-container');
-            const floatingAction = document.querySelector('.floating-action');
+            // Add scroll to bottom functionality (w/ unread badge)
+            const messagesContainer = document.getElementById("messages-container");
+            const floatingAction = document.querySelector(".floating-action");
 
             if (messagesContainer && floatingAction) {
-                messagesContainer.addEventListener('scroll', function () {
-                    const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
-                    floatingAction.style.display = isAtBottom ? 'none' : 'flex';
+                messagesContainer.addEventListener("scroll", function () {
+                    const isAtBottom =
+                        messagesContainer.scrollHeight - messagesContainer.scrollTop <=
+                        messagesContainer.clientHeight + 100;
+
+                    if (isAtBottom) {
+                        // user returned to bottom → clear unread
+                        unreadCount = 0;
+                        updateArrowIndicator();
+                        floatingAction.style.display = "none";
+                    } else if (unreadCount > 0) {
+                        // user is up, badge shows count
+                        floatingAction.style.display = "flex";
+                    }
                 });
 
-                floatingAction.addEventListener('click', function () {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                floatingAction.addEventListener("click", function () {
+                    // scroll down & reset unread
+                    smoothScrollToBottom();
+                    unreadCount = 0;
+                    updateArrowIndicator();
                 });
             }
+
         });
     </script>
 </body>
