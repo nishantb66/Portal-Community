@@ -12,6 +12,7 @@ let unreadCount = 0;
 let otherOnline = false;
 const readMsgs = new Set();
 let lastRenderedDate = null;
+const imgInput = document.getElementById("img-input");
 
 // ─── UNREAD-BADGE HELPER ─────────────────────────────────────────────────────
 function updateArrowIndicator() {
@@ -177,6 +178,73 @@ function appendSystemMessage(text) {
     </div>
   `;
   messagesEl.appendChild(li);
+  smoothScrollToBottom();
+}
+
+function appendImageMessage({ username: user, imageData, timestamp }) {
+  // ─── 1) DATE-SEPARATOR ───────────────────────────────────────────────
+  const msgDate = new Date(timestamp);
+  const msgKey = msgDate.toDateString();
+
+  if (msgKey !== lastRenderedDate) {
+    lastRenderedDate = msgKey;
+
+    // compute label
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    let label;
+    if (msgKey === today.toDateString()) {
+      label = "Today";
+    } else if (msgKey === yesterday.toDateString()) {
+      label = "Yesterday";
+    } else {
+      const dd = String(msgDate.getDate()).padStart(2, "0");
+      const mm = String(msgDate.getMonth() + 1).padStart(2, "0");
+      const yyyy = msgDate.getFullYear();
+      label = `${dd}-${mm}-${yyyy}`;
+    }
+
+    const divider = document.createElement("li");
+    divider.className = "day-divider flex items-center my-2";
+    divider.innerHTML = `
+      <div class="day-divider-line flex-1 h-px bg-gray-300"></div>
+      <div class="day-divider-text px-4 text-xs text-gray-500">${label}</div>
+      <div class="day-divider-line flex-1 h-px bg-gray-300"></div>
+    `;
+    messagesEl.appendChild(divider);
+  }
+
+  // ─── 2) IMAGE BUBBLE ───────────────────────────────────────────────────
+  const isSelf = user === username;
+  const li = document.createElement("li");
+  li.className = `flex items-start ${
+    isSelf ? "justify-end" : "justify-start"
+  } message-appear`;
+  li.setAttribute("data-message-id", `img-${Date.now()}`); // ephemeral ID
+
+  li.innerHTML = `
+    <div class="${isSelf ? "self-end" : "self-start"} message-bubble">
+      <img
+        src="${imageData}"
+        class="chat-image max-w-xs sm:max-w-sm rounded-lg shadow-sm cursor-pointer"
+        alt="sent image"
+      />
+      <div class="mt-1 text-xs ${
+        isSelf ? "text-white/80 text-right" : "text-gray-500 text-left"
+      }">
+        ${new Date(timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
+    </div>
+  `;
+
+  messagesEl.appendChild(li);
+
+  // ─── 3) ALWAYS SCROLL ───────────────────────────────────────────────────
   smoothScrollToBottom();
 }
 
@@ -460,6 +528,17 @@ msgInput.addEventListener("input", () => {
   }, TYPING_TIMER);
 });
 
+imgInput.addEventListener("change", () => {
+  const file = imgInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    socket.emit("chat image", { imageData: reader.result });
+    imgInput.value = ""; // reset so same file can be re-sent if needed
+  };
+  reader.readAsDataURL(file);
+});
+
 // ─── Socket.io event handlers ─────────────────────────────────────────────────
 socket.on("load messages", (msgs) => {
   // reset so we re-compute separators on every full load
@@ -477,6 +556,8 @@ socket.on("load messages", (msgs) => {
 });
 
 socket.on("chat message", appendMessage);
+
+socket.on("chat image", appendImageMessage);
 
 socket.on("chat message saved", ({ _tempId, _id }) => {
   // find the optimistic LI
@@ -719,3 +800,32 @@ setInterval(() => {
     console.error("Keep‐alive ping failed:", err);
   });
 }, 4 * 60 * 1000);
+
+// 1) open the modal when any .chat-image is clicked
+// delegate on the UL (messagesEl) so we catch any future .chat-image
+messagesEl.addEventListener("click", (e) => {
+  // if the target is not our image, bail
+  if (!e.target.classList.contains("chat-image")) return;
+  e.preventDefault();
+  // populate & show the modal
+  const modal = document.getElementById("img-modal");
+  const modalImg = document.getElementById("img-modal-content");
+  modalImg.src = e.target.src;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+});
+
+// 2) close button
+document.getElementById("img-modal-close").addEventListener("click", () => {
+  const modal = document.getElementById("img-modal");
+  modal.classList.remove("flex");
+  modal.classList.add("hidden");
+});
+
+// 3) clicking outside the image also closes
+document.getElementById("img-modal").addEventListener("click", (e) => {
+  if (e.target.id === "img-modal") {
+    e.currentTarget.classList.remove("flex");
+    e.currentTarget.classList.add("hidden");
+  }
+});
