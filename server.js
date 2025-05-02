@@ -13,6 +13,7 @@ const server = http.createServer(app);
 server.keepAliveTimeout = 120 * 1000; // allow 2 minutes of keep-alive
 server.headersTimeout = 120 * 1000; // allow 2 minutes to receive headers
 
+const activeSockets = new Set();
 const activeUsers = new Map(); // ─── Track socket → username mappings ─────────────────────────────────────────
 const io = new Server(server);
 
@@ -47,14 +48,17 @@ initDb().catch((err) => {
   process.exit(1);
 });
 
+
 // ─── Socket.io Logic ─────────────────────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log("🔌 user connected");
 
+  activeSockets.add(socket.id);
+  io.emit("online users", activeSockets.size); // update count immediately
+
   // 0) handle our new "join" event
   socket.on("join", (user) => {
     activeUsers.set(socket.id, user);
-    io.emit("online users", activeUsers.size);
     // broadcast to everyone except the newly joined client
     socket.broadcast.emit("user joined", user);
   });
@@ -168,9 +172,11 @@ io.on("connection", (socket) => {
     if (user) {
       // notify everyone else
       socket.broadcast.emit("user left", user);
-      activeUsers.delete(socket.id);
-      io.emit("online users", activeUsers.size);
+      activeUsers.delete(socket.id); // clean up username mapping
     }
+
+    activeSockets.delete(socket.id); // always remove from socket tracker
+    io.emit("online users", activeSockets.size); // broadcast updated count
   });
 });
 
