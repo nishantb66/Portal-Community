@@ -54,6 +54,7 @@ io.on("connection", (socket) => {
   // 0) handle our new "join" event
   socket.on("join", (user) => {
     activeUsers.set(socket.id, user);
+    io.emit("online users", activeUsers.size);
     // broadcast to everyone except the newly joined client
     socket.broadcast.emit("user joined", user);
   });
@@ -168,6 +169,7 @@ io.on("connection", (socket) => {
       // notify everyone else
       socket.broadcast.emit("user left", user);
       activeUsers.delete(socket.id);
+      io.emit("online users", activeUsers.size);
     }
   });
 });

@@ -637,6 +637,14 @@ socket.on("reactions updated", ({ messageId, reactions }) => {
   renderReactions(messageId);
 });
 
+// ─── Update the header “online users” badge ─────────────────────────────────
+socket.on("online users", (count) => {
+  const el = document.getElementById("online-count-text");
+  if (!el) return;
+  el.textContent = `${count} user${count === 1 ? "" : "s"} online`;
+});
+
+
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
 setInterval(() => {
