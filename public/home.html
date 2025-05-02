@@ -5,9 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EP Platforms • Community Forum</title>
-    <!-- Fonts: Outfit for headings, Plus Jakarta Sans for body text -->
+    <!-- Fonts: Poppins for headings, Inter for body text -->
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,23 +15,10 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-                        display: ['Outfit', 'system-ui', 'sans-serif']
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Poppins', 'system-ui', 'sans-serif']
                     },
                     colors: {
-                        indigo: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                            950: '#1e1b4b',
-                        },
                         white: {
                             DEFAULT: '#ffffff',
                             'pure': '#ffffff',
@@ -39,35 +26,54 @@
                             'warm': '#f7f7f7',
                             'cool': '#f5f7fa',
                             'smoke': '#f0f2f5'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
                         }
                     },
                     boxShadow: {
                         'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
                         'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)',
-                        'popup': '0 10px 50px -12px rgba(0, 0, 0, 0.25)',
-                        'fun': '0 15px 35px -5px rgba(99, 102, 241, 0.18)'
+                        'elevated': '0 10px 40px -12px rgba(0, 0, 0, 0.1)',
+                        'button': '0 4px 10px rgba(0, 0, 0, 0.05)'
                     }
                 }
             }
         }
     </script>
     <style>
-        .gradient-bg {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(238, 242, 255, 0.6) 100%);
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
+        :root {
+            --transition-smooth: all 0.3s ease;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .elegant-gradient {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 100%);
         }
 
         .glass-effect {
-            background: rgba(255, 255, 255, 0.85);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
 
-        .bg-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366F1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        .bg-subtle-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E5E7EB' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         @keyframes fadeSlideUp {
@@ -83,24 +89,24 @@
         }
 
         .animate-fade-slide-up {
-            animation: fadeSlideUp 0.8s ease forwards;
+            animation: fadeSlideUp 0.7s ease forwards;
         }
 
         .animate-fade-slide-up-delay-1 {
-            animation: fadeSlideUp 0.8s ease 0.2s forwards;
+            animation: fadeSlideUp 0.7s ease 0.15s forwards;
             opacity: 0;
         }
 
         .animate-fade-slide-up-delay-2 {
-            animation: fadeSlideUp 0.8s ease 0.4s forwards;
+            animation: fadeSlideUp 0.7s ease 0.3s forwards;
             opacity: 0;
         }
 
-        /* Disclaimer popup animation */
+        /* Modal animation */
         @keyframes fadeScale {
             from {
                 opacity: 0;
-                transform: scale(0.95);
+                transform: scale(0.98);
             }
 
             to {
@@ -114,59 +120,17 @@
         }
 
         .popup-backdrop {
-            background-color: rgba(17, 24, 39, 0.7);
-            -webkit-backdrop-filter: blur(4px);
-            backdrop-filter: blur(4px);
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             transition: opacity 0.3s ease;
-        }
-
-        /* Pulse animation for attention */
-        @keyframes subtle-pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.05);
-                opacity: 0.9;
-            }
-        }
-
-        .pulse-attention {
-            animation: subtle-pulse 2s infinite;
-        }
-
-        /* Blob shape animation */
-        @keyframes blob-morph {
-            0% {
-                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-            }
-
-            34% {
-                border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
-            }
-
-            67% {
-                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-            }
-
-            100% {
-                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-            }
-        }
-
-        .animated-blob {
-            animation: blob-morph 8s ease-in-out infinite;
         }
 
         /* Button hover effect */
         .btn-hover-effect {
             position: relative;
             overflow: hidden;
-            transition: all 0.4s ease;
+            transition: var(--transition-smooth);
         }
 
         .btn-hover-effect:after {
@@ -191,70 +155,37 @@
 
         /* Card hover effect */
         .feature-card {
-            transition: all 0.3s ease;
+            transition: var(--transition-smooth);
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.08);
         }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #f9fafb;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #c7d2fe;
+            background: #e5e7eb;
             border-radius: 50px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #a5b4fc;
+            background: #d1d5db;
         }
 
-        /* Mobile-specific styles */
+        /* Mobile optimizations */
         @media (max-width: 640px) {
             .mobile-full-height {
                 min-height: 100vh;
-            }
-
-            .mobile-testimonials {
-                scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch;
-                padding-bottom: 1.5rem;
-            }
-
-            .mobile-testimonials>div {
-                scroll-snap-align: start;
-                min-width: 85%;
-                margin-right: 0.75rem;
-            }
-
-            .mobile-testimonials>div:last-child {
-                margin-right: 0;
-            }
-
-            .testimonial-scroll-indicator {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-                margin-top: 0.5rem;
-            }
-
-            .testimonial-scroll-indicator>div {
-                width: 1rem;
-                height: 0.25rem;
-                background-color: #e0e7ff;
-                border-radius: 1rem;
-            }
-
-            .testimonial-scroll-indicator>div.active {
-                background-color: #4f46e5;
             }
 
             /* Better touch targets for mobile */
@@ -267,13 +198,13 @@
 </head>
 
 <body
-    class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 font-sans antialiased text-slate-700 bg-gradient-to-br from-white-pure to-indigo-50 bg-pattern">
+    class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 font-sans antialiased text-gray-700 bg-white-cool bg-subtle-pattern">
     <!-- Disclaimer Popup -->
     <div id="disclaimerPopup" class="hidden fixed inset-0 z-50 popup-backdrop flex items-center justify-center p-4">
-        <div class="popup-enter bg-white max-w-md w-full rounded-3xl shadow-popup p-5 md:p-8 relative mx-3">
+        <div class="popup-enter bg-white max-w-md w-full rounded-2xl shadow-elevated p-5 md:p-8 relative mx-3">
             <!-- Close button -->
             <button id="closePopup" title="Close popup"
-                class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors mobile-touch-target">
+                class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-white-warm transition-colors mobile-touch-target">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -283,8 +214,9 @@
 
             <!-- Popup header -->
             <div class="flex items-center mb-5">
-                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                <div
+                    class="h-10 w-10 rounded-full bg-white-warm flex items-center justify-center mr-3 flex-shrink-0 border border-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -295,7 +227,7 @@
 
             <!-- Popup content -->
             <div class="prose prose-sm max-w-none mb-6 text-gray-600">
-                <p class="mb-3">This is an <strong class="text-indigo-700">experimental feature</strong> in the EP
+                <p class="mb-3">This is an <strong class="text-gray-800">experimental feature</strong> in the EP
                     Platforms world, just for casual chats and connections.</p>
 
                 <p class="mb-2">Quick notes:</p>
@@ -306,14 +238,14 @@
                     <li>This is just a fun add-on to the main EP experience</li>
                 </ul>
 
-                <div class="mt-4 p-3 bg-indigo-50 rounded-xl text-indigo-800 text-sm">
+                <div class="mt-4 p-3 bg-white-smoke rounded-xl text-gray-800 text-sm">
                     <p>Keep it casual and avoid sharing anything sensitive or confidential, cool?</p>
                 </div>
             </div>
 
             <!-- Confirm button -->
             <button id="confirmPopup"
-                class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-300 btn-hover-effect">
+                class="w-full py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-300 btn-hover-effect">
                 Got it, let's go!
             </button>
         </div>
@@ -321,20 +253,20 @@
 
     <!-- Header/Nav (Improved for mobile) -->
     <nav
-        class="w-full fixed top-0 left-0 z-30 glass-effect px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+        class="w-full fixed top-0 left-0 z-30 glass-effect px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-gray-100">
+        <div class="flex items-center space-x-2.5">
+            <div class="h-8 w-8 rounded-lg bg-gray-800 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
             </div>
-            <span class="font-display font-medium text-indigo-900">EP Community</span>
+            <span class="font-display font-medium text-gray-900">EP Community</span>
         </div>
 
         <button id="showDisclaimerNav"
-            class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 mobile-touch-target py-1.5 px-2.5">
+            class="text-sm text-gray-700 hover:text-gray-900 font-medium flex items-center gap-1.5 mobile-touch-target py-1.5 px-2.5">
             <span>Info</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -344,130 +276,98 @@
         </button>
     </nav>
 
-    <div class="container max-w-screen-lg mx-auto mt-14 sm:mt-16 px-3 sm:px-4">
-        <!-- Modern Hero Layout with better mobile spacing -->
-        <div class="flex flex-col-reverse md:flex-row md:items-center md:gap-8 animate-fade-slide-up">
-            <!-- Right Illustration (Mobile-first approach) -->
-            <div class="w-full md:w-5/12 flex justify-center md:justify-end mb-8 md:mb-0">
-                <div class="relative w-full max-w-md">
-                    <!-- Abstract shapes with animation -->
-                    <div
-                        class="absolute -top-10 -right-10 w-24 sm:w-32 h-24 sm:h-32 rounded-full bg-indigo-50 opacity-80 animated-blob">
-                    </div>
-                    <div class="absolute top-20 -right-5 w-12 sm:w-16 h-12 sm:h-16 rounded-full bg-indigo-100 opacity-70 animated-blob"
-                        style="animation-delay: -3s;"></div>
-                    <div class="absolute bottom-10 -left-10 w-20 sm:w-24 h-20 sm:h-24 rounded-full bg-indigo-50 opacity-80 animated-blob"
-                        style="animation-delay: -5s;"></div>
-
-                  
-
-                    <div
-                        class="absolute bottom-5 right-5 transform translate-x-1/4 z-10 bg-indigo-600 py-2 px-3 rounded-xl shadow-lg text-sm max-w-[120px] sm:max-w-[140px]">
-                        <p class="font-medium text-white">Welcome to the community!</p>
-                    </div>
-
-                    <!-- Main illustration -->
-                    <div class="glass-effect relative z-0 rounded-3xl overflow-hidden shadow-fun">
-                        <div class="aspect-w-4 aspect-h-3 w-full">
-                            <!-- Using a more casual, modern image -->
-                            <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                                alt="People chatting and collaborating" class="object-cover w-full h-full" />
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-indigo-600/10"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
-                            <div class="text-sm font-medium opacity-90">Join the</div>
-                            <div class="text-xl sm:text-2xl font-display font-bold">Conversation</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Left Content -->
-            <div class="w-full md:w-7/12 pt-4 sm:pt-8 md:pt-0">
-                <div class="glass-effect rounded-3xl p-5 sm:p-7 md:p-10 shadow-fun">
+    <div class="container max-w-screen-lg mx-auto mt-16 sm:mt-20 px-4 sm:px-6 lg:px-8">
+        <!-- Modern Hero Layout -->
+        <div class="flex flex-col md:flex-row md:items-center md:gap-12 animate-fade-slide-up pt-6 md:pt-12">
+            <!-- Main Content -->
+            <div class="w-full">
+                <div class="bg-white rounded-2xl p-6 sm:p-8 md:p-10 shadow-soft border border-gray-100">
                     <!-- Main Content -->
                     <h1
-                        class="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 sm:mb-5 text-indigo-900 leading-tight">
-                        Chat, share & <span class="text-indigo-600">connect</span> with the community
+                        class="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-4 sm:mb-6 text-gray-900 leading-tight">
+                        Chat, share & <span class="text-gray-800">connect</span> with the community
                     </h1>
 
-                    <p class="text-slate-600 text-base sm:text-lg mb-6 sm:mb-8 leading-relaxed">
+                    <p class="text-gray-600 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed max-w-2xl">
                         Jump into real-time conversations, exchange ideas, and hang out with fellow EP Platform users in
                         our casual community space.
                     </p>
 
-                    <!-- Features Highlight (Responsive) -->
+                    <!-- Features Grid with Elegant White Design -->
                     <div
-                        class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 animate-fade-slide-up-delay-1">
+                        class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8 sm:mb-10 animate-fade-slide-up-delay-1">
                         <div
-                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
+                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
                             <div
-                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-indigo-800">Safe & Secure</h3>
-                                <p class="text-sm text-slate-500">End-to-end encrypted messaging</p>
+                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Safe & Secure</h3>
+                                <p class="text-gray-600">End-to-end encrypted messaging for your privacy and security
+                                </p>
                             </div>
                         </div>
 
                         <div
-                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
+                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
                             <div
-                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-indigo-800">Instant Chat</h3>
-                                <p class="text-sm text-slate-500">Real-time messaging</p>
+                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Instant Chat</h3>
+                                <p class="text-gray-600">Real-time messaging to keep conversations flowing naturally</p>
                             </div>
                         </div>
 
                         <div
-                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
+                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
                             <div
-                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-indigo-800">Cool People</h3>
-                                <p class="text-sm text-slate-500">Connect with the community</p>
+                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Community Focus</h3>
+                                <p class="text-gray-600">Connect with like-minded professionals in a friendly
+                                    environment</p>
                             </div>
                         </div>
 
                         <div
-                            class="feature-card bg-white p-3 sm:p-4 rounded-2xl shadow-subtle border border-indigo-50 flex items-start gap-3">
+                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
                             <div
-                                class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-indigo-800">Good Vibes</h3>
-                                <p class="text-sm text-slate-500">Friendly, moderated space</p>
+                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Moderated Space</h3>
+                                <p class="text-gray-600">A friendly, well-moderated environment for meaningful
+                                    discussions</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CTA Buttons (Improved for mobile) -->
-                    <div class="flex flex-col sm:flex-row gap-3 animate-fade-slide-up-delay-2">
+                    <!-- CTA Buttons (Improved for mobile with elegant styling) -->
+                    <div class="flex flex-col sm:flex-row gap-4 animate-fade-slide-up-delay-2">
                         <button onclick="location.href='/chat'"
-                            class="px-5 sm:px-7 py-3.5 bg-indigo-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:shadow-indigo-200 transition-all duration-300 flex items-center justify-center gap-2 btn-hover-effect flex-1 mobile-touch-target">
+                            class="px-6 sm:px-8 py-4 bg-gray-900 text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 btn-hover-effect flex-1 mobile-touch-target">
                             <span>Jump into chat</span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                 fill="currentColor">
@@ -478,7 +378,7 @@
                         </button>
 
                         <button id="showDisclaimer"
-                            class="px-5 sm:px-7 py-3.5 border-2 border-indigo-200 hover:border-indigo-300 text-indigo-700 font-medium rounded-xl transition-colors duration-300 flex items-center justify-center gap-2 flex-1 mobile-touch-target">
+                            class="px-6 sm:px-8 py-4 border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-medium rounded-xl transition-colors duration-300 flex items-center justify-center gap-2 flex-1 mobile-touch-target">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -487,69 +387,25 @@
                             <span>Learn more</span>
                         </button>
                     </div>
-                </div>
 
-                <!-- User testimonials (Mobile-optimized) -->
-                <div
-                    class="mt-6 sm:mt-8 mobile-testimonials overflow-x-auto pb-4 px-1 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent flex gap-3 sm:gap-4">
-                    <div
-                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
-                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div
-                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                MS</div>
-                            <p class="font-medium">Morgan S.</p>
+                    <!-- Simple, elegant divider -->
+                    <div class="my-10 border-t border-gray-100"></div>
+
+                    <!-- Footer (Simplified, elegant, and responsive) -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
+                        <div class="mb-3 sm:mb-0">EP Platforms © 2025</div>
+                        <div class="flex gap-6">
+                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Privacy</a>
+                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Terms</a>
+                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Help</a>
                         </div>
-                        <p class="text-sm text-gray-600">"Love connecting with other users here! Super helpful
-                            community."</p>
-                    </div>
-
-                    <div
-                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
-                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div
-                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                JD</div>
-                            <p class="font-medium">Jamie D.</p>
-                        </div>
-                        <p class="text-sm text-gray-600">"Finally, a place to chat with others using the platform! 👏"
-                        </p>
-                    </div>
-
-                    <div
-                        class="bg-white p-3.5 sm:p-4 rounded-xl shadow-subtle border border-indigo-50 min-w-[200px] flex-1">
-                        <div class="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div
-                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                AK</div>
-                            <p class="font-medium">Alex K.</p>
-                        </div>
-                        <p class="text-sm text-gray-600">"Got my question answered in seconds. This is awesome!"</p>
-                    </div>
-                </div>
-
-                <!-- Testimonial scroll indicator for mobile -->
-                <div class="testimonial-scroll-indicator sm:hidden">
-                    <div class="active"></div>
-                    <div></div>
-                    <div></div>
-                </div>
-
-                <!-- Footer (Simplified and responsive) -->
-                <div
-                    class="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 px-2 text-xs text-indigo-400">
-                    <div class="mb-2 sm:mb-0">EP Platforms © 2025</div>
-                    <div class="flex gap-4">
-                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Privacy</a>
-                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Terms</a>
-                        <a href="#" class="hover:text-indigo-600 transition-colors py-1 px-2">Help</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script for popup functionality and mobile enhancements -->
+    <!-- Script for popup functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const disclaimerPopup = document.getElementById('disclaimerPopup');
@@ -589,30 +445,6 @@
                     hidePopup();
                 }
             });
-
-            // Mobile testimonial scroll indicator
-            const testimonialContainer = document.querySelector('.mobile-testimonials');
-            const indicators = document.querySelectorAll('.testimonial-scroll-indicator > div');
-
-            if (testimonialContainer && window.innerWidth < 640) {
-                testimonialContainer.addEventListener('scroll', function () {
-                    const scrollPosition = testimonialContainer.scrollLeft;
-                    const containerWidth = testimonialContainer.clientWidth;
-                    const maxScroll = testimonialContainer.scrollWidth - containerWidth;
-
-                    // Calculate which testimonial is in view
-                    const activeIndex = Math.round((scrollPosition / maxScroll) * (indicators.length - 1));
-
-                    // Update indicators
-                    indicators.forEach((indicator, index) => {
-                        if (index === activeIndex) {
-                            indicator.classList.add('active');
-                        } else {
-                            indicator.classList.remove('active');
-                        }
-                    });
-                });
-            }
         });
     </script>
 </body>

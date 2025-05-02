@@ -9,6 +9,8 @@ let lastTypingTime = 0;
 let replyTo = null;
 let username = null;
 let unreadCount = 0;
+let otherOnline = false;
+const readMsgs = new Set();
 
 // ─── UNREAD-BADGE HELPER ─────────────────────────────────────────────────────
 function updateArrowIndicator() {
@@ -240,35 +242,50 @@ function appendMessage({
     : "";
 
   li.innerHTML = `
-    ${avatarHtml}
-    <div class="self-${
-      isSelf ? "end" : "start"
-    } ${bubbleBg} message-bubble ${bubbleFitClass}">
-      ${quoteHtml}
-      <div class="break-words whitespace-normal">${linkedMessage}</div>
-      <div class="mt-1.5 text-xs flex items-center justify-between gap-2 message-info ${
-        isSelf ? "text-white/80" : "text-gray-500"
-      }">
-        <span class="${isSelf ? "order-2" : ""}">${
-    !isSelf ? `<strong class="font-medium">${user}</strong>` : ""
-  }</span>
-        <span class="${isSelf ? "order-1" : ""}">${timeStr}</span>
+  ${avatarHtml}
+  <div class="self-${
+    isSelf ? "end" : "start"
+  } ${bubbleBg} message-bubble ${bubbleFitClass}">
+    ${quoteHtml}
+    <div class="break-words whitespace-normal">${linkedMessage}</div>
+
+    <!-- ── TICK & TIMESTAMP ROW ─────────────────────────────────────── -->
+    <div class="mt-1.5 text-xs flex items-center ${
+      isSelf ? "justify-end text-white/80" : "justify-between text-gray-500"
+    } gap-2 message-info">
+      ${
+        isSelf
+          ? // if it's our own message, show double‐tick if already read or anyone’s online,
+            // otherwise single tick
+            `<span class="tick-indicator">${
+              readMsgs.has(_id) || otherOnline ? "✓✓" : "✓"
+            }</span>`
+          : // non‐self messages still show the sender’s name
+            `<strong class="font-medium">${user}</strong>`
+      }
+      <span>${timeStr}</span>
+    </div>
+  </div>
+
+  ${
+    isSelf
+      ? `
+    <div class="flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-indigo-500 text-xs font-medium border border-gray-200">
+        ${user.substring(0, 2).toUpperCase()}
       </div>
     </div>
-    ${
-      isSelf
-        ? `
-      <div class="flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-indigo-500 text-xs font-medium border border-gray-200">
-          ${user.substring(0, 2).toUpperCase()}
-        </div>
-      </div>
-    `
-        : ""
-    }
-  `;
+  `
+      : ""
+  }
+`;
 
   messagesEl.appendChild(li);
+
+  // If this is our own message and someone else is online, mark it read
+  if (isSelf && otherOnline) {
+    readMsgs.add(_id);
+  }
 
   // --- render reaction bar ---
   const reactionsDiv = document.createElement("div");
@@ -642,6 +659,20 @@ socket.on("online users", (count) => {
   const el = document.getElementById("online-count-text");
   if (!el) return;
   el.textContent = `${count} online`;
+
+  // 2) update our flag
+  otherOnline = count > 1;
+
+  // 3) any *unread* self‐messages should now flip to ✓✓ once
+  document.querySelectorAll(".tick-indicator").forEach((span) => {
+    const li = span.closest("li[data-message-id]");
+    if (!li) return;
+    const mid = li.dataset.messageId;
+    if (otherOnline && !readMsgs.has(mid)) {
+      readMsgs.add(mid);
+      span.textContent = "✓✓";
+    }
+  });
 });
 
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
