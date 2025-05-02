@@ -173,30 +173,16 @@
 
         /* make bubbles span a bit more on small phones */
         @media (max-width: 640px) {
-            #messages-container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-
-            .conversation-container {
-                max-width: none;
-            }
-
+ 
             .message-bubble {
-                max-width: 95%;
-                padding: 1rem 1.2rem;
+                max-width: 88%;
+                padding: 0.8rem 1rem;
             }
         }
 
         @media (min-width: 1024px) {
             .message-bubble {
                 max-width: 65%;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            #messages-container {
-                height: auto !important;
             }
         }
 
@@ -525,7 +511,7 @@
                 <div class="flex items-center space-x-3">
                     <!-- User Badge -->
                     <div id="user-name"
-                        class="px-4 py-2 bg-primary-50 rounded-full text-sm font-small text-primary-700 shadow-sm flex items-center">
+                        class="px-4 py-2 bg-primary-50 rounded-full text-sm font-medium text-primary-700 shadow-sm flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-primary-500" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -535,7 +521,7 @@
                     </div>
 
                     <div id="online-count"
-                        class="flex items-center space-x-1 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-xs font-small shadow-sm">
+                        class="flex items-center space-x-1 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium shadow-sm">
                         <span id="online-count-text">0 users online</span>
                     </div>
                 </div>
@@ -554,7 +540,7 @@
         <!-- MESSAGES WITH ENHANCED STYLING -->
         <!-- after -->
         <div id="messages-container"
-            class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-3 scrollbar-custom chat-bg">
+            class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-3 scrollbar-custom chat-bg h-chat-mobile lg:h-chat-desktop">
             <div class="conversation-container max-w-4xl mx-auto">
                 <ul id="messages" class="space-y-6 pb-1"></ul>
             </div>
