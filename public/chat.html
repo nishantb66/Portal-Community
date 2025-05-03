@@ -470,9 +470,26 @@
         }
 
         /* ─── Highlight effect when scrolling-to a quoted message ───────────────── */
+        /* ─── Professional pulsing highlight on jump-to ─────────────────────────── */
+        @keyframes highlight-pulse {
+            0% {
+                background-color: rgba(12, 150, 230, 0.25);
+                box-shadow: 0 0 8px rgba(12, 150, 230, 0.4);
+            }
+
+            60% {
+                background-color: rgba(12, 150, 230, 0.10);
+                box-shadow: 0 0 4px rgba(12, 150, 230, 0.3);
+            }
+
+            100% {
+                background-color: transparent;
+                box-shadow: none;
+            }
+        }
+
         .highlight {
-            background-color: rgba(12, 150, 230, 0.2);
-            transition: background-color 2s ease-out;
+            animation: highlight-pulse 1.5s ease-out forwards;
         }
     </style>
 </head>
