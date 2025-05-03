@@ -1,5 +1,32 @@
 const socket = io();
 
+// ─── LEAVE BUTTON + MODAL ────────────────────────────────────────────────────
+const leaveModal = document.getElementById("leave-modal");
+const leaveBtn = document.getElementById("leave-btn");
+const leaveConfirm = document.getElementById("leave-confirm");
+
+function leaveChat() {
+  socket.disconnect();
+  window.location.href = "/";
+}
+
+// wire up both buttons
+leaveBtn.addEventListener("click", leaveChat);
+leaveConfirm.addEventListener("click", leaveChat);
+
+// block any “back” navigation
+history.pushState(null, null, location.href);
+window.addEventListener("popstate", () => {
+  if (!leaveModal.classList.contains("hidden")) {
+    // modal is already visible → bounce forward
+    history.go(1);
+  } else {
+    // first back-press → show modal, push a new state
+    history.pushState(null, null, location.href);
+    leaveModal.classList.remove("hidden");
+  }
+});
+
 // ─── PRIVATE-CHAT TOGGLE ─────────────────────────────────────────────────────
 const privacyToggle = document.getElementById("privacy-toggle");
 privacyToggle.addEventListener("change", (e) => {
@@ -836,13 +863,16 @@ socket.on("private status", (state) => {
   appendSystemMessage(`🔒 Chat is now ${state ? "Private" : "Public"}.`);
 });
 
-// ─── REPORT ACTIVITY FOR IDLE-TIMEOUT ─────────────────────────────────────────
+// ─── REPORT ACTIVITY + AUTO-LEAVE ON IDLE ──────────────────────────────────
 let _throttle = false;
+let idleTimer = null;
+
 function reportActivity() {
   socket.emit("activity");
+  resetIdleTimer();
 }
 
-// throttle to once every 30s
+// throttle your server-pings
 document.addEventListener("mousemove", () => {
   if (!_throttle) {
     reportActivity();
@@ -851,6 +881,20 @@ document.addEventListener("mousemove", () => {
   }
 });
 document.addEventListener("keydown", reportActivity);
+
+// also treat typing in the chat input as “activity”
+msgInput.addEventListener("input", reportActivity);
+
+// start / reset our 5-minute auto-leave clock
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    leaveChat();
+  }, 5 * 60 * 1000);
+}
+
+// fire it once on page load:
+resetIdleTimer();
 
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity

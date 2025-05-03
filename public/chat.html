@@ -579,7 +579,9 @@
                         </span>
                     </label>
 
-
+                    <button id="leave-btn" class="ml-2 text-xs font-medium text-red-400 hover:text-red-500 transition">
+                        Leave
+                    </button>
 
 
                 </div>
@@ -666,6 +668,19 @@
             <!-- emojis will be injected here -->
         </div>
     </div>
+
+    <!-- ─── FORCE-LEAVE MODAL (shown on back-button) ──────────────────────────── -->
+    <div id="leave-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-lg text-center">
+            <h3 class="text-lg font-semibold mb-4">Hold on!</h3>
+            <p class="mb-6">You can’t leave via your browser’s back/forward buttons. Please click “Leave” to exit.</p>
+            <button id="leave-confirm" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                Leave
+            </button>
+        </div>
+    </div>
+    <!-- ──────────────────────────────────────────────────────────────────────────── -->
+
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
