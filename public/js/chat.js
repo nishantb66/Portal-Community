@@ -896,6 +896,10 @@ function resetIdleTimer() {
 // fire it once on page load:
 resetIdleTimer();
 
+document.getElementById("stay-button").addEventListener("click", function () {
+  document.getElementById("leave-modal").classList.add("hidden");
+});
+
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
 setInterval(() => {

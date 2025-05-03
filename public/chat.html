@@ -670,13 +670,41 @@
     </div>
 
     <!-- ─── FORCE-LEAVE MODAL (shown on back-button) ──────────────────────────── -->
-    <div id="leave-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-lg text-center">
-            <h3 class="text-lg font-semibold mb-4">Hold on!</h3>
-            <p class="mb-6">You can’t leave via your browser’s back/forward buttons. Please click “Leave” to exit.</p>
-            <button id="leave-confirm" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
-                Leave
-            </button>
+    <div id="leave-modal"
+        class="fixed inset-0 bg-white-cool/70 backdrop-blur-lg flex items-center justify-center hidden z-50 p-4">
+        <div
+            class="bg-white rounded-3xl p-7 max-w-sm w-11/12 mx-auto shadow-elevated border border-gray-100 popup-enter">
+            <!-- Friendly icon -->
+            <div class="flex justify-center mb-5">
+                <div
+                    class="blob-shape h-16 w-16 bg-white-warm flex items-center justify-center border border-gray-100 shadow-subtle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Friendly message -->
+            <h3 class="text-2xl font-display font-semibold mb-3 text-center text-gray-800">Leaving so soon?</h3>
+            <p class="mb-6 text-gray-600 text-center">We'd hate to see you go! Are you sure you want to leave the chat?
+            </p>
+
+            <!-- Button group -->
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <!-- Keep the same ID for the leave button to maintain functionality -->
+                <button id="leave-confirm"
+                    class="order-2 sm:order-1 flex-1 px-5 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors duration-300 flex items-center justify-center gap-2 bubble-btn">
+                    Yes, leave
+                </button>
+
+                <!-- New stay button -->
+                <button id="stay-button"
+                    class="order-1 sm:order-2 flex-1 px-5 py-3.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full shadow-button hover:shadow-lg transition-all duration-300 btn-hover-effect bubble-btn">
+                    No, stay
+                </button>
+            </div>
         </div>
     </div>
     <!-- ──────────────────────────────────────────────────────────────────────────── -->
