@@ -51,12 +51,12 @@ const messagesEl = document.getElementById("messages");
 const container = document.getElementById("messages-container");
 const typingIndicator = document.getElementById("typing-indicator");
 const typingAnimation = document.querySelector(".typing-animation");
-const typingIndicatorInline = document.getElementById(
-  "typing-indicator-inline"
-);
-const typingAnimationInline = document.querySelector(
-  "#typing-indicator-inline .typing-animation"
-);
+// const typingIndicatorInline = document.getElementById(
+//   "typing-indicator-inline"
+// );
+// const typingAnimationInline = document.querySelector(
+//   "#typing-indicator-inline .typing-animation"
+// );
 
 // ─── Name‐entry logic ──────────────────────────────────────────────────────────
 nameSubmit.addEventListener("click", () => {
@@ -116,25 +116,13 @@ function renderTyping() {
 
   if (!others.length) {
     typingAnimation.classList.add("hidden");
-    typingAnimationInline.classList.add("hidden");
     typingIndicator.textContent = "";
-    typingIndicatorInline.textContent = "";
     return;
   }
-
   typingAnimation.classList.remove("hidden");
-  typingAnimationInline.classList.remove("hidden");
-
-  if (others.length > 3) {
-    typingIndicator.textContent = " Several people are typing...";
-    typingIndicatorInline.textContent = "Several people are typing...";
-  } else {
-    const text = `${others.join(", ")}${
-      others.length === 1 ? " is typing..." : " are typing..."
-    }`;
-    typingIndicator.textContent = ` ${text}`;
-    typingIndicatorInline.textContent = text;
-  }
+  typingIndicator.textContent = ` ${others.join(", ")}${
+    others.length === 1 ? " is typing..." : " are typing..."
+  }`;
 }
 
 function clearReply() {
