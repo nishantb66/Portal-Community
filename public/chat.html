@@ -534,57 +534,58 @@
         </div>
 
         <!-- COMPACT DARK HEADER -->
+        <!-- COMPACT DARK HEADER -->
         <header class="sticky top-0 z-10 bg-gray-800 text-gray-100">
-            <div class="flex items-center justify-between px-2 py-2 bg-gray-900/80">
+            <div class="flex items-center justify-between px-2 sm:px-3 py-2 bg-gray-900/80">
                 <!-- User Badge + Online Count -->
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 overflow-x-auto mobile-badges-scroll">
                     <!-- Username -->
                     <div id="user-name"
-                        class="flex items-center space-x-1 bg-gray-700 px-2 py-1 rounded-full text-[10px] font-medium">
+                        class="flex items-center space-x-1 bg-gray-700 px-2.5 py-1 rounded-full text-[10px] font-medium touch-feedback">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span id="username-display" class="text-[10px]"></span>
+                        <span id="username-display" class="text-[10px] whitespace-nowrap"></span>
                     </div>
 
                     <!-- Online Count -->
                     <div id="online-count"
-                        class="flex items-center space-x-1 bg-gray-700 px-2 py-1 rounded-full text-[10px] font-medium">
+                        class="flex items-center space-x-1 bg-gray-700 px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap touch-feedback">
                         <span id="online-count-text">0 online</span>
                     </div>
 
                     <!-- ─── PROFESSIONAL COMPACT PRIVACY SWITCH (NO FOCUS BORDER) ─────────────────── -->
-                    <label for="privacy-toggle" class="relative inline-flex items-center select-none">
+                    <label for="privacy-toggle" class="relative inline-flex items-center select-none touch-feedback">
                         <!-- hidden checkbox, no outline on focus -->
                         <input id="privacy-toggle" type="checkbox"
                             class="sr-only peer focus:outline-none focus:ring-0" />
 
                         <!-- track: no focus ring classes here -->
                         <div class="w-8 h-4 bg-gray-300 rounded-full transition-colors duration-200
-           peer-checked:bg-blue-600">
+                                              peer-checked:bg-blue-600">
                         </div>
 
                         <!-- thumb -->
                         <div class="absolute w-3 h-3 bg-white rounded-full shadow transition-all duration-200
-           left-[2px] top-[2px]
-           peer-checked:left-[18px]">
+                                              left-[2px] top-[2px]
+                                              peer-checked:left-[18px]">
                         </div>
 
                         <!-- label text -->
                         <span class="ml-1 text-xs font-medium text-gray-500 transition-colors duration-200
-           peer-checked:text-blue-600">
+                                               peer-checked:text-blue-600">
                             Private
                         </span>
                     </label>
-
-                    <button id="leave-btn" class="ml-2 text-xs font-medium text-red-400 hover:text-red-500 transition">
-                        Leave
-                    </button>
-
-
                 </div>
+
+                <!-- Mobile-friendly Leave Button -->
+                <button id="leave-btn"
+                    class="ml-2 text-xs font-medium text-red-400 hover:text-red-500 transition bg-gray-800/50 px-2.5 py-1 rounded-full touch-feedback">
+                    Leave
+                </button>
             </div>
         </header>
 
