@@ -689,11 +689,12 @@
                     }
                 });
 
-                floatingAction.addEventListener("click", function () {
-                    // scroll down & reset unread
+                floatingAction.addEventListener("click", () => {
+                    userAutoScroll = true;
                     smoothScrollToBottom();
                     unreadCount = 0;
                     updateArrowIndicator();
+                    floatingAction.style.display = "none";
                 });
             }
 

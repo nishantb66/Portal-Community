@@ -12,6 +12,7 @@ let unreadCount = 0;
 let otherOnline = false;
 const readMsgs = new Set();
 let lastRenderedDate = null;
+let userAutoScroll = true;
 
 // ─── UNREAD-BADGE HELPER ─────────────────────────────────────────────────────
 function updateArrowIndicator() {
@@ -353,15 +354,12 @@ function appendMessage({
   }
   li.appendChild(reactionsDiv);
 
-  // ─── Auto-scroll vs. unread bump ──────────────────────────────────────────────
-  const isScrolledToBottom =
-    container.scrollHeight - container.scrollTop <=
-    container.clientHeight + 100;
-
-  if (isScrolledToBottom) {
+  // ─── Auto-scroll or unread bump ───────────────────────────────────────────────
+  if (isSelf || userAutoScroll) {
+    // always scroll on your own messages, or if the user was already at bottom
     smoothScrollToBottom();
-  } else if (!isSelf) {
-    // only bump once per new message from others
+  } else {
+    // user has scrolled up, so bump the unread count
     unreadCount++;
     updateArrowIndicator();
   }
@@ -726,6 +724,22 @@ if ("ontouchstart" in window) {
     swipeItem = null;
   });
 }
+
+container.addEventListener("scroll", () => {
+  const tolerance = 20; // px
+  const atBottom =
+    container.scrollHeight - container.scrollTop <=
+    container.clientHeight + tolerance;
+
+  userAutoScroll = atBottom;
+
+  // if they’ve scrolled back to bottom manually, clear unread badge
+  if (atBottom) {
+    unreadCount = 0;
+    updateArrowIndicator();
+    document.querySelector(".floating-action").style.display = "none";
+  }
+});
 
 // ─── Listen for reaction updates & re-render ──────────────────────────────
 // ─── keep everyone in sync when reactions change ────────────────────────────
