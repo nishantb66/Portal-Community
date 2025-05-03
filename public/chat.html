@@ -498,30 +498,28 @@
     <div class="chat-container">
         <!-- NAME ENTRY MODAL -->
         <div id="name-modal"
-            class="fixed inset-0 bg-primary-800/30 modal-backdrop flex items-center justify-center z-50">
-            <div class="bg-white rounded-2xl p-8 w-11/12 max-w-md shadow-elevated transform transition-all">
+            class="fixed inset-0 bg-white-cool/70 backdrop-blur-lg modal-backdrop flex items-center justify-center z-50">
+            <div
+                class="bg-white rounded-3xl p-7 w-11/12 max-w-md shadow-elevated transform transition-all border border-gray-100 popup-enter">
                 <!-- Logo -->
-                <div class="flex justify-center mb-7">
+                <div class="flex justify-center mb-6">
                     <div
-                        class="h-20 w-20 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center shadow-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary-600" fill="none"
+                        class="blob-shape h-20 w-20 bg-white-warm border border-gray-100 flex items-center justify-center shadow-subtle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-800" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                     </div>
                 </div>
-                <h2 class="text-2xl font-display font-semibold mb-3 text-center text-primary-900">Welcome to EP
-                    Platforms
-                </h2>
-                <p class="text-gray-600 text-center mb-7">Join our professional community discussion</p>
-                <div class="space-y-5">
-                    <input id="name-input" type="text" placeholder="Your professional name"
-                        class="w-full border border-gray-300 rounded-xl px-5 py-4 
-                        focus:outline-none focus:ring-3 focus:ring-primary-400/30 focus:border-primary-400 transition-all" />
-                    <button id="name-submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all
-                        font-medium flex items-center justify-center gap-2">
-                        <span>Join Discussion</span>
+                <h2 class="text-2xl font-display font-semibold mb-2 text-center text-gray-800">Hey there!</h2>
+                <p class="text-gray-600 text-center mb-6">What should we call you in the chat?</p>
+                <div class="space-y-4">
+                    <input id="name-input" type="text" placeholder="Your nickname" class="w-full border border-gray-200 rounded-full px-5 py-4 
+                focus:outline-none focus:ring-3 focus:ring-gray-200 focus:border-gray-300 transition-all" />
+                    <button id="name-submit" class="w-full bg-gray-800 hover:bg-gray-700 text-white px-4 py-4 rounded-full shadow-button hover:shadow-lg transition-all
+                font-medium flex items-center justify-center gap-2 btn-hover-effect">
+                        <span>Let's Chat!</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -529,9 +527,8 @@
                         </svg>
                     </button>
                 </div>
-                <div class="mt-7 text-center text-xs text-gray-500">
-                    By joining, you agree to our <a href="#" class="text-primary-600 hover:underline">Community
-                        Guidelines</a>
+                <div class="mt-6 text-center text-sm text-gray-500">
+                    Keep it fun, keep it friendly! 😊
                 </div>
             </div>
         </div>

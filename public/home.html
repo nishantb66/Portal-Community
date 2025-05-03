@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EP Platforms • Community Forum</title>
-    <!-- Fonts: Poppins for headings, Inter for body text -->
+    <title>Chatterbox • Community Space</title>
+    <!-- Fonts: Outfit for headings, Nunito for body text -->
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,8 +15,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Poppins', 'system-ui', 'sans-serif']
+                        sans: ['Nunito', 'system-ui', 'sans-serif'],
+                        display: ['Outfit', 'system-ui', 'sans-serif']
                     },
                     colors: {
                         white: {
@@ -26,33 +26,43 @@
                             'warm': '#f7f7f7',
                             'cool': '#f5f7fa',
                             'smoke': '#f0f2f5'
-                        },
-                        gray: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            300: '#d1d5db',
-                            400: '#9ca3af',
-                            500: '#6b7280',
-                            600: '#4b5563',
-                            700: '#374151',
-                            800: '#1f2937',
-                            900: '#111827',
                         }
                     },
                     boxShadow: {
                         'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
                         'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)',
                         'elevated': '0 10px 40px -12px rgba(0, 0, 0, 0.1)',
-                        'button': '0 4px 10px rgba(0, 0, 0, 0.05)'
+                        'button': '0 4px 10px rgba(0, 0, 0, 0.05)',
+                        'card-hover': '0 15px 35px -15px rgba(0, 0, 0, 0.1)'
                     }
                 }
             }
         }
     </script>
     <style>
-        :root {
-            --transition-smooth: all 0.3s ease;
+        /* Desktop: Fixed height, no scroll */
+        @media (min-width: 768px) {
+
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
+        }
+
+        /* Mobile: Allow scrolling */
+        @media (max-width: 767px) {
+
+            html,
+            body {
+                height: auto;
+                overflow-y: auto;
+            }
+
+            /* Add padding for mobile scroll experience */
+            body {
+                padding-bottom: 2rem;
+            }
         }
 
         body {
@@ -72,65 +82,157 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
 
-        .bg-subtle-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E5E7EB' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        /* Background patterns */
+        .bg-dots {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 18px 18px;
         }
 
-        @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        /* Moving dots background */
+        .moving-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .dot {
+            position: absolute;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            opacity: 0.6;
+            transform: translate(-50%, -50%);
+        }
+
+        .dot1 {
+            width: 180px;
+            height: 180px;
+            left: 10%;
+            top: 20%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .dot2 {
+            width: 220px;
+            height: 220px;
+            right: 10%;
+            bottom: 10%;
+            animation: float 25s ease-in-out infinite alternate;
+        }
+
+        .dot3 {
+            width: 140px;
+            height: 140px;
+            left: 60%;
+            top: 15%;
+            animation: float 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            25% {
+                transform: translate(5px, 15px) rotate(2deg);
+            }
+
+            50% {
+                transform: translate(-5px, 10px) rotate(-1deg);
+            }
+
+            75% {
+                transform: translate(10px, -5px) rotate(3deg);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(0deg);
             }
         }
 
-        .animate-fade-slide-up {
-            animation: fadeSlideUp 0.7s ease forwards;
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: perspective(1000px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: linear-gradient(130deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
-        .animate-fade-slide-up-delay-1 {
-            animation: fadeSlideUp 0.7s ease 0.15s forwards;
-            opacity: 0;
+        .feature-card:hover {
+            transform: translateY(-5px) perspective(1000px);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 255, 255, 1);
         }
 
-        .animate-fade-slide-up-delay-2 {
-            animation: fadeSlideUp 0.7s ease 0.3s forwards;
-            opacity: 0;
+        .feature-card .icon-wrapper {
+            transition: all 0.4s ease;
         }
 
-        /* Modal animation */
-        @keyframes fadeScale {
-            from {
-                opacity: 0;
-                transform: scale(0.98);
+        .feature-card:hover .icon-wrapper {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Blob shape animation */
+        @keyframes blobMorph {
+
+            0%,
+            100% {
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
             }
 
-            to {
-                opacity: 1;
-                transform: scale(1);
+            25% {
+                border-radius: 40% 60% 70% 30% / 30% 40% 60% 70%;
+            }
+
+            50% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+            }
+
+            75% {
+                border-radius: 60% 40% 30% 60% / 60% 30% 70% 40%;
             }
         }
 
-        .popup-enter {
-            animation: fadeScale 0.3s ease forwards;
+        .blob-shape {
+            animation: blobMorph 20s ease-in-out infinite;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.02);
         }
 
-        .popup-backdrop {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: opacity 0.3s ease;
+        /* Highlighter effect */
+        .highlight-text {
+            display: inline;
+            position: relative;
+            z-index: 1;
+        }
+
+        .highlight-text::after {
+            content: "";
+            position: absolute;
+            bottom: 0.1em;
+            left: -0.15em;
+            width: calc(100% + 0.3em);
+            height: 0.3em;
+            background: #f3f4f6;
+            z-index: -1;
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+        }
+
+        .highlight-text:hover::after {
+            height: 0.4em;
+            bottom: 0.05em;
+            background: #e5e7eb;
         }
 
         /* Button hover effect */
         .btn-hover-effect {
             position: relative;
             overflow: hidden;
-            transition: var(--transition-smooth);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .btn-hover-effect:after {
@@ -153,58 +255,308 @@
             transform: scale(3);
         }
 
-        /* Card hover effect */
-        .feature-card {
-            transition: var(--transition-smooth);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.08);
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f9fafb;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #e5e7eb;
-            border-radius: 50px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #d1d5db;
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
 
         /* Mobile optimizations */
         @media (max-width: 640px) {
-            .mobile-full-height {
-                min-height: 100vh;
+            .mobile-touch-target {
+                min-height: 48px;
+                min-width: 48px;
             }
 
-            /* Better touch targets for mobile */
-            .mobile-touch-target {
-                min-height: 44px;
-                min-width: 44px;
+            .bubble-btn {
+                transform-origin: center;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
+
+            .bubble-btn:active {
+                transform: scale(0.95);
+            }
+        }
+
+        /* Modal animation */
+        @keyframes fadeScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .popup-enter {
+            animation: fadeScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .popup-backdrop {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        /* Mobile animation */
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .float-animation {
+            animation: floatUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .float-delay-1 {
+            animation-delay: 0.15s;
+            opacity: 0;
+        }
+
+        .float-delay-2 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .float-delay-3 {
+            animation-delay: 0.45s;
+            opacity: 0;
+        }
+
+        .float-delay-4 {
+            animation-delay: 0.6s;
+            opacity: 0;
+        }
+
+        /* Text gradient */
+        .text-gradient {
+            background: linear-gradient(to right, #1f2937, #4b5563);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Sparkle effect */
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e5e7eb, 0 0 40px #e5e7eb;
+            animation: sparkle 1.5s infinite;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            left: 90%;
+            animation-delay: 0.4s;
+        }
+
+        .sparkle:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            animation-delay: 0.8s;
+        }
+
+        .sparkle:nth-child(4) {
+            top: 30%;
+            left: 80%;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Touch ripple effect for mobile */
+        .touch-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .touch-ripple::after {
+            content: '';
+            position: absolute;
+            opacity: 0;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(0);
+            transition: opacity 0.6s, transform 0.6s;
+        }
+
+        .touch-ripple:active::after {
+            transform: scale(2);
+            opacity: 1;
+            transition: 0s;
         }
     </style>
 </head>
 
 <body
-    class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 font-sans antialiased text-gray-700 bg-white-cool bg-subtle-pattern">
-    <!-- Disclaimer Popup -->
+    class="font-sans antialiased text-gray-700 bg-white-cool bg-dots md:h-full md:flex md:items-center md:justify-center">
+    <!-- Moving background elements -->
+    <div class="moving-dots">
+        <div class="dot dot1"></div>
+        <div class="dot dot2"></div>
+        <div class="dot dot3"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div class="container max-w-5xl mx-auto px-5 pt-12 pb-8 md:px-6 md:py-0 md:h-full md:flex md:items-center relative">
+        <!-- Main Content -->
+        <div class="w-full flex flex-col md:flex-row gap-10 md:gap-16 relative">
+            <!-- Left Section: Title and Description -->
+            <div class="w-full md:w-5/12 flex flex-col justify-center float-animation">
+                <div class="mb-6 relative">
+                    <div class="blob-shape absolute -left-3 -top-3 w-16 h-16 bg-gray-100 -z-10"></div>
+                    <h1
+                        class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-gray-800 leading-tight relative z-10">
+                        <span class="highlight-text">chill</span>
+                        <span class="text-gradient">chat</span>
+                        <br class="md:hidden">
+                        <span class="relative">space</span>
+                    </h1>
+                </div>
+
+                <p class="text-gray-600 text-lg sm:text-xl mb-8 leading-relaxed float-animation float-delay-1 max-w-lg">
+                    A cozy corner to hang out, share vibes, meet friends, and just be your authentic self.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-8 float-animation float-delay-2">
+                    <button onclick="location.href='/chat'"
+                        class="px-7 py-4 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full shadow-button hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 btn-hover-effect mobile-touch-target text-base bubble-btn touch-ripple">
+                        <span>Jump in</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <button id="showDisclaimer"
+                        class="px-7 py-4 border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors duration-300 flex items-center justify-center gap-2.5 mobile-touch-target text-base bubble-btn touch-ripple">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>What's this?</span>
+                    </button>
+                </div>
+
+                <div class="text-sm text-gray-500 float-animation float-delay-3 flex items-center">
+                    <span class="italic mr-2">Crafted by</span>
+                    <span class="font-medium text-gray-700">Nishant Baruah</span>
+                    <div class="inline-flex ml-2">
+                        <div class="h-4 w-4 bg-gray-100 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Feature Cards -->
+            <div class="w-full md:w-7/12 mt-4 md:mt-0">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation touch-ripple">
+                        <div
+                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform rotate-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Real Talk</h3>
+                        <p class="text-gray-600 leading-relaxed">No filters, just be yourself and chat about whatever's
+                            on your mind</p>
+                    </div>
+
+                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-1 touch-ripple">
+                        <div
+                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform -rotate-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Instant Vibes</h3>
+                        <p class="text-gray-600 leading-relaxed">Messages appear instantly so conversations flow
+                            naturally</p>
+                    </div>
+
+                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-2 touch-ripple">
+                        <div
+                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform rotate-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Find Your People</h3>
+                        <p class="text-gray-600 leading-relaxed">Connect with others who share your interests and vibe
+                        </p>
+                    </div>
+
+                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-3 touch-ripple">
+                        <div
+                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform -rotate-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Drama-Free Zone</h3>
+                        <p class="text-gray-600 leading-relaxed">Just good vibes and friendly chats without the nonsense
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Popup - Casual Version -->
     <div id="disclaimerPopup" class="hidden fixed inset-0 z-50 popup-backdrop flex items-center justify-center p-4">
-        <div class="popup-enter bg-white max-w-md w-full rounded-2xl shadow-elevated p-5 md:p-8 relative mx-3">
+        <div
+            class="popup-enter bg-white max-w-md w-full rounded-3xl shadow-elevated p-7 md:p-8 relative mx-3 border border-gray-50">
             <!-- Close button -->
             <button id="closePopup" title="Close popup"
-                class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-white-warm transition-colors mobile-touch-target">
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2.5 rounded-full hover:bg-white-warm transition-colors mobile-touch-target bubble-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -213,215 +565,91 @@
             </button>
 
             <!-- Popup header -->
-            <div class="flex items-center mb-5">
+            <div class="flex items-center mb-6">
                 <div
-                    class="h-10 w-10 rounded-full bg-white-warm flex items-center justify-center mr-3 flex-shrink-0 border border-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none"
+                    class="blob-shape h-14 w-14 bg-white-warm flex items-center justify-center mr-4 flex-shrink-0 border border-gray-100 shadow-soft">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-display font-semibold text-gray-900">Hey, real quick!</h3>
+                <h3 class="text-2xl font-display font-semibold text-gray-800">About This Space</h3>
             </div>
 
             <!-- Popup content -->
-            <div class="prose prose-sm max-w-none mb-6 text-gray-600">
-                <p class="mb-3">This is an <strong class="text-gray-800">experimental feature</strong> in the EP
-                    Platforms world, just for casual chats and connections.</p>
+            <div class="prose prose-sm max-w-none mb-7 text-gray-600">
+                <p class="mb-4">This is just a <strong class="text-gray-800">casual hangout spot</strong> where you can
+                    chat with others, share thoughts, and make new friends.</p>
 
-                <p class="mb-2">Quick notes:</p>
-                <ul class="list-disc pl-5 space-y-1.5">
-                    <li>Everyone can see what you post (no private DMs)</li>
-                    <li>We don't collect or share your personal info</li>
-                    <li>Feel free to use any display name you like</li>
-                    <li>This is just a fun add-on to the main EP experience</li>
+                <p class="mb-3">Just FYI:</p>
+                <ul class="list-none pl-1 space-y-2.5">
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Everyone can see what you post (no secret DMs yet)
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        We don't collect any personal info
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Use any nickname you want
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Just be nice to each other!
+                    </li>
                 </ul>
 
-                <div class="mt-4 p-3 bg-white-smoke rounded-xl text-gray-800 text-sm">
-                    <p>Keep it casual and avoid sharing anything sensitive or confidential, cool?</p>
+                <div class="mt-5 p-4 bg-white-smoke rounded-2xl text-gray-700 text-sm border border-gray-100">
+                    <p class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Think of this like chatting with friends at a coffee shop - keep it casual and fun!
+                    </p>
                 </div>
             </div>
 
             <!-- Confirm button -->
             <button id="confirmPopup"
-                class="w-full py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-300 btn-hover-effect">
-                Got it, let's go!
+                class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-2xl shadow-button hover:shadow-lg transition-all duration-300 btn-hover-effect bubble-btn">
+                Got it, let's chat!
             </button>
         </div>
     </div>
 
-    <!-- Header/Nav (Improved for mobile) -->
-    <nav
-        class="w-full fixed top-0 left-0 z-30 glass-effect px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-gray-100">
-        <div class="flex items-center space-x-2.5">
-            <div class="h-8 w-8 rounded-lg bg-gray-800 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-            </div>
-            <span class="font-display font-medium text-gray-900">EP Community</span>
-        </div>
-
-        <button id="showDisclaimerNav"
-            class="text-sm text-gray-700 hover:text-gray-900 font-medium flex items-center gap-1.5 mobile-touch-target py-1.5 px-2.5">
-            <span>Info</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </button>
-    </nav>
-
-    <div class="container max-w-screen-lg mx-auto mt-16 sm:mt-20 px-4 sm:px-6 lg:px-8">
-        <!-- Modern Hero Layout -->
-        <div class="flex flex-col md:flex-row md:items-center md:gap-12 animate-fade-slide-up pt-6 md:pt-12">
-            <!-- Main Content -->
-            <div class="w-full">
-                <div class="bg-white rounded-2xl p-6 sm:p-8 md:p-10 shadow-soft border border-gray-100">
-                    <!-- Main Content -->
-                    <h1
-                        class="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-4 sm:mb-6 text-gray-900 leading-tight">
-                        Chat, share & <span class="text-gray-800">connect</span> with the community
-                    </h1>
-
-                    <p class="text-gray-600 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed max-w-2xl">
-                        Jump into real-time conversations, exchange ideas, and hang out with fellow EP Platform users in
-                        our casual community space.
-                    </p>
-
-                    <!-- Features Grid with Elegant White Design -->
-                    <div
-                        class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8 sm:mb-10 animate-fade-slide-up-delay-1">
-                        <div
-                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
-                            <div
-                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Safe & Secure</h3>
-                                <p class="text-gray-600">End-to-end encrypted messaging for your privacy and security
-                                </p>
-                            </div>
-                        </div>
-
-                        <div
-                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
-                            <div
-                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Instant Chat</h3>
-                                <p class="text-gray-600">Real-time messaging to keep conversations flowing naturally</p>
-                            </div>
-                        </div>
-
-                        <div
-                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
-                            <div
-                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Community Focus</h3>
-                                <p class="text-gray-600">Connect with like-minded professionals in a friendly
-                                    environment</p>
-                            </div>
-                        </div>
-
-                        <div
-                            class="feature-card bg-white p-4 sm:p-5 rounded-xl shadow-subtle border border-gray-100 flex items-start gap-4">
-                            <div
-                                class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white-warm flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-lg mb-1">Moderated Space</h3>
-                                <p class="text-gray-600">A friendly, well-moderated environment for meaningful
-                                    discussions</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CTA Buttons (Improved for mobile with elegant styling) -->
-                    <div class="flex flex-col sm:flex-row gap-4 animate-fade-slide-up-delay-2">
-                        <button onclick="location.href='/chat'"
-                            class="px-6 sm:px-8 py-4 bg-gray-900 text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 btn-hover-effect flex-1 mobile-touch-target">
-                            <span>Jump into chat</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-
-                        <button id="showDisclaimer"
-                            class="px-6 sm:px-8 py-4 border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-medium rounded-xl transition-colors duration-300 flex items-center justify-center gap-2 flex-1 mobile-touch-target">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>Learn more</span>
-                        </button>
-                    </div>
-
-                    <!-- Simple, elegant divider -->
-                    <div class="my-10 border-t border-gray-100"></div>
-
-                    <!-- Footer (Simplified, elegant, and responsive) -->
-                    <div class="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
-                        <div class="mb-3 sm:mb-0">EP Platforms © 2025</div>
-                        <div class="flex gap-6">
-                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Privacy</a>
-                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Terms</a>
-                            <a href="#" class="hover:text-gray-800 transition-colors py-1.5 px-2">Help</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Script for popup functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const disclaimerPopup = document.getElementById('disclaimerPopup');
             const showDisclaimer = document.getElementById('showDisclaimer');
-            const showDisclaimerNav = document.getElementById('showDisclaimerNav');
             const closePopup = document.getElementById('closePopup');
             const confirmPopup = document.getElementById('confirmPopup');
 
-            // Show popup from both buttons
+            // Show popup
             function showPopup() {
                 disclaimerPopup.classList.remove('hidden');
                 document.body.style.overflow = 'hidden'; // Prevent scrolling
             }
 
             showDisclaimer.addEventListener('click', showPopup);
-            showDisclaimerNav.addEventListener('click', showPopup);
 
             // Hide popup functions
             function hidePopup() {
@@ -444,6 +672,35 @@
                 if (e.key === 'Escape' && !disclaimerPopup.classList.contains('hidden')) {
                     hidePopup();
                 }
+            });
+
+            // Add touch ripple effect for mobile
+            const touchElements = document.querySelectorAll('.touch-ripple');
+
+            touchElements.forEach(el => {
+                el.addEventListener('touchstart', function (e) {
+                    const rect = el.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+
+                    const ripple = el.querySelector('.ripple');
+                    if (ripple) {
+                        ripple.remove();
+                    }
+
+                    const rippleEl = document.createElement('span');
+                    rippleEl.classList.add('ripple');
+                    rippleEl.style.left = x + 'px';
+                    rippleEl.style.top = y + 'px';
+
+                    el.appendChild(rippleEl);
+
+                    setTimeout(() => {
+                        if (rippleEl) {
+                            rippleEl.remove();
+                        }
+                    }, 600);
+                });
             });
         });
     </script>
