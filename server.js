@@ -17,6 +17,13 @@ const activeSockets = new Set();
 const activeUsers = new Map(); // ─── Track socket → username mappings ─────────────────────────────────────────
 const io = new Server(server);
 
+// ─── Private-chat state ─────────────────────────────────────────────────────────
+let isPrivate = false;
+let allowedUsers = new Set();
+
+// ─── Idle-timeout tracking ─────────────────────────────────────────────────────
+let lastActivity = Date.now();
+
 // ─── Health-check ─────────────────────────────────────────────────────────────
 app.get("/ping", (_req, res) => {
   console.log("⏰ keep-alive ping received at", new Date().toISOString());
@@ -48,18 +55,31 @@ initDb().catch((err) => {
   process.exit(1);
 });
 
-
 // ─── Socket.io Logic ─────────────────────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log("🔌 user connected");
+
+  // let each newcomer know the current privacy state
+  socket.emit("private status", isPrivate);
 
   activeSockets.add(socket.id);
   io.emit("online users", activeSockets.size); // update count immediately
 
   // 0) handle our new "join" event
   socket.on("join", (user) => {
+    // if private and not in the original snapshot, reject
+    if (isPrivate && !allowedUsers.has(user)) {
+      return socket.emit(
+        "join error",
+        "Currently the chat is Private. You cannot enter."
+      );
+    }
+
+    // otherwise allow
     activeUsers.set(socket.id, user);
-    // broadcast to everyone except the newly joined client
+    // let this client know they succeeded
+    socket.emit("join success", user);
+    // broadcast to everyone else
     socket.broadcast.emit("user joined", user);
   });
 
@@ -78,15 +98,23 @@ io.on("connection", (socket) => {
 
   // 2) typing indicators
   socket.on("typing", (user) => {
+    lastActivity = Date.now();
     socket.broadcast.emit("user typing", user);
   });
   socket.on("stop typing", (user) => {
+    lastActivity = Date.now();
     socket.broadcast.emit("user stop typing", user);
+  });
+
+  // any client-side “I moved my mouse / typed a key” ping
+  socket.on("activity", () => {
+    lastActivity = Date.now();
   });
 
   // 3) new chat message (with optional replyTo)
   // ─── 3) new chat message (optimistic broadcast + DB write) ──────────────────
   socket.on("chat message", async (data) => {
+    lastActivity = Date.now();
     const tempId = data._tempId; // client’s temp ID
     const now = new Date();
 
@@ -177,8 +205,37 @@ io.on("connection", (socket) => {
 
     activeSockets.delete(socket.id); // always remove from socket tracker
     io.emit("online users", activeSockets.size); // broadcast updated count
+    // if private and now empty, open it back up
+    if (isPrivate && activeUsers.size === 0) {
+      isPrivate = false;
+      allowedUsers.clear();
+      io.emit("private status", false);
+    }
+  });
+
+  // any client flipped the “private” switch?
+  socket.on("set private", (state) => {
+    isPrivate = !!state;
+    if (isPrivate) {
+      // snapshot current participants by username
+      allowedUsers = new Set(activeUsers.values());
+    } else {
+      allowedUsers.clear();
+    }
+    // broadcast to everyone
+    io.emit("private status", isPrivate);
   });
 });
+
+// ─── Auto-public after 8m of silence ───────────────────────────────────────────
+const IDLE_LIMIT = 8 * 60 * 1000; // 8 minutes
+setInterval(() => {
+  if (isPrivate && Date.now() - lastActivity >= IDLE_LIMIT) {
+    isPrivate = false;
+    allowedUsers.clear();
+    io.emit("private status", false);
+  }
+}, 60 * 1000); // check every minute
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

@@ -1,5 +1,11 @@
 const socket = io();
 
+// ─── PRIVATE-CHAT TOGGLE ─────────────────────────────────────────────────────
+const privacyToggle = document.getElementById("privacy-toggle");
+privacyToggle.addEventListener("change", (e) => {
+  socket.emit("set private", e.target.checked);
+});
+
 // ─── State ─────────────────────────────────────────────────────────────────────
 const msgsById = {}; // store messages for reply lookups
 const typingUsers = new Set();
@@ -59,31 +65,53 @@ const typingAnimation = document.querySelector(".typing-animation");
 // );
 
 // ─── Name‐entry logic ──────────────────────────────────────────────────────────
+// ─── Prepare an error container under the name input ─────────────────────────
+const joinErrorEl = document.createElement("div");
+joinErrorEl.id = "join-error";
+joinErrorEl.className = "text-red-400 text-sm mt-2 hidden";
+nameInput.after(joinErrorEl);
+
+// ─── New name‐submit logic ───────────────────────────────────────────────────
 nameSubmit.addEventListener("click", () => {
   const val = nameInput.value.trim();
-  if (!val) return nameInput.focus();
-  username = val;
-  usernameDisplay.textContent = username;
+  if (!val) {
+    nameInput.focus();
+    return;
+  }
 
-  // Fade out modal with animation
-  modal.style.opacity = "0";
+  // hide any previous error
+  joinErrorEl.classList.add("hidden");
+
+  // ask the server to join
+  socket.emit("join", val);
+});
+
+// ─── Listen for a rejection (e.g. “chat is private”) ────────────────────────
+socket.on("join error", (msg) => {
+  joinErrorEl.textContent = msg;
+  joinErrorEl.classList.remove("hidden");
+});
+
+// ─── Only on success do we actually hide the modal & enable chat ─────────────
+socket.on("join success", (user) => {
+  username = user;
+  usernameDisplay.textContent = user;
+
+  // Fade out modal
   modal.style.transition = "opacity 0.3s ease";
-
-  // tell the server we just joined
-  socket.emit("join", username);
+  modal.style.opacity = "0";
 
   setTimeout(() => {
     modal.classList.add("hidden");
-    modal.style.opacity = "1"; // Reset opacity for next time
+    modal.style.opacity = "1"; // reset for next time
 
-    // Enable chat functionality
+    // enable chat
     msgInput.disabled = false;
     sendBtn.disabled = false;
     msgInput.focus();
 
-    // Show welcome message in chat
     appendSystemMessage(
-      `Welcome, ${username}! You've joined the EP Platforms community discussion.`
+      `Welcome, ${user}! You've joined the EP Platforms community discussion.`
     );
   }, 300);
 });
@@ -802,6 +830,27 @@ socket.on("online users", (count) => {
     }
   });
 });
+
+socket.on("private status", (state) => {
+  privacyToggle.checked = state;
+  appendSystemMessage(`🔒 Chat is now ${state ? "Private" : "Public"}.`);
+});
+
+// ─── REPORT ACTIVITY FOR IDLE-TIMEOUT ─────────────────────────────────────────
+let _throttle = false;
+function reportActivity() {
+  socket.emit("activity");
+}
+
+// throttle to once every 30s
+document.addEventListener("mousemove", () => {
+  if (!_throttle) {
+    reportActivity();
+    _throttle = true;
+    setTimeout(() => (_throttle = false), 30_000);
+  }
+});
+document.addEventListener("keydown", reportActivity);
 
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
