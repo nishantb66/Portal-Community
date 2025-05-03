@@ -305,6 +305,26 @@ function appendMessage({
 
   messagesEl.appendChild(li);
 
+  // ─── if this message is a reply, wire up the quote‐bubble to scroll ───
+  if (pid) {
+    const quoteEl = li.querySelector(".quote-bubble");
+    if (quoteEl) {
+      // show pointer
+      quoteEl.style.cursor = "pointer";
+      quoteEl.addEventListener("click", (e) => {
+        e.stopPropagation(); // don’t trigger other bubble handlers
+        // find the original message LI by its data‐message-id
+        const target = document.querySelector(`li[data-message-id="${pid}"]`);
+        if (!target) return;
+        // scroll it into view, centered
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        // briefly highlight
+        target.classList.add("highlight");
+        setTimeout(() => target.classList.remove("highlight"), 2000);
+      });
+    }
+  }
+
   // If this is our own message and someone else is online, mark it read
   if (isSelf && otherOnline) {
     readMsgs.add(_id);
