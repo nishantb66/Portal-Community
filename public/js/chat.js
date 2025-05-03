@@ -649,57 +649,81 @@ container.addEventListener("contextmenu", (e) => {
 });
 
 // ─── Mobile (touch) → swipe-right for reply & double-tap for reactions ─────
+// ─── Advanced mobile touch: swipe-to-reply + double-tap for reactions ───────
 if ("ontouchstart" in window) {
-  let startX, startY, startTime;
+  let isSwiping = false;
+  let startX = 0,
+    startY = 0,
+    startTime = 0;
+  let swipeItem = null;
   let lastTapTime = 0,
     lastTapEl = null;
+
+  const SWIPE_THRESHOLD = 60; // pixels needed to trigger reply
+  const DOUBLE_TAP_DELAY = 300; // ms threshold for double-tap
 
   container.addEventListener("touchstart", (e) => {
     const bubble = e.target.closest(".message-bubble");
     if (!bubble) return;
-    e.preventDefault(); // no native text-selection
+    swipeItem = bubble.closest("li[data-message-id]");
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     startTime = Date.now();
+    isSwiping = true;
+    // Turn off CSS transition while dragging
+    swipeItem.style.transition = "none";
+  });
+
+  container.addEventListener("touchmove", (e) => {
+    if (!isSwiping || !swipeItem) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    // Cancel if mostly vertical
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    if (dx > 0) {
+      // Follow the finger
+      swipeItem.style.transform = `translateX(${dx}px)`;
+      e.preventDefault();
+    }
   });
 
   container.addEventListener("touchend", (e) => {
+    // 1) Handle swipe end
+    if (isSwiping && swipeItem) {
+      const dx = e.changedTouches[0].clientX - startX;
+      // bounce back
+      swipeItem.style.transition = "transform 0.3s ease";
+      swipeItem.style.transform = "translateX(0)";
+      // if past threshold, fire reply
+      if (dx > SWIPE_THRESHOLD) {
+        const msgId = swipeItem.getAttribute("data-message-id");
+        const data = msgsById[msgId];
+        if (data) {
+          setReplyTo({ _id: msgId, user: data.user, message: data.message });
+        }
+      }
+    }
+
+    // 2) Double-tap → reactions
     const bubble = e.target.closest(".message-bubble");
-    if (!bubble) return;
-
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-    const dt = Date.now() - startTime;
-
-    // 1) SWIPE RIGHT → REPLY
-    if (dx > 50 && Math.abs(dy) < 30 && dt < 500) {
-      // tiny slide animation
-      bubble.style.transition = "transform 0.2s ease";
-      bubble.style.transform = "translateX(20px)";
-      setTimeout(() => (bubble.style.transform = ""), 200);
-
-      const li = bubble.closest("li[data-message-id]");
-      setReplyTo({
-        _id: li.dataset.messageId,
-        user: msgsById[li.dataset.messageId].user,
-        message: msgsById[li.dataset.messageId].message,
-      });
-      return;
+    if (bubble) {
+      const now = Date.now();
+      if (now - lastTapTime < DOUBLE_TAP_DELAY && lastTapEl === bubble) {
+        const li = bubble.closest("li[data-message-id]");
+        const msgId = li.dataset.messageId;
+        const rect = bubble.getBoundingClientRect();
+        showPicker(msgId, rect.left + 20, rect.top + 20);
+        lastTapTime = 0;
+        lastTapEl = null;
+      } else {
+        lastTapTime = now;
+        lastTapEl = bubble;
+      }
     }
 
-    // 2) DOUBLE-TAP → REACTIONS
-    const now = Date.now();
-    if (now - lastTapTime < 300 && lastTapEl === bubble) {
-      const li = bubble.closest("li[data-message-id]");
-      const msgId = li.dataset.messageId;
-      const rect = bubble.getBoundingClientRect();
-      showPicker(msgId, rect.left + 20, rect.top + 20);
-      lastTapTime = 0;
-      lastTapEl = null;
-    } else {
-      lastTapTime = now;
-      lastTapEl = bubble;
-    }
+    // reset
+    isSwiping = false;
+    swipeItem = null;
   });
 }
 
