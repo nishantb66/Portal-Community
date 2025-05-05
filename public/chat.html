@@ -576,10 +576,45 @@
                         <!-- label text -->
                         <span class="ml-1 text-xs font-medium text-gray-500 transition-colors duration-200
                                                peer-checked:text-blue-600">
-                            Private
+                            Privacy
                         </span>
                     </label>
                 </div>
+
+                <!-- ─── Online-Users Dropdown Trigger ─────────────────────────────────── -->
+                <div class="relative ml-2">
+                    <button id="online-users-btn"
+                        class="p-1 sm:p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full focus:outline-none"
+                        title="Online Users">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a4 4 0 00-4-4h-3m-4 0H6a4 4 0 00-4 4v2h5m4-12a4 4 0 110-8 4 4 0 010 8z" />
+                        </svg>
+                    </button>
+                    <div id="online-users-dropdown" class="hidden absolute right-0 mt-1 sm:mt-2 w-32 sm:w-48 max-h-48 sm:max-h-60 overflow-y-auto
+                       bg-white border border-gray-200 text-black rounded shadow-lg z-50 text-xs sm:text-sm">
+                        <!-- filled dynamically -->
+                    </div>
+                </div>
+
+                <!-- ─── Last-Seen Dropdown Trigger ─────────────────────────────────────── -->
+                <div class="relative ml-2">
+                    <button id="lastseen-btn"
+                        class="p-1 sm:p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full focus:outline-none"
+                        title="Last Seen Users">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                    <div id="lastseen-dropdown" class="hidden absolute right-0 mt-1 sm:mt-2 w-36 sm:w-56 max-h-48 sm:max-h-60 overflow-y-auto
+                       bg-white border border-gray-200 text-black rounded shadow-lg z-50 text-xs sm:text-sm">
+                        <!-- filled dynamically -->
+                    </div>
+                </div>
+
 
                 <!-- Mobile-friendly Leave Button -->
                 <button id="leave-btn"

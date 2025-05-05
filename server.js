@@ -24,6 +24,8 @@ let allowedUsers = new Set();
 // ─── Idle-timeout tracking ─────────────────────────────────────────────────────
 let lastActivity = Date.now();
 
+const lastSeen = new Map(); // username → Date of last disconnect
+
 // ─── Health-check ─────────────────────────────────────────────────────────────
 app.get("/ping", (_req, res) => {
   console.log("⏰ keep-alive ping received at", new Date().toISOString());
@@ -80,7 +82,16 @@ io.on("connection", (socket) => {
     // let this client know they succeeded
     socket.emit("join success", user);
     // broadcast to everyone else
-    socket.broadcast.emit("user joined", user);
+
+    lastSeen.delete(user); // remove from last‐seen if they come back online
+    io.emit("update online list", Array.from(activeUsers.values()));
+    io.emit(
+      "update last-seen list",
+      Array.from(lastSeen.entries()).map(([user, dt]) => ({
+        user,
+        timestamp: dt.toISOString(),
+      }))
+    );
   });
 
   // 1) load all messages
@@ -205,6 +216,19 @@ io.on("connection", (socket) => {
 
     activeSockets.delete(socket.id); // always remove from socket tracker
     io.emit("online users", activeSockets.size); // broadcast updated count
+
+    if (user) {
+      lastSeen.set(user, new Date());
+    }
+    io.emit("update online list", Array.from(activeUsers.values()));
+    io.emit(
+      "update last-seen list",
+      Array.from(lastSeen.entries()).map(([user, dt]) => ({
+        user,
+        timestamp: dt.toISOString(),
+      }))
+    );
+
     // if private and now empty, open it back up
     if (isPrivate && activeUsers.size === 0) {
       isPrivate = false;
@@ -236,6 +260,24 @@ setInterval(() => {
     io.emit("private status", false);
   }
 }, 60 * 1000); // check every minute
+
+// ─── Schedule a daily reset of lastSeen at midnight IST ────────────────────
+function scheduleDailyClear() {
+  const now = new Date();
+  // Compute next midnight in local server time:
+  const nextMidnight = new Date(now);
+  nextMidnight.setDate(now.getDate() + 1);
+  nextMidnight.setHours(0, 0, 0, 0);
+  const msUntilMidnight = nextMidnight - now;
+
+  setTimeout(() => {
+    lastSeen.clear(); // wipe all last-seen entries
+    io.emit("update last-seen list", []); // notify clients the list is now empty
+    scheduleDailyClear(); // schedule again for next day
+  }, msUntilMidnight);
+}
+
+scheduleDailyClear();
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

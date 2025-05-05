@@ -900,6 +900,62 @@ document.getElementById("stay-button").addEventListener("click", function () {
   document.getElementById("leave-modal").classList.add("hidden");
 });
 
+
+// ─── Real‐time Online & Last‐Seen Dropdowns ────────────────────────────
+const onlineBtn       = document.getElementById('online-users-btn');
+const onlineDropdown  = document.getElementById('online-users-dropdown');
+const lastseenBtn     = document.getElementById('lastseen-btn');
+const lastseenDropdown= document.getElementById('lastseen-dropdown');
+
+// Toggle online list
+onlineBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  onlineDropdown.classList.toggle('hidden');
+  lastseenDropdown.classList.add('hidden');
+});
+
+// Toggle last‐seen list
+lastseenBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  lastseenDropdown.classList.toggle('hidden');
+  onlineDropdown.classList.add('hidden');
+});
+
+// Close both if clicking anywhere else
+document.addEventListener('click', () => {
+  onlineDropdown.classList.add('hidden');
+  lastseenDropdown.classList.add('hidden');
+});
+
+// Populate current online users
+socket.on('update online list', list => {
+  onlineDropdown.innerHTML = list
+    .map(u => {
+      const display = u.length > 10 ? u.slice(0,7) + '…' : u;
+      return `<div class="px-4 py-2 hover:bg-gray-100">${display} is online</div>`;
+    })
+    .join('');
+});
+
+// Populate last‐seen times (IST, 24-hr)
+socket.on('update last-seen list', arr => {
+  lastseenDropdown.innerHTML = arr
+    .map(({ user, timestamp }) => {
+      const time = new Date(timestamp)
+        .toLocaleTimeString('en-GB', {
+          hour:   '2-digit',
+          minute: '2-digit',
+          timeZone:'Asia/Kolkata'
+        });
+      return `<div class="px-4 py-2 hover:bg-gray-100">${user} (${time})</div>`;
+    })
+    .join('');
+});
+
+
+
+
+
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
 setInterval(() => {
