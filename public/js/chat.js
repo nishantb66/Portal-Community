@@ -900,61 +900,75 @@ document.getElementById("stay-button").addEventListener("click", function () {
   document.getElementById("leave-modal").classList.add("hidden");
 });
 
+// ─── Hook up “Who’s online” & “Last seen” panels ─────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const whoBtn = document.getElementById("online-users-btn");
+  const lastBtn = document.getElementById("lastseen-btn");
+  const whoPanel = document.getElementById("online-users-panel");
+  const lastPanel = document.getElementById("lastseen-panel");
 
-// ─── Real‐time Online & Last‐Seen Dropdowns ────────────────────────────
-const onlineBtn       = document.getElementById('online-users-btn');
-const onlineDropdown  = document.getElementById('online-users-dropdown');
-const lastseenBtn     = document.getElementById('lastseen-btn');
-const lastseenDropdown= document.getElementById('lastseen-dropdown');
+  // Toggle visibility of the two panels
+  if (whoBtn && whoPanel) {
+    whoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      whoPanel.classList.toggle("hidden");
+      if (lastPanel) lastPanel.classList.add("hidden");
+    });
+  }
+  if (lastBtn && lastPanel) {
+    lastBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      lastPanel.classList.toggle("hidden");
+      if (whoPanel) whoPanel.classList.add("hidden");
+    });
+  }
 
-// Toggle online list
-onlineBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  onlineDropdown.classList.toggle('hidden');
-  lastseenDropdown.classList.add('hidden');
+  // Close panels if clicking anywhere else
+  document.addEventListener("click", () => {
+    if (whoPanel) whoPanel.classList.add("hidden");
+    if (lastPanel) lastPanel.classList.add("hidden");
+  });
+
+  // Populate Who’s Online
+  socket.on("update online list", (list) => {
+    if (!whoPanel) return;
+    whoPanel.innerHTML = list.length
+      ? list.map((u) => `<div class="py-0.5">${u} is Online</div>`).join("")
+      : `<div class="py-0.5">No one is online</div>`;
+  });
+
+  // Populate Last Seen (IST, 24-hour)
+  socket.on("update last-seen list", (arr) => {
+    if (!lastPanel) return;
+    if (arr.length === 0) {
+      lastPanel.innerHTML = `<div class="py-0.5">No last seen data</div>`;
+    } else {
+      lastPanel.innerHTML = arr
+        .map(({ user, timestamp }) => {
+          const t = new Date(timestamp).toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "Asia/Kolkata",
+          });
+          return `<div class="py-0.5">${user} (${t})</div>`;
+        })
+        .join("");
+    }
+  });
 });
 
-// Toggle last‐seen list
-lastseenBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  lastseenDropdown.classList.toggle('hidden');
-  onlineDropdown.classList.add('hidden');
+// ─── Header “Menu” toggle in chat.js ───────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const hdrBtn = document.getElementById("header-toggle");
+  const hdrMenu = document.getElementById("header-dropdown");
+  if (hdrBtn && hdrMenu) {
+    hdrBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hdrMenu.classList.toggle("hidden");
+    });
+    document.addEventListener("click", () => hdrMenu.classList.add("hidden"));
+  }
 });
-
-// Close both if clicking anywhere else
-document.addEventListener('click', () => {
-  onlineDropdown.classList.add('hidden');
-  lastseenDropdown.classList.add('hidden');
-});
-
-// Populate current online users
-socket.on('update online list', list => {
-  onlineDropdown.innerHTML = list
-    .map(u => {
-      const display = u.length > 10 ? u.slice(0,7) + '…' : u;
-      return `<div class="px-4 py-2 hover:bg-gray-100">${display} is online</div>`;
-    })
-    .join('');
-});
-
-// Populate last‐seen times (IST, 24-hr)
-socket.on('update last-seen list', arr => {
-  lastseenDropdown.innerHTML = arr
-    .map(({ user, timestamp }) => {
-      const time = new Date(timestamp)
-        .toLocaleTimeString('en-GB', {
-          hour:   '2-digit',
-          minute: '2-digit',
-          timeZone:'Asia/Kolkata'
-        });
-      return `<div class="px-4 py-2 hover:bg-gray-100">${user} (${time})</div>`;
-    })
-    .join('');
-});
-
-
-
-
 
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
