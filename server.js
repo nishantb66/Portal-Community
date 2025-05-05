@@ -26,6 +26,15 @@ let lastActivity = Date.now();
 
 const lastSeen = new Map(); // username → Date of last disconnect
 
+// ─── Community-deletion state ────────────────────────────────────────
+let deletionInProgress = false;
+let deletionLocked = false;
+let deletionPoll = {
+  initiator: null, // username
+  initiatorSocketId: null,
+  votes: {}, // { username: true|false, … }
+};
+
 // ─── Health-check ─────────────────────────────────────────────────────────────
 app.get("/ping", (_req, res) => {
   console.log("⏰ keep-alive ping received at", new Date().toISOString());
@@ -81,7 +90,9 @@ io.on("connection", (socket) => {
     activeUsers.set(socket.id, user);
     // let this client know they succeeded
     socket.emit("join success", user);
-    // broadcast to everyone else
+
+    // notify everyone else that someone joined
+    socket.broadcast.emit("user joined", user);
 
     lastSeen.delete(user); // remove from last‐seen if they come back online
     io.emit("update online list", Array.from(activeUsers.values()));
@@ -248,6 +259,96 @@ io.on("connection", (socket) => {
     }
     // broadcast to everyone
     io.emit("private status", isPrivate);
+  });
+
+  // ─── 4) Initiate deletion poll ─────────────────────────────────────
+  socket.on("initiate delete poll", () => {
+    const userCount = activeUsers.size;
+    const user = activeUsers.get(socket.id);
+
+    if (deletionLocked) {
+      return socket.emit(
+        "delete poll denied",
+        "Deletion is locked. Please wait a few minutes."
+      );
+    }
+    if (deletionInProgress) {
+      return socket.emit(
+        "delete poll denied",
+        "A deletion vote is already in progress."
+      );
+    }
+    if (userCount < 2) {
+      return socket.emit(
+        "delete poll denied",
+        "At least two users must be online to delete the chat."
+      );
+    }
+
+    // start the poll
+    deletionInProgress = true;
+    deletionPoll.initiator = user;
+    deletionPoll.initiatorSocketId = socket.id;
+    deletionPoll.votes = {};
+    deletionPoll.votes[user] = true;
+
+    // broadcast to everyone
+    socket.broadcast.emit("delete poll started", { initiator: user });
+    io.emit("update delete button state", { disabled: true });
+  });
+
+  // ─── 5) Tally votes ─────────────────────────────────────────────────
+  socket.on("delete vote", (vote) => {
+    if (!deletionInProgress) return;
+    const user = activeUsers.get(socket.id);
+    if (!user || deletionPoll.votes[user] != null) return;
+
+    deletionPoll.votes[user] = !!vote;
+
+    const votes = Object.values(deletionPoll.votes);
+    const yesCount = votes.filter((v) => v).length;
+    const noCount = votes.filter((v) => !v).length;
+    const total = activeUsers.size;
+    const needed = Math.floor(total / 2) + 1;
+
+    io.emit("delete poll update", { yes: yesCount, no: noCount, total });
+
+    // majority YES → tell initiator but keep poll open until final confirm
+    if (yesCount >= needed) {
+      io.to(deletionPoll.initiatorSocketId).emit("delete poll result", {
+        approved: true,
+      });
+    }
+    // majority NO or all voted → fail and reset poll
+    else if (noCount >= needed || votes.length === total) {
+      io.to(deletionPoll.initiatorSocketId).emit("delete poll result", {
+        approved: false,
+      });
+
+      deletionInProgress = false;
+      deletionPoll = { initiator: null, initiatorSocketId: null, votes: {} };
+      io.emit("update delete button state", { disabled: false });
+    }
+  });
+
+  // ─── 6) Confirm & perform deletion ───────────────────────────────────
+  socket.on("confirm delete", async () => {
+    if (socket.id !== deletionPoll.initiatorSocketId || !deletionInProgress)
+      return;
+
+    if (messagesCollection) {
+      await messagesCollection.deleteMany({});
+    }
+    io.emit("chat deleted");
+
+    deletionInProgress = false;
+    deletionLocked = true;
+    io.emit("update delete button state", { disabled: true });
+
+    setTimeout(() => {
+      deletionLocked = false;
+      io.emit("update delete button state", { disabled: false });
+    }, 5 * 60 * 1000);
   });
 });
 

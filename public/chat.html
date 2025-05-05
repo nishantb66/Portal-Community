@@ -614,6 +614,18 @@
                                 Last seen
                             </button>
 
+                            <!-- Delete Community Chat -->
+                            <!-- <button id="delete-community-btn"
+                                class="flex items-center p-1 text-red-400 hover:text-red-500 text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-7 7-7-7" />
+                                </svg>
+                                Delete Community chat
+                            </button> -->
+
+
                             <!-- Leave -->
                             <button id="leave-btn"
                                 class="flex items-center p-1 text-red-400 hover:text-red-500 text-xs">
@@ -762,6 +774,29 @@
             </div>
         </div>
     </div>
+
+    <!-- ─── DELETE VOTE POPUP ───────────────────────────────────────────────── -->
+    <div id="delete-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 w-80 text-center shadow-xl">
+            <p id="delete-modal-text" class="mb-4 font-medium">Someone wants to delete this chat. Vote now!</p>
+            <div class="flex justify-around">
+                <button id="delete-vote-yes" class="px-4 py-2 bg-green-500 text-white rounded">Yes</button>
+                <button id="delete-vote-no" class="px-4 py-2 bg-red-500 text-white rounded">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── CONFIRM DELETE (INITIATOR ONLY) ──────────────────────────────────── -->
+    <div id="confirm-delete-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 w-80 text-center shadow-xl">
+            <p class="mb-4 font-medium">Majority approved. Really delete the entire chat?</p>
+            <div class="flex justify-around">
+                <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+                <button id="cancel-confirm-delete" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ──────────────────────────────────────────────────────────────────────────── -->
 
 

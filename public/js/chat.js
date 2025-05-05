@@ -970,6 +970,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ─── Delete-community-chat wiring ────────────────────────────────────────
+const deleteBtn = document.getElementById("delete-community-btn");
+const deleteModal = document.getElementById("delete-modal");
+const deleteModalText = document.getElementById("delete-modal-text");
+const voteYesBtn = document.getElementById("delete-vote-yes");
+const voteNoBtn = document.getElementById("delete-vote-no");
+const confirmModal = document.getElementById("confirm-delete-modal");
+const confirmDeleteBtn = document.getElementById("confirm-delete");
+const cancelConfirmBtn = document.getElementById("cancel-confirm-delete");
+
+// 1) User clicks “Delete Community chat” → start poll
+deleteBtn.addEventListener("click", () => {
+  socket.emit("initiate delete poll");
+});
+
+// 2) Server denied the poll
+socket.on("delete poll denied", (msg) => {
+  alert(msg);
+});
+
+// 3) Poll started: show everyone the vote popup
+socket.on("delete poll started", ({ initiator }) => {
+  deleteModalText.textContent = `${initiator} has requested to delete the chat. Do you agree?`;
+  deleteModal.classList.remove("hidden");
+  deleteBtn.disabled = true;
+});
+
+// 4) Users cast their votes
+voteYesBtn.addEventListener("click", () => {
+  socket.emit("delete vote", true);
+  voteYesBtn.disabled = voteNoBtn.disabled = true;
+  deleteModal.classList.add("hidden");
+});
+voteNoBtn.addEventListener("click", () => {
+  socket.emit("delete vote", false);
+  voteYesBtn.disabled = voteNoBtn.disabled = true;
+  deleteModal.classList.add("hidden");
+});
+
+// 5) Poll result arrives back to the *initiator* only
+socket.on("delete poll result", ({ approved }) => {
+  deleteModal.classList.add("hidden");
+  if (approved) {
+    // initiator shows final confirmation
+    confirmModal.classList.remove("hidden");
+  } else {
+    alert("Community-delete vote failed. 5-minute lock kicks in.");
+  }
+});
+
+// 6) Confirm deletion (initiator)
+confirmDeleteBtn.addEventListener("click", () => {
+  socket.emit("confirm delete");
+  confirmModal.classList.add("hidden");
+});
+cancelConfirmBtn.addEventListener("click", () => {
+  socket.emit("cancel delete poll");
+  confirmModal.classList.add("hidden");
+});
+
+// 7) Everybody clears their chat when it’s actually deleted
+socket.on("chat deleted", () => {
+  // clear messages
+  document.getElementById("messages").innerHTML = "";
+  // hide any open modals
+  deleteModal.classList.add("hidden");
+  confirmModal.classList.add("hidden");
+  // optional: show a system message
+  alert("The community chat has been deleted. Starting fresh!");
+});
+
+// 8) Keep the delete button disabled/enabled by server state
+socket.on("update delete button state", ({ disabled }) => {
+  deleteBtn.disabled = !!disabled;
+});
+
 // ─── Keep-free-tier-awake ping ────────────────────────────────────────────────
 // every 4 minutes, hit our health‐check so Render sees activity
 setInterval(() => {
