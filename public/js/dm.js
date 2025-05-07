@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ─── Form elements ─────────────────────────────────────────────────────
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
   const otpForm = document.getElementById("otp-form");
   const authContainer = document.getElementById("auth-container");
-  const chatContainer = document.getElementById("chat-container");
+  const dmApp = document.getElementById("dm-app");
+
   let tempSignup = {};
 
-  // toggle views
+  // ─── Toggle between Login & Signup ────────────────────────────────────
   document.getElementById("show-signup").onclick = (e) => {
     e.preventDefault();
     loginForm.classList.add("hidden");
@@ -18,13 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.classList.remove("hidden");
   };
 
-  // SIGNUP → send OTP
+  // ─── SIGNUP: request OTP ───────────────────────────────────────────────
   document.getElementById("signup-btn").onclick = async () => {
     const email = document.getElementById("signup-email").value;
     const user = document.getElementById("signup-username").value;
     const pass = document.getElementById("signup-password").value;
     const err = document.getElementById("signup-error");
     err.textContent = "";
+
     try {
       const res = await fetch("/dm/signup", {
         method: "POST",
@@ -32,7 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ email, username: user, password: pass }),
       });
       const j = await res.json();
-      if (!res.ok) throw Error(j.message);
+      if (!res.ok) throw new Error(j.message);
+
       tempSignup = { email, username: user, password: pass };
       signupForm.classList.add("hidden");
       otpForm.classList.remove("hidden");
@@ -41,11 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // VERIFY OTP → create user + JWT
+  // ─── VERIFY OTP → create account + JWT ────────────────────────────────
   document.getElementById("verify-otp-btn").onclick = async () => {
     const otp = document.getElementById("otp-input").value;
     const err = document.getElementById("otp-error");
     err.textContent = "";
+
     try {
       const res = await fetch("/dm/verify-otp", {
         method: "POST",
@@ -53,19 +58,21 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ ...tempSignup, otp }),
       });
       const j = await res.json();
-      if (!res.ok) throw Error(j.message);
+      if (!res.ok) throw new Error(j.message);
+
       onLoginSuccess(j.token, j.username, j.email);
     } catch (e) {
       err.textContent = e.message;
     }
   };
 
-  // LOGIN
+  // ─── LOGIN ────────────────────────────────────────────────────────────
   document.getElementById("login-btn").onclick = async () => {
     const user = document.getElementById("login-username").value;
     const pass = document.getElementById("login-password").value;
     const err = document.getElementById("login-error");
     err.textContent = "";
+
     try {
       const res = await fetch("/dm/login", {
         method: "POST",
@@ -73,101 +80,156 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ username: user, password: pass }),
       });
       const j = await res.json();
-      if (!res.ok) throw Error(j.message);
+      if (!res.ok) throw new Error(j.message);
+
       onLoginSuccess(j.token, j.username, j.email);
     } catch (e) {
       err.textContent = e.message;
     }
   };
 
+  // ─── ON LOGIN SUCCESS ─────────────────────────────────────────────────
   function onLoginSuccess(token, username, email) {
-    // 1) store the whole payload
+    // 1) store
     localStorage.setItem("dmToken", token);
     localStorage.setItem("dmUsername", username);
     localStorage.setItem("dmEmail", email);
 
-    // 2) swap views
+    // 2) swap UI
     authContainer.classList.add("hidden");
-    chatContainer.classList.remove("hidden");
+    dmApp.classList.remove("hidden");
 
-    // 3) show name
-    document.getElementById("user-display").textContent = username;
-
-    // 4) init the chat
+    // 3) init live features
     initChat(token);
+    loadPastChats(token);
   }
 
-  async function initChat(token) {
-    // fetch user list
-    const res = await fetch("/dm/users", {
+  // ─── INIT SOCKET.IO DM NAMESPACE ──────────────────────────────────────
+  let dmSocket = null;
+  function initChat(token) {
+    if (dmSocket) dmSocket.disconnect();
+
+    dmSocket = io("/dm", { auth: { token } });
+    dmSocket.on("connect_error", (e) => alert(e.message));
+    dmSocket.on("dm message", (msg) => {
+      if (msg.from === currentPeer || msg.to === currentPeer) {
+        appendMsg(msg);
+      }
+    });
+  }
+
+  // ─── LIVE SEARCH AUTOCOMPLETE ────────────────────────────────────────
+  const searchInput = document.getElementById("user-search");
+  const suggUl = document.getElementById("search-suggestions");
+  let suggTimeout;
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(suggTimeout);
+    const q = searchInput.value.trim();
+    if (!q) return void suggUl.classList.add("hidden");
+
+    suggTimeout = setTimeout(async () => {
+      const token = localStorage.getItem("dmToken");
+      const res = await fetch(`/dm/search?q=${encodeURIComponent(q)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const { users } = await res.json();
+
+      suggUl.innerHTML = users
+        .map(
+          (u) =>
+            `<li class="px-3 py-1 hover:bg-gray-100 cursor-pointer">${u}</li>`
+        )
+        .join("");
+      suggUl.classList.toggle("hidden", users.length === 0);
+    }, 200);
+  });
+
+  // click suggestion → open chat
+  suggUl.addEventListener("click", (e) => {
+    if (e.target.tagName === "LI") {
+      openChatWith(e.target.textContent);
+      suggUl.classList.add("hidden");
+      searchInput.value = "";
+    }
+  });
+
+  // ─── LOAD RECENT CHATS ────────────────────────────────────────────────
+  async function loadPastChats(token) {
+    const res = await fetch("/dm/past", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const { users } = await res.json();
-    const ul = document.getElementById("user-list");
-    users.forEach((u) => {
-      const li = document.createElement("li");
-      li.textContent = u;
-      li.className = "cursor-pointer p-2 rounded hover:bg-gray-100";
-      li.onclick = () => loadHistory(u, token);
-      ul.appendChild(li);
-    });
+    const { recent } = await res.json();
+    const ul = document.getElementById("past-list");
+    ul.innerHTML = recent
+      .map(
+        (u) =>
+          `<li class="px-2 py-1 hover:bg-gray-100 cursor-pointer">${u}</li>`
+      )
+      .join("");
 
-    // connect Socket.io
-    const socket = io("/dm", { auth: { token } });
-    socket.on("connect_error", (e) => alert(e.message));
-    socket.on("dm message", (msg) => {
-      const current = document.getElementById("chat-with").textContent;
-      if (msg.from === current || msg.to === current) appendMsg(msg);
+    ul.querySelectorAll("li").forEach((li) => {
+      li.onclick = () => openChatWith(li.textContent);
     });
-    window.dmSocket = socket;
   }
 
+  // ─── OPEN AN INDIVIDUAL CHAT ────────────────────────────────────────
   let currentPeer = null;
-  async function loadHistory(peer, token) {
-    currentPeer = peer;
-    document.getElementById("chat-with").textContent = peer;
-    const res = await fetch(`/dm/history/${peer}`, {
+  async function openChatWith(username) {
+    currentPeer = username;
+    document.getElementById("chat-with").textContent = username;
+    document.getElementById("chat-container").classList.remove("hidden");
+
+    // fetch history
+    const token = localStorage.getItem("dmToken");
+    const res = await fetch(`/dm/history/${username}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const { messages } = await res.json();
-    const msgEl = document.getElementById("dm-messages");
-    msgEl.innerHTML = "";
+    const msgUl = document.getElementById("dm-messages");
+    msgUl.innerHTML = "";
     messages.forEach(appendMsg);
-    document.getElementById("dm-send-btn").onclick = sendMsg;
+
+    // hook up send
+    document.getElementById("dm-form").onsubmit = (e) => {
+      e.preventDefault();
+      sendMsg();
+    };
   }
 
+  // ─── APPEND A MESSAGE TO THE UI ──────────────────────────────────────
   function appendMsg(msg) {
     const li = document.createElement("li");
     const me = localStorage.getItem("dmUsername");
     li.textContent = `${msg.from}: ${msg.message}`;
     li.className = me === msg.from ? "text-right" : "";
-    document.getElementById("dm-messages").appendChild(li);
+    const ul = document.getElementById("dm-messages");
+    ul.appendChild(li);
+    ul.scrollTop = ul.scrollHeight;
   }
 
+  // ─── SEND A NEW MESSAGE ──────────────────────────────────────────────
   function sendMsg() {
-    const txt = document.getElementById("dm-input").value.trim();
+    const input = document.getElementById("dm-input");
+    const txt = input.value.trim();
     if (!txt || !currentPeer) return;
-    window.dmSocket.emit("dm message", { to: currentPeer, message: txt });
-    document.getElementById("dm-input").value = "";
+    dmSocket.emit("dm message", { to: currentPeer, message: txt });
+    input.value = "";
   }
 
-  // LOGOUT button
+  // ─── LOGOUT ──────────────────────────────────────────────────────────
   document.getElementById("logout-btn").onclick = () => {
-    // 1) clear storage
-    localStorage.removeItem("dmToken");
-    localStorage.removeItem("dmUsername");
-    localStorage.removeItem("dmEmail");
-
-    // 2) reset UI
-    chatContainer.classList.add("hidden");
+    // clear storage & UI
+    ["dmToken", "dmUsername", "dmEmail"].forEach((k) =>
+      localStorage.removeItem(k)
+    );
+    dmApp.classList.add("hidden");
     authContainer.classList.remove("hidden");
 
-    // show login form (hide others)
+    // reset auth forms
     loginForm.classList.remove("hidden");
     signupForm.classList.add("hidden");
     otpForm.classList.add("hidden");
-
-    // 3) clear inputs & errors
     document.getElementById("login-username").value = "";
     document.getElementById("login-password").value = "";
     document.getElementById("login-error").textContent = "";

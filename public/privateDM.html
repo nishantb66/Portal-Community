@@ -5,12 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Private DMs • Community Chat</title>
-    <!-- Tailwind CDN (same as home.html) -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="font-sans antialiased bg-gray-50 text-gray-800">
-    <!-- AUTH VIEWS -->
+<body class="h-screen flex flex-col font-sans bg-gray-50 text-gray-800">
+
+    <!-- ─── AUTH VIEWS ───────────────────────────────────────────────────────── -->
     <div id="auth-container" class="max-w-md mx-auto mt-12 p-6 bg-white rounded-lg shadow">
         <!-- Login -->
         <div id="login-form">
@@ -25,6 +25,7 @@
             </p>
             <p id="login-error" class="text-red-500 mt-2"></p>
         </div>
+
         <!-- Signup -->
         <div id="signup-form" class="hidden">
             <h2 class="text-2xl font-bold mb-4">Sign Up</h2>
@@ -40,6 +41,7 @@
             </p>
             <p id="signup-error" class="text-red-500 mt-2"></p>
         </div>
+
         <!-- OTP Verification -->
         <div id="otp-form" class="hidden">
             <h2 class="text-2xl font-bold mb-4">Enter OTP</h2>
@@ -50,31 +52,54 @@
         </div>
     </div>
 
-    <!-- CHAT UI -->
-    <div id="chat-container" class="hidden max-w-4xl mx-auto mt-12 p-6 bg-white rounded-lg shadow">
-        <div class="flex mb-4 justify-between items-center">
-            <h2 class="text-xl font-semibold">Hello, <span id="user-display"></span></h2>
-            <button id="logout-btn" class="text-red-600 hover:underline text-base">
-                Logout
-            </button>
-        </div>
+    <!-- ─── DM APP ───────────────────────────────────────────────────────────── -->
+    <div id="dm-app" class="hidden flex-1 flex flex-col overflow-hidden">
 
-        <div class="flex">
-            <!-- User list -->
-            <div class="w-1/4 border-r pr-4">
-                <h3 class="font-medium mb-2">Users</h3>
-                <ul id="user-list" class="space-y-2 overflow-auto h-64"></ul>
-            </div>
-            <!-- Messages -->
-            <div class="w-3/4 pl-4 flex flex-col">
-                <h3 class="font-medium mb-2">Chat with <span id="chat-with"></span></h3>
-                <ul id="dm-messages" class="flex-1 overflow-auto space-y-2 mb-4 h-64"></ul>
-                <div class="flex">
-                    <input id="dm-input" class="flex-1 px-3 py-2 border rounded" placeholder="Type a message…" />
-                    <button id="dm-send-btn"
-                        class="ml-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-500">Send</button>
+        <!-- Top bar with title & logout -->
+        <header class="flex items-center justify-between bg-white px-6 py-4 shadow">
+            <h1 class="text-2xl font-semibold">Private DMs</h1>
+            <button id="logout-btn" class="text-red-600 hover:underline">Logout</button>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+
+            <!-- Left pane: Search + Recent Chats -->
+            <aside class="w-80 bg-white border-r flex flex-col p-4 overflow-hidden">
+
+                <!-- Search box -->
+                <div>
+                    <input id="user-search" type="text" placeholder="Search users…"
+                        class="w-full px-3 py-2 border rounded focus:outline-none" />
+                    <ul id="search-suggestions" class="mt-1 border rounded bg-white max-h-48 overflow-auto hidden"></ul>
                 </div>
-            </div>
+
+                <!-- Recent conversations -->
+                <section class="mt-6 flex-1 overflow-auto">
+                    <h2 class="text-lg font-medium mb-2">Recent Chats</h2>
+                    <ul id="past-list" class="space-y-2"></ul>
+                </section>
+
+            </aside>
+
+            <!-- Right pane: Chat window -->
+            <section id="chat-container" class="flex-1 flex flex-col bg-white p-6 hidden">
+
+                <!-- Chat header -->
+                <div class="flex items-center border-b pb-2 mb-4">
+                    <h2 class="font-semibold">Chat with <span id="chat-with" class="text-blue-600"></span></h2>
+                </div>
+
+                <!-- Messages list -->
+                <ul id="dm-messages" class="flex-1 overflow-auto space-y-2 mb-4"></ul>
+
+                <!-- Message input -->
+                <form id="dm-form" class="flex border-t pt-2">
+                    <input id="dm-input" type="text" placeholder="Type your message…"
+                        class="flex-1 px-3 py-2 border rounded-l focus:outline-none" autocomplete="off" />
+                    <button type="submit" class="px-4 bg-blue-600 text-white rounded-r hover:bg-blue-500">Send</button>
+                </form>
+
+            </section>
         </div>
     </div>
 

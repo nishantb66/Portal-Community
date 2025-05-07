@@ -6,9 +6,8 @@ const { MongoClient } = require("mongodb");
 const { ObjectId } = require("mongodb");
 const path = require("path");
 // ─── 1) New imports ───────────────────────────────────────────────────
-const bcrypt    = require('bcrypt');
-const jwt       = require('jsonwebtoken');
-const nodemailer= require('nodemailer');
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 let usersCollection, otpsCollection, dmsCollection;
 
@@ -73,20 +72,19 @@ async function initDb() {
 }
 
 // ─── 3) JSON-body middleware ──────────────────────────────────────────
-app.use(express.json());  // ensure this is above your new routes
+app.use(express.json()); // ensure this is above your new routes
 
 // ─── 4) JWT auth middleware ──────────────────────────────────────────
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']||'';
-  const token = authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ message:'Unauthorized' });
+  const authHeader = req.headers["authorization"] || "";
+  const token = authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
   jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) return res.status(403).json({ message:'Forbidden' });
-    req.user = payload; 
+    if (err) return res.status(403).json({ message: "Forbidden" });
+    req.user = payload;
     next();
   });
 }
-
 
 initDb().catch((err) => {
   console.error("❌ Mongo init error:", err);
@@ -95,46 +93,47 @@ initDb().catch((err) => {
 
 // ─── 5) Email transporter ─────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.EMAIL, pass: process.env.APP_PASS }
+  service: "gmail",
+  auth: { user: process.env.EMAIL, pass: process.env.APP_PASS },
 });
 
 // ─── 6) Signup → send OTP ─────────────────────────────────────────────
-app.post('/dm/signup', async (req, res) => {
+app.post("/dm/signup", async (req, res) => {
   try {
     const { email, username, password } = req.body;
-    if (!email||!username||!password)
-      return res.status(400).json({ message:'Missing fields' });
+    if (!email || !username || !password)
+      return res.status(400).json({ message: "Missing fields" });
 
     // no dupes
     const exists = await usersCollection.findOne({
-      $or:[{email},{username}]
+      $or: [{ email }, { username }],
     });
     if (exists)
-      return res.status(400).json({ message:'Email or username taken' });
+      return res.status(400).json({ message: "Email or username taken" });
 
     // generate & store OTP
-    const otp = Math.floor(100000 + Math.random()*900000).toString();
-    const expires = new Date(Date.now() + 10*60*1000); // 10m
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10m
     await otpsCollection.insertOne({ email, otp, expires });
 
     // send via Gmail
     await transporter.sendMail({
       from: process.env.EMAIL,
       to: email,
-      subject:'Your DM-OTP Code',
-      text:`Your one-time code is ${otp} (expires in 10 minutes).`
+      subject: "Your DM-OTP Code",
+      text: `Your one-time code is ${otp} (expires in 10 minutes).`,
     });
 
-    res.json({ message:'OTP sent' });
-  } catch(err) {
+    res.json({ message: "OTP sent" });
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message:'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 // ─── 7) Verify OTP → create user & JWT ───────────────────────────────
-app.post('/dm/verify-otp', async (req, res) => {
+// ─── 7) Verify OTP → create user & JWT ───────────────────────────────
+app.post("/dm/verify-otp", async (req, res) => {
   try {
     const { email, username, password, otp } = req.body;
     if (!email || !username || !password || !otp)
@@ -144,24 +143,24 @@ app.post('/dm/verify-otp', async (req, res) => {
     if (!otpDoc || otpDoc.expires < new Date())
       return res.status(400).json({ message: "Invalid or expired OTP" });
 
-    // hash & store user
-    const hash = await bcrypt.hash(password, 10);
-    await usersCollection.insertOne({ email, username, password: hash });
+    // ← No more bcrypt.hash; just store the raw password
+    await usersCollection.insertOne({ email, username, password });
     await otpsCollection.deleteOne({ _id: otpDoc._id });
 
-    // ─── SIGN JWT WITH BOTH username AND email ───────────────────────────
+    // Sign your JWT as before
     const token = jwt.sign({ username, email }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
     res.json({ token, username, email });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message:'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 // ─── 8) Login route ───────────────────────────────────────────────────
-app.post('/dm/login', async (req, res) => {
+// ─── 8) Login route ───────────────────────────────────────────────────
+app.post("/dm/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password)
@@ -170,91 +169,136 @@ app.post('/dm/login', async (req, res) => {
     const user = await usersCollection.findOne({ username });
     if (!user) return res.status(400).json({ message: "User not found" });
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.status(400).json({ message: "Invalid password" });
+    // ← Plain-text password check
+    if (user.password !== password)
+      return res.status(400).json({ message: "Invalid password" });
 
-    // ─── SIGN JWT WITH username AND email ─────────────────────────────
     const token = jwt.sign(
       { username: user.username, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
     res.json({ token, username: user.username, email: user.email });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message:'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 // ─── 9) List other users ──────────────────────────────────────────────
-app.get('/dm/users', authenticateToken, async (req, res) => {
+app.get("/dm/users", authenticateToken, async (req, res) => {
   try {
     const you = req.user.username;
     const docs = await usersCollection
-                  .find({ username:{ $ne:you } })
-                  .project({ username:1, _id:0 })
-                  .toArray();
-    res.json({ users: docs.map(d=>d.username) });
-  } catch(err) {
+      .find({ username: { $ne: you } })
+      .project({ username: 1, _id: 0 })
+      .toArray();
+    res.json({ users: docs.map((d) => d.username) });
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message:'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 // ───10) DM history between two users ───────────────────────────────────
-app.get('/dm/history/:other', authenticateToken, async (req, res) => {
+app.get("/dm/history/:other", authenticateToken, async (req, res) => {
   try {
-    const me    = req.user.username;
-    const peer  = req.params.other;
-    const msgs  = await dmsCollection.find({
-      $or: [
-        { from:me,   to:peer },
-        { from:peer, to:me   }
-      ]
-    }).sort({ timestamp:1 }).toArray();
+    const me = req.user.username;
+    const peer = req.params.other;
+    const msgs = await dmsCollection
+      .find({
+        $or: [
+          { from: me, to: peer },
+          { from: peer, to: me },
+        ],
+      })
+      .sort({ timestamp: 1 })
+      .toArray();
     res.json({ messages: msgs });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message:'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
+// ─── A) Autocomplete search ─────────────────────────────────────────────
+app.get("/dm/search", authenticateToken, async (req, res) => {
+  const q = (req.query.q || "").trim();
+  if (!q) return res.json({ users: [] });
+
+  // simple prefix search, case-insensitive
+  const re = new RegExp("^" + q.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i");
+  const me = req.user.username;
+
+  const docs = await usersCollection
+    .find({ username: re, username: { $ne: me } })
+    .project({ username: 1, _id: 0 })
+    .limit(10)
+    .toArray();
+
+  res.json({ users: docs.map((d) => d.username) });
+});
+
+// ─── B) Past conversations list ─────────────────────────────────────────
+app.get("/dm/past", authenticateToken, async (req, res) => {
+  const me = req.user.username;
+
+  // aggregate distinct peers sorted by most recent message
+  const recent = await dmsCollection
+    .aggregate([
+      { $match: { $or: [{ from: me }, { to: me }] } },
+      {
+        $project: {
+          peer: { $cond: [{ $eq: ["$from", me] }, "$to", "$from"] },
+          timestamp: 1,
+        },
+      },
+      { $sort: { timestamp: -1 } },
+      { $group: { _id: "$peer", last: { $first: "$timestamp" } } },
+      { $sort: { last: -1 } },
+      { $project: { username: "$_id", _id: 0 } },
+    ])
+    .toArray();
+
+  res.json({ recent: recent.map((r) => r.username) });
+});
+
 // ───11) Serve the DM page ───────────────────────────────────────────────
-app.get('/privateDM.html', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public','privateDM.html'));
+app.get("/privateDM.html", (_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "privateDM.html"));
 });
 
 // ───12) Socket.io namespace for DMs ───────────────────────────────────
-const dmNamespace = io.of('/dm');
+const dmNamespace = io.of("/dm");
 
 // authenticate each socket by JWT
 dmNamespace.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  if (!token) return next(new Error('Unauthorized'));
+  if (!token) return next(new Error("Unauthorized"));
   jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) return next(new Error('Forbidden'));
+    if (err) return next(new Error("Forbidden"));
     socket.user = payload.username;
     next();
   });
 });
 
-dmNamespace.on('connection', socket => {
+dmNamespace.on("connection", (socket) => {
   // join personal room
   socket.join(socket.user);
 
   // handle a DM
-  socket.on('dm message', async ({ to, message }) => {
+  socket.on("dm message", async ({ to, message }) => {
     const doc = {
       from: socket.user,
       to,
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
     // store
     await dmsCollection.insertOne(doc);
     // emit to both parties
-    dmNamespace.to(to).emit('dm message', doc);
-    dmNamespace.to(socket.user).emit('dm message', doc);
+    dmNamespace.to(to).emit("dm message", doc);
+    dmNamespace.to(socket.user).emit("dm message", doc);
   });
 });
 
