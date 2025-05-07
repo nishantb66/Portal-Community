@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Private DMs • Community Chat</title>
+    <!-- Tailwind CDN (same as home.html) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="font-sans antialiased bg-gray-50 text-gray-800">
+    <!-- AUTH VIEWS -->
+    <div id="auth-container" class="max-w-md mx-auto mt-12 p-6 bg-white rounded-lg shadow">
+        <!-- Login -->
+        <div id="login-form">
+            <h2 class="text-2xl font-bold mb-4">Login</h2>
+            <input id="login-username" class="w-full mb-3 px-3 py-2 border rounded" placeholder="Username" />
+            <input id="login-password" type="password" class="w-full mb-3 px-3 py-2 border rounded"
+                placeholder="Password" />
+            <button id="login-btn" class="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700">Login</button>
+            <p class="mt-3 text-sm">
+                Don’t have an account?
+                <a href="#" id="show-signup" class="text-blue-600 hover:underline">Sign up</a>
+            </p>
+            <p id="login-error" class="text-red-500 mt-2"></p>
+        </div>
+        <!-- Signup -->
+        <div id="signup-form" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Sign Up</h2>
+            <input id="signup-email" type="email" class="w-full mb-3 px-3 py-2 border rounded" placeholder="Email" />
+            <input id="signup-username" class="w-full mb-3 px-3 py-2 border rounded" placeholder="Username" />
+            <input id="signup-password" type="password" class="w-full mb-3 px-3 py-2 border rounded"
+                placeholder="Password" />
+            <button id="signup-btn" class="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700">Sign
+                Up</button>
+            <p class="mt-3 text-sm">
+                Already have an account?
+                <a href="#" id="show-login" class="text-blue-600 hover:underline">Login</a>
+            </p>
+            <p id="signup-error" class="text-red-500 mt-2"></p>
+        </div>
+        <!-- OTP Verification -->
+        <div id="otp-form" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Enter OTP</h2>
+            <input id="otp-input" class="w-full mb-3 px-3 py-2 border rounded" placeholder="6-digit code" />
+            <button id="verify-otp-btn" class="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700">Verify
+                OTP</button>
+            <p id="otp-error" class="text-red-500 mt-2"></p>
+        </div>
+    </div>
+
+    <!-- CHAT UI -->
+    <div id="chat-container" class="hidden max-w-4xl mx-auto mt-12 p-6 bg-white rounded-lg shadow">
+        <div class="flex mb-4 justify-between items-center">
+            <h2 class="text-xl font-semibold">Hello, <span id="user-display"></span></h2>
+            <button id="logout-btn" class="text-red-600 hover:underline text-base">
+                Logout
+            </button>
+        </div>
+
+        <div class="flex">
+            <!-- User list -->
+            <div class="w-1/4 border-r pr-4">
+                <h3 class="font-medium mb-2">Users</h3>
+                <ul id="user-list" class="space-y-2 overflow-auto h-64"></ul>
+            </div>
+            <!-- Messages -->
+            <div class="w-3/4 pl-4 flex flex-col">
+                <h3 class="font-medium mb-2">Chat with <span id="chat-with"></span></h3>
+                <ul id="dm-messages" class="flex-1 overflow-auto space-y-2 mb-4 h-64"></ul>
+                <div class="flex">
+                    <input id="dm-input" class="flex-1 px-3 py-2 border rounded" placeholder="Type a message…" />
+                    <button id="dm-send-btn"
+                        class="ml-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-500">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/dm.js"></script>
+</body>
+
+</html>
