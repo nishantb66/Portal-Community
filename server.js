@@ -214,11 +214,33 @@ app.get("/dm/history/:other", authenticateToken, async (req, res) => {
       })
       .sort({ timestamp: 1 })
       .toArray();
+    // mark all incoming-from-peer as read
+    await dmsCollection.updateMany(
+      { from: peer, to: me, read: false },
+      { $set: { read: true } }
+    );
+
     res.json({ messages: msgs });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
+});
+
+// GET /dm/unreadCounts → { counts: { [username]: number } }
+app.get("/dm/unreadCounts", authenticateToken, async (req, res) => {
+  const me = req.user.username;
+  const agg = await dmsCollection
+    .aggregate([
+      { $match: { to: me, read: false } },
+      { $group: { _id: "$from", cnt: { $sum: 1 } } },
+    ])
+    .toArray();
+  const map = {};
+  agg.forEach(({ _id, cnt }) => {
+    map[_id] = cnt;
+  });
+  res.json({ counts: map });
 });
 
 // ─── A) Autocomplete search ─────────────────────────────────────────────
@@ -288,15 +310,18 @@ dmNamespace.on("connection", (socket) => {
 
   // handle a DM
   socket.on("dm message", async ({ to, message }) => {
+    // ── A) build and store with `read: false`
     const doc = {
       from: socket.user,
       to,
       message,
       timestamp: new Date(),
+      read: false, // ← ADD THIS
     };
-    // store
-    await dmsCollection.insertOne(doc);
-    // emit to both parties
+    const result = await dmsCollection.insertOne(doc);
+    doc._id = result.insertedId.toString(); // so front-end can key off it
+
+    // ── B) emit enriched doc
     dmNamespace.to(to).emit("dm message", doc);
     dmNamespace.to(socket.user).emit("dm message", doc);
   });
