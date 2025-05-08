@@ -413,6 +413,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentPeer = username;
 
+    // ─── NEW: clear out old msgsById so we only map messages for this peer ───
+    Object.keys(msgsById).forEach((k) => delete msgsById[k]);
+    clearReplyPreview(); // also clear any dangling reply UI
+
     // 1) Toggle views: hide sidebar, show chat
     document.getElementById("chat-list").classList.add("hidden");
     document.getElementById("chat-container").classList.remove("hidden");
