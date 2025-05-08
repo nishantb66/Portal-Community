@@ -6,28 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Private DMs • Community Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        indigo: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                            950: '#1e1b4b',
+                        brand: {
+                            50: '#f5f7ff',
+                            100: '#edf0ff',
+                            200: '#dce3ff',
+                            300: '#c1ccff',
+                            400: '#9eabff',
+                            500: '#7c8ffe',
+                            600: '#5c6ef5',
+                            700: '#4c5ad8',
+                            800: '#3f4ab3',
+                            900: '#383f8e',
+                            950: '#24284f',
+                        },
+                        surface: {
+                            50: '#f9fafb',
+                            100: '#f2f5f9',
+                            200: '#e9edf2',
+                            300: '#d5dce6',
+                            400: '#9ba6b7',
+                            500: '#697586',
+                            600: '#4d5769',
+                            700: '#394050',
+                            800: '#242936',
+                            900: '#1a1e29',
+                            950: '#13161e',
                         }
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03)',
+                        'raised': '0 8px 24px -6px rgba(0, 0, 0, 0.12), 0 12px 30px -8px rgba(0, 0, 0, 0.08)',
+                        'glow': '0 0 20px rgba(124, 143, 254, 0.25)'
                     }
                 }
             }
@@ -35,7 +56,15 @@
     </script>
 
     <style>
-        /* prevent any DM text from being user-selectable */
+        body {
+            background-color: #f5f7fd;
+            background-image: radial-gradient(#dce3ff 0.5px, transparent 0.5px),
+                radial-gradient(#dce3ff 0.5px, #f5f7fd 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* Prevent text selection in chat bubbles */
         #dm-messages li,
         #dm-messages li * {
             -webkit-user-select: none;
@@ -50,27 +79,24 @@
             max-width: 75%;
             padding: 0.75rem 1.25rem;
             margin-bottom: 0.75rem;
-            border-radius: 1rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 1.25rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
             word-break: break-word;
             position: relative;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .msg-incoming {
-            background-color: #f3f4f6;
-            /* light gray */
-            color: #111827;
-            /* almost-black */
+            background-color: #ffffff;
+            color: #242936;
             align-self: flex-start;
             border-top-left-radius: 0.25rem;
         }
 
         .msg-outgoing {
-            background-color: #e0e7ff;
-            /* indigo-100 */
-            color: #312e81;
-            /* indigo-900 */
+            background-color: #7c8ffe;
+            background-image: linear-gradient(135deg, #7c8ffe 0%, #5c6ef5 100%);
+            color: #ffffff;
             align-self: flex-end;
             border-top-right-radius: 0.25rem;
         }
@@ -79,7 +105,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(8px);
             }
 
             to {
@@ -99,7 +125,7 @@
 
         @keyframes highlight {
             0% {
-                background-color: rgba(99, 102, 241, 0.3);
+                background-color: rgba(124, 143, 254, 0.3);
             }
 
             100% {
@@ -109,26 +135,39 @@
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
+            height: 4px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #c7d2fe;
+            background: #c1ccff;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #a5b4fc;
+            background: #9eabff;
+        }
+
+        /* Avatar placeholder */
+        .avatar-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c8ffe 0%, #5c6ef5 100%);
+            color: white;
+            font-weight: 500;
         }
 
         /* Mobile optimizations */
         @media (max-width: 640px) {
             .msg-bubble {
-                max-width: 90%;
+                max-width: 85%;
+                padding: 0.625rem 1rem;
             }
 
             #dm-input {
@@ -137,49 +176,87 @@
             }
 
             #chat-container {
-                padding: 0.5rem;
+                padding-bottom: env(safe-area-inset-bottom);
             }
         }
-    </style>
 
+        /* Pulse animation for typing indicator */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: currentColor;
+            margin: 0 1px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
 </head>
 
-<body class="h-screen flex flex-col font-sans bg-gray-50 text-gray-800">
-
+<body class="h-screen flex flex-col font-sans text-surface-800">
     <!-- AUTH VIEWS -->
-    <div id="auth-container"
-        class="w-full max-w-md mx-auto mt-8 md:mt-12 p-6 bg-white rounded-xl shadow-lg transition-all">
+    <div id="auth-container" class="w-full max-w-md mx-auto mt-8 md:mt-16 p-6 bg-white rounded-2xl shadow-raised">
         <!-- Login -->
         <div id="login-form" class="space-y-4">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-indigo-700">Welcome Back</h2>
-                <p class="text-gray-500 text-sm">Sign in to continue to your messages</p>
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="h-16 w-16 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center shadow-glow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-white" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-semibold font-heading text-surface-900">Welcome Back</h2>
+                <p class="text-surface-500 text-sm mt-1">Sign in to continue to your messages</p>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <div>
-                    <label for="login-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <label for="login-username" class="block text-sm font-medium text-surface-700 mb-1">Username</label>
                     <input id="login-username"
-                        class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                        class="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                         placeholder="Enter your username" />
                 </div>
 
                 <div>
-                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label for="login-password" class="block text-sm font-medium text-surface-700 mb-1">Password</label>
                     <input id="login-password" type="password"
-                        class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                        class="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                         placeholder="Enter your password" />
                 </div>
             </div>
 
             <button id="login-btn"
-                class="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-medium hover:from-brand-700 hover:to-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow mt-2">
                 Sign In
             </button>
 
-            <p class="mt-4 text-center text-sm text-gray-600">
+            <p class="mt-5 text-center text-sm text-surface-600">
                 Don't have an account?
-                <a href="#" id="show-signup" class="text-indigo-600 hover:text-indigo-500 font-medium">Create an
+                <a href="#" id="show-signup" class="text-brand-600 hover:text-brand-700 font-medium">Create an
                     account</a>
             </p>
             <p id="login-error" class="text-red-500 mt-2 text-sm text-center"></p>
@@ -187,61 +264,83 @@
 
         <!-- Signup -->
         <div id="signup-form" class="hidden space-y-4">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-indigo-700">Create Account</h2>
-                <p class="text-gray-500 text-sm">Join our messaging community</p>
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="h-16 w-16 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center shadow-glow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-white" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-semibold font-heading text-surface-900">Create Account</h2>
+                <p class="text-surface-500 text-sm mt-1">Join our messaging community</p>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <div>
-                    <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label for="signup-email" class="block text-sm font-medium text-surface-700 mb-1">Email</label>
                     <input id="signup-email" type="email"
-                        class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                        class="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                         placeholder="Enter your email" />
                 </div>
 
                 <div>
-                    <label for="signup-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <label for="signup-username"
+                        class="block text-sm font-medium text-surface-700 mb-1">Username</label>
                     <input id="signup-username"
-                        class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                        class="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                         placeholder="Choose a username" />
                 </div>
 
                 <div>
-                    <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label for="signup-password"
+                        class="block text-sm font-medium text-surface-700 mb-1">Password</label>
                     <input id="signup-password" type="password"
-                        class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                        class="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                         placeholder="Create a password" />
                 </div>
             </div>
 
             <button id="signup-btn"
-                class="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-medium hover:from-brand-700 hover:to-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow mt-2">
                 Create Account
             </button>
 
-            <p class="mt-4 text-center text-sm text-gray-600">
+            <p class="mt-5 text-center text-sm text-surface-600">
                 Already have an account?
-                <a href="#" id="show-login" class="text-indigo-600 hover:text-indigo-500 font-medium">Sign in</a>
+                <a href="#" id="show-login" class="text-brand-600 hover:text-brand-700 font-medium">Sign in</a>
             </p>
             <p id="signup-error" class="text-red-500 mt-2 text-sm text-center"></p>
         </div>
 
         <!-- OTP Verification -->
         <div id="otp-form" class="hidden space-y-4">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-indigo-700">Verification</h2>
-                <p class="text-gray-500 text-sm">Enter the 6-digit code sent to your email</p>
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div
+                        class="h-16 w-16 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center shadow-glow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-white" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-semibold font-heading text-surface-900">Verification</h2>
+                <p class="text-surface-500 text-sm mt-1">Enter the 6-digit code sent to your email</p>
             </div>
 
-            <div>
+            <div class="flex justify-center">
                 <input id="otp-input"
-                    class="w-full px-3 py-2.5 text-center text-lg tracking-wider bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                    class="w-full max-w-xs px-3 py-3 text-center text-xl tracking-widest bg-surface-50 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                     placeholder="000000" maxlength="6" />
             </div>
 
             <button id="verify-otp-btn"
-                class="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-medium hover:from-brand-700 hover:to-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow mt-2">
                 Verify Code
             </button>
 
@@ -250,48 +349,63 @@
     </div>
 
     <!-- DM APP -->
-    <div id="dm-app" class="hidden flex-1 flex flex-col overflow-hidden">
-
-        <!-- Top bar / logout -->
-        <header class="flex items-center justify-between bg-white px-4 py-2 shadow-sm border-b border-gray-100 z-10">
-            <h1 class="text-lg md:text-xl font-semibold text-indigo-700">Private DMs</h1>
+    <div id="dm-app"
+        class="hidden flex-1 flex flex-col overflow-hidden max-w-6xl mx-auto my-4 shadow-raised rounded-xl bg-white">
+        <!-- Top bar -->
+        <header class="flex items-center justify-between bg-white px-4 py-2 border-b border-surface-100 z-10">
+            <h1 class="font-heading font-semibold text-brand-600 text-base flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                DMs
+            </h1>
             <button id="logout-btn"
-                class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors">Logout</button>
+                class="text-xs py-1.5 px-3 bg-surface-100 hover:bg-surface-200 rounded-full text-surface-700 transition-colors flex items-center space-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Logout</span>
+            </button>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-
             <!-- ── A) Chat List Sidebar ────────────────────────────────────────── -->
-            <aside id="chat-list" class="w-full md:w-80 bg-white border-r flex flex-col overflow-hidden z-10">
+            <aside id="chat-list"
+                class="w-full md:w-80 bg-surface-50 border-r border-surface-100 flex flex-col overflow-hidden z-10">
                 <!-- Search -->
-                <div class="p-3 border-b">
+                <div class="p-3 border-b border-surface-100">
                     <div class="relative">
                         <input id="user-search" type="text" placeholder="Search users…"
-                            class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all text-sm" />
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-gray-400"
+                            class="w-full pl-9 pr-3 py-2 bg-white border border-surface-200 rounded-lg focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all text-sm" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-surface-400"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
                     <ul id="search-suggestions"
-                        class="mt-1 border rounded-lg bg-white max-h-48 overflow-auto hidden shadow-lg absolute z-20 left-3 right-3">
+                        class="mt-1 border rounded-lg bg-white max-h-48 overflow-auto hidden shadow-soft absolute z-20 left-3 right-3">
                     </ul>
                 </div>
 
                 <!-- Recent Chats -->
                 <section class="flex-1 overflow-y-auto">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 px-4 pt-4 pb-2">Recent Chats
-                    </h2>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-surface-500 px-3 pt-4 pb-2">Recent
+                        Chats</h2>
                     <ul id="past-list" class="space-y-1 px-2"></ul>
                 </section>
             </aside>
 
-            <!-- ── B) Full-screen Chat Window ─────────────────────────────────────── -->
+            <!-- ── B) Chat Window ─────────────────────────────────────────── -->
             <section id="chat-container" class="hidden flex-1 flex flex-col bg-white">
                 <!-- Chat header with Back button -->
-                <div class="flex items-center px-4 py-2 border-b bg-white sticky top-0 z-10">
-                    <button id="back-btn" class="mr-4 text-indigo-600 hover:text-indigo-800"
+                <div class="flex items-center px-4 py-2.5 border-b border-surface-100 sticky top-0 z-10 bg-white">
+                    <button id="back-btn"
+                        class="mr-3 text-brand-600 hover:text-brand-800 p-1 rounded-full hover:bg-surface-100"
                         title="Back to chat list" aria-label="Back to chat list">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -300,22 +414,27 @@
                         </svg>
                     </button>
                     <div>
-                        <h2 class="font-medium">Chat with <span id="chat-with"
-                                class="text-indigo-600 font-semibold"></span></h2>
-                        <div id="typing-indicator" class="h-4 text-xs text-gray-500"></div>
+                        <h2 class="font-heading font-medium">
+                            <span id="chat-with" class="text-brand-700 font-semibold"></span>
+                            <span class="text-surface-500 text-xs">
+                                •
+                                <span id="chat-status"></span>
+                            </span>
+                        </h2>
+                        <div id="typing-indicator" class="h-4 text-xs text-surface-500 flex items-center"></div>
                     </div>
                 </div>
 
                 <!-- Messages list -->
-                <div class="flex-1 overflow-y-auto p-4" id="messages-container">
+                <div class="flex-1 overflow-y-auto p-4 bg-surface-50" id="messages-container">
                     <ul id="dm-messages" class="flex flex-col"></ul>
                 </div>
 
                 <!-- Reply Preview -->
                 <div id="reply-preview"
-                    class="hidden flex items-center space-x-2 px-4 py-2 bg-indigo-50 border-t border-indigo-100 text-sm text-gray-700">
+                    class="hidden flex items-center space-x-2 px-4 py-2 bg-brand-50 border-t border-brand-100 text-xs text-surface-700">
                     <div class="flex-1 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-brand-600 mr-1.5 flex-shrink-0"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -323,9 +442,9 @@
                         <span id="reply-text" class="truncate"></span>
                     </div>
                     <button id="cancel-reply"
-                        class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                        class="text-surface-500 hover:text-surface-700 p-1 rounded-full hover:bg-surface-200 transition-colors"
                         title="Cancel reply" aria-label="Cancel reply">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
@@ -334,14 +453,15 @@
                 </div>
 
                 <!-- Message input -->
-                <form id="dm-form" class="flex items-center px-2 py-2 border-t bg-white sticky bottom-0">
+                <form id="dm-form"
+                    class="flex items-center px-3 py-3 border-t border-surface-100 sticky bottom-0 bg-white">
                     <div class="flex-1 relative">
                         <input id="dm-input" type="text" placeholder="Type your message…"
-                            class="w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-l-full focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 focus:outline-none transition-all"
+                            class="w-full pl-4 pr-10 py-2.5 border border-surface-200 rounded-l-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
                             autocomplete="off" />
                     </div>
                     <button type="submit" title="Send message" aria-label="Send message"
-                        class="px-5 py-2.5 bg-indigo-600 text-white rounded-r-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        class="px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-r-xl hover:from-brand-700 hover:to-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
@@ -355,6 +475,24 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/dm.js"></script>
+    <script>
+        // Dynamic typing indicator
+        function showTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.innerHTML = 'typing <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            }
+        }
+
+        // Add avatar initials for chat list
+        function createAvatarElement(username) {
+            const initials = username.charAt(0).toUpperCase();
+            const avatarEl = document.createElement('div');
+            avatarEl.className = 'avatar-placeholder h-9 w-9 text-xs';
+            avatarEl.textContent = initials;
+            return avatarEl;
+        }
+    </script>
 </body>
 
 </html>

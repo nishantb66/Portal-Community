@@ -8,6 +8,10 @@ const path = require("path");
 // ─── 1) New imports ───────────────────────────────────────────────────
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+// track how many DM sockets each user has open
+const dmOnlineCount = new Map(); // username -> count
+// record the last time they went offline
+const dmLastSeen = new Map(); // username -> Date
 
 let usersCollection, otpsCollection, dmsCollection;
 
@@ -305,16 +309,35 @@ dmNamespace.use((socket, next) => {
 });
 
 dmNamespace.on("connection", (socket) => {
-  socket.join(socket.user);
+  const user = socket.user;
 
+  // ─── PRESENCE: mark this user online ───────────────────────────────
+  dmOnlineCount.set(user, (dmOnlineCount.get(user) || 0) + 1);
+  dmNamespace.emit("presence", { user, status: "online" });
+
+  // ─── join the user’s private room ─────────────────────────────────
+  socket.join(user);
+
+  // ─── respond to “who is online?” queries ──────────────────────────
+  socket.on("get presence", ({ user: target }) => {
+    if (dmOnlineCount.has(target)) {
+      socket.emit("presence", { user: target, status: "online" });
+    } else {
+      const last = dmLastSeen.get(target) || new Date();
+      socket.emit("presence", {
+        user: target,
+        status: "offline",
+        lastSeen: last.toISOString(),
+      });
+    }
+  });
+
+  // ─── DM message handler (optimistic broadcast + DB write) ─────────
   socket.on("dm message", async ({ to, message, _tempId, replyTo }) => {
-    const from = socket.user;
     const now = new Date();
-
-    // 1) optimistic broadcast (with replyTo)
     const optimistic = {
       _id: _tempId,
-      from,
+      from: user,
       to,
       message,
       timestamp: now.toISOString(),
@@ -322,11 +345,10 @@ dmNamespace.on("connection", (socket) => {
       replyTo: replyTo || null,
     };
     dmNamespace.to(to).emit("dm message", optimistic);
-    dmNamespace.to(from).emit("dm message", optimistic);
+    dmNamespace.to(user).emit("dm message", optimistic);
 
-    // 2) actual DB write
     const doc = {
-      from,
+      from: user,
       to,
       message,
       timestamp: now,
@@ -336,17 +358,39 @@ dmNamespace.on("connection", (socket) => {
     const result = await dmsCollection.insertOne(doc);
     const realId = result.insertedId.toString();
 
-    // 3) swap temp→real for both sides
     dmNamespace.to(to).emit("dm message saved", { _tempId, _id: realId });
-    dmNamespace.to(from).emit("dm message saved", { _tempId, _id: realId });
+    dmNamespace.to(user).emit("dm message saved", { _tempId, _id: realId });
   });
 
-  // ─── NEW: typing indicator handlers ─────────────────────────────────────
+  // ─── typing indicator handlers ────────────────────────────────────
   socket.on("typing", ({ to }) => {
-    dmNamespace.to(to).emit("user typing", socket.user);
+    dmNamespace.to(to).emit("user typing", user);
   });
   socket.on("stop typing", ({ to }) => {
-    dmNamespace.to(to).emit("user stop typing", socket.user);
+    dmNamespace.to(to).emit("user stop typing", user);
+  });
+
+  // ─── KEEP-ALIVE PONG ───────────────────────────────────────────
+  socket.on("ping", () => {
+    // client wants to keep this socket alive
+    socket.emit("pong");
+  });
+
+  // ─── PRESENCE: on disconnect ───────────────────────────────────────
+  socket.on("disconnect", () => {
+    const cnt = (dmOnlineCount.get(user) || 1) - 1;
+    if (cnt > 0) {
+      dmOnlineCount.set(user, cnt);
+    } else {
+      dmOnlineCount.delete(user);
+      const when = new Date();
+      dmLastSeen.set(user, when);
+      dmNamespace.emit("presence", {
+        user,
+        status: "offline",
+        lastSeen: when.toISOString(),
+      });
+    }
   });
 });
 

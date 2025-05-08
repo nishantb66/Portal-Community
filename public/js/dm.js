@@ -180,6 +180,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document.getElementById("back-btn").addEventListener("click", () => {
+    // stop sending keep-alive pings as soon as we leave this chat
+    clearInterval(pingInterval);
     document.getElementById("chat-container").classList.add("hidden");
     document.getElementById("chat-list").classList.remove("hidden");
   });
@@ -202,11 +204,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── INIT SOCKET.IO DM NAMESPACE ──────────────────────────────────────
   let dmSocket = null;
+  let pingInterval;
   function initChat(token) {
     if (dmSocket) dmSocket.disconnect();
 
     dmSocket = io("/dm", { auth: { token } });
     dmSocket.on("connect_error", (e) => alert(e.message));
+
+    // — KEEP-ALIVE PINGS —
+    // every 30s, if we have an open peer chat, emit “ping”
+    if (typeof pingInterval !== "undefined") clearInterval(pingInterval);
+    pingInterval = setInterval(() => {
+      if (currentPeer) dmSocket.emit("ping");
+    }, 30_000);
+
+    // optional: listen for server “pong” to confirm
+    dmSocket.on("pong", () => {
+      console.debug("DM ping/pong ok for", currentPeer);
+    });
+
+    // clear on disconnect
+    dmSocket.on("disconnect", () => {
+      clearInterval(pingInterval);
+    });
+
     dmSocket.on("dm message", (msg) => {
       // 1) if it's to me, bump unread
       if (msg.to === me() && msg.from !== currentPeer) {
@@ -256,6 +277,20 @@ document.addEventListener("DOMContentLoaded", () => {
     dmSocket.on("user stop typing", (user) => {
       if (user === me()) return;
       document.getElementById("typing-indicator").textContent = "";
+    });
+
+    // ─── PRESENCE UPDATES ───────────────────────────────────────────────
+    dmSocket.on("presence", ({ user, status, lastSeen }) => {
+      if (user !== currentPeer) return;
+      const el = document.getElementById("chat-status");
+      if (status === "online") {
+        el.textContent = "Online";
+      } else {
+        const d = new Date(lastSeen);
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        el.textContent = `Last seen at ${hh}:${mm}`;
+      }
     });
   }
 
@@ -314,26 +349,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ─── Typing Indicator (immediate on desktop & mobile) ─────────────────
   const dmInput = document.getElementById("dm-input");
-  const TYPING_TIMER = 500; // milliseconds
+  // how long (ms) after the last keystroke before we send “stop typing”
+  const STOP_TYPING_DELAY = 300;
   let typing = false;
   let lastTypingTime = 0;
 
-  dmInput.addEventListener("input", () => {
-    if (!currentPeer) return; // only when in an open chat
+  // send “typing” and reset our idle timer
+  function startTyping() {
+    if (!currentPeer) return;
     if (!typing) {
       typing = true;
       dmSocket.emit("typing", { to: currentPeer });
     }
     lastTypingTime = Date.now();
+  }
 
+  // if the user hasn’t typed for STOP_TYPING_DELAY, fire “stop typing”
+  function scheduleStopTyping() {
     setTimeout(() => {
       const delta = Date.now() - lastTypingTime;
-      if (typing && delta >= TYPING_TIMER) {
+      if (typing && delta >= STOP_TYPING_DELAY) {
         dmSocket.emit("stop typing", { to: currentPeer });
         typing = false;
       }
-    }, TYPING_TIMER);
+    }, STOP_TYPING_DELAY);
+  }
+
+  // fire immediately on keydown (best for mobile) and also on input
+  dmInput.addEventListener("keydown", () => {
+    startTyping();
+    scheduleStopTyping();
+  });
+  dmInput.addEventListener("input", () => {
+    startTyping();
+    scheduleStopTyping();
+  });
+
+  // as soon as the field loses focus, clear the typing indicator
+  dmInput.addEventListener("blur", () => {
+    if (typing) {
+      dmSocket.emit("stop typing", { to: currentPeer });
+      typing = false;
+    }
   });
 
   // ─── OPEN AN INDIVIDUAL CHAT ────────────────────────────────────────
@@ -347,6 +406,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2) Update header
     document.getElementById("chat-with").textContent = username;
+
+    // clear old status…
+    document.getElementById("chat-status").textContent = "";
+    // ask server immediately for this peer’s current presence
+    dmSocket.emit("get presence", { user: username });
 
     // 3) Fetch DM history (server also marks them read)
     const token = localStorage.getItem("dmToken");
@@ -560,12 +624,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── LOGOUT ──────────────────────────────────────────────────────────
   document.getElementById("logout-btn").onclick = () => {
-    // clear storage & UI
+    // clear any outstanding ping timer on logout
+    clearInterval(pingInterval);
+    // then proceed with your existing logout logic:
     ["dmToken", "dmUsername", "dmEmail"].forEach((k) =>
       localStorage.removeItem(k)
     );
-    dmApp.classList.add("hidden");
-    authContainer.classList.remove("hidden");
+    document.getElementById("dm-app").classList.add("hidden");
+    document.getElementById("auth-container").classList.remove("hidden");
 
     // reset auth forms
     loginForm.classList.remove("hidden");
