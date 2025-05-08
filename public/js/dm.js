@@ -211,6 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ─── INIT SOCKET.IO DM NAMESPACE ──────────────────────────────────────
   let dmSocket = null;
   let pingInterval;
+  let lastDate = null; // ← will hold the last‐seen day (IST) so we can insert separators
+
   function initChat(token) {
     if (dmSocket) dmSocket.disconnect();
 
@@ -407,6 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ─── OPEN AN INDIVIDUAL CHAT ────────────────────────────────────────
   let currentPeer = null;
   async function openChatWith(username) {
+    lastDate = null;
+
     currentPeer = username;
 
     // 1) Toggle views: hide sidebar, show chat
@@ -471,6 +475,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── APPEND A MESSAGE TO THE UI ──────────────────────────────────────
   function appendMsg(msg) {
+    // 0) DATE DIVIDER (Today / Yesterday / DD Mon YYYY)
+    //    in IST, once per day block
+    const container = document.getElementById("dm-messages");
+    // key for this msg’s date in IST
+    const msgDateKey = new Date(msg.timestamp).toLocaleDateString("en-GB", {
+      timeZone: "Asia/Kolkata",
+    });
+    if (msgDateKey !== lastDate) {
+      // build label
+      const todayKey = new Date().toLocaleDateString("en-GB", {
+        timeZone: "Asia/Kolkata",
+      });
+      const yest = new Date();
+      yest.setDate(yest.getDate() - 1);
+      const yesterdayKey = yest.toLocaleDateString("en-GB", {
+        timeZone: "Asia/Kolkata",
+      });
+
+      let label;
+      if (msgDateKey === todayKey) label = "Today";
+      else if (msgDateKey === yesterdayKey) label = "Yesterday";
+      else {
+        label = new Date(msg.timestamp).toLocaleDateString("en-GB", {
+          timeZone: "Asia/Kolkata",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      }
+
+      const sep = document.createElement("li");
+      sep.className =
+        "date-separator text-center text-xs text-surface-500 my-2";
+      sep.textContent = label;
+      container.appendChild(sep);
+      lastDate = msgDateKey;
+    }
+
     // 1) dedupe
     if (
       document.querySelector(`#dm-messages li[data-message-id="${msg._id}"]`)
