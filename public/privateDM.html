@@ -389,10 +389,10 @@
             </button>
         </header>
 
-        <div class="flex flex-1 overflow-hidden">
+        <div class="flex flex-1 min-h-0 overflow-hidden">
             <!-- ── A) Chat List Sidebar ────────────────────────────────────────── -->
             <aside id="chat-list"
-                class="w-full md:w-80 bg-surface-50 border-r border-surface-100 flex flex-col overflow-hidden z-10">
+                class="w-full md:w-80 bg-surface-50 border-r border-surface-100 flex flex-col min-h-0 overflow-hidden z-10">
                 <!-- Search -->
                 <div class="p-3 border-b border-surface-100">
                     <div class="relative">
@@ -418,7 +418,8 @@
             </aside>
 
             <!-- ── B) Chat Window ─────────────────────────────────────────── -->
-            <section id="chat-container" class="hidden flex-1 flex flex-col bg-white">
+            <section id="chat-container" class="hidden flex-1 flex flex-col min-h-0 bg-white">
+
                 <!-- Chat header with Back button -->
                 <div class="flex items-center px-4 py-2.5 border-b border-surface-100 sticky top-0 z-10 bg-white">
                     <button id="back-btn"
@@ -509,6 +510,31 @@
             avatarEl.textContent = initials;
             return avatarEl;
         }
+
+        (function () {
+            const token = localStorage.getItem("dmToken");
+            if (!token) {
+                // No token → redirect to home
+                window.location.href = "/";
+                return;
+            }
+            try {
+                // Decode JWT payload
+                const parts = token.split(".");
+                if (parts.length !== 3) throw new Error("Invalid token");
+                const payload = JSON.parse(atob(parts[1]));
+                // `exp` is in seconds, convert to ms
+                if (payload.exp * 1000 < Date.now()) {
+                    throw new Error("Token expired");
+                }
+            } catch (e) {
+                // Malformed or expired → clear storage & redirect
+                localStorage.removeItem("dmToken");
+                localStorage.removeItem("dmUsername");
+                localStorage.removeItem("dmEmail");
+                window.location.href = "/";
+            }
+        })();
     </script>
 </body>
 

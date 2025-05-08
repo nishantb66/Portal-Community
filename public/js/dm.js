@@ -525,7 +525,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 2) store in map
-    msgsById[msg._id] = { _id: msg._id, from: msg.from, message: msg.message };
+    // new — also remember replyTo on each msg
+    msgsById[msg._id] = {
+      _id: msg._id,
+      from: msg.from,
+      message: msg.message,
+      replyTo: msg.replyTo || null,
+    };
 
     // 3) build LI
     const li = document.createElement("li");
@@ -590,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
     messageContent.textContent = msg.message;
 
     // Add double-click for reply functionality
-    msgBubble.ondblclick = () => showReplyPreview(msgsById[msg._id]);
+    // msgBubble.ondblclick = () => showReplyPreview(msgsById[msg._id]);
 
     msgBubble.appendChild(bubbleHeader);
     msgBubble.appendChild(messageContent);
@@ -675,6 +681,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     swipingLi = null;
+  });
+
+  // ─── DELEGATED DOUBLE‐CLICK FOR REPLY ──────────────────────────────
+  dmMessages.addEventListener("dblclick", (e) => {
+    // find the message bubble
+    const bubble = e.target.closest(".msg-bubble");
+    if (!bubble) return;
+    // find its <li data-message-id="…">
+    const li = bubble.closest("li[data-message-id]");
+    if (!li) return;
+    const mid = li.getAttribute("data-message-id");
+    const msg = msgsById[mid];
+    if (!msg) return;
+    showReplyPreview(msg);
   });
 
   // ─── LOGOUT ──────────────────────────────────────────────────────────
