@@ -513,26 +513,35 @@
 
         (function () {
             const token = localStorage.getItem("dmToken");
+            function scheduleRedirect() {
+                // after 5 minutes (5 × 60 000 ms), send the user back to home
+                setTimeout(() => {
+                    localStorage.removeItem("dmToken");
+                    localStorage.removeItem("dmUsername");
+                    localStorage.removeItem("dmEmail");
+                    window.location.href = "/";
+                }, 5 * 60 * 1000);
+            }
+
             if (!token) {
-                // No token → redirect to home
-                window.location.href = "/";
+                // No token → schedule redirect in 5 min
+                scheduleRedirect();
                 return;
             }
+
             try {
                 // Decode JWT payload
                 const parts = token.split(".");
-                if (parts.length !== 3) throw new Error("Invalid token");
+                if (parts.length !== 3) throw new Error("Invalid token format");
                 const payload = JSON.parse(atob(parts[1]));
-                // `exp` is in seconds, convert to ms
+                // `exp` is seconds since epoch, so *1000 to compare to Date.now()
                 if (payload.exp * 1000 < Date.now()) {
                     throw new Error("Token expired");
                 }
+                // Token is valid: nothing to do, let the user stay
             } catch (e) {
-                // Malformed or expired → clear storage & redirect
-                localStorage.removeItem("dmToken");
-                localStorage.removeItem("dmUsername");
-                localStorage.removeItem("dmEmail");
-                window.location.href = "/";
+                // Malformed or expired → schedule redirect in 5 min
+                scheduleRedirect();
             }
         })();
     </script>
