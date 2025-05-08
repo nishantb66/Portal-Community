@@ -1,6 +1,24 @@
 let unreadCounts = {}; // global map username→count
 const me = () => localStorage.getItem("dmUsername");
 
+// ─── REPLY FEATURE STATE ─────────────────────────────────────────────
+const msgsById = {}; // map message‐ID → { _id, from, message }
+let replyTo = null; // currently replying to { _id, from, message }
+
+function showReplyPreview(msg) {
+  replyTo = msg;
+  document.getElementById(
+    "reply-text"
+  ).textContent = `Replying to ${msg.from}: ${msg.message}`;
+  document.getElementById("reply-preview").classList.remove("hidden");
+  document.getElementById("dm-input").focus();
+}
+
+function clearReplyPreview() {
+  replyTo = null;
+  document.getElementById("reply-preview").classList.add("hidden");
+}
+
 // A) fetch unread counts from server
 async function loadUnreadCounts(token) {
   const res = await fetch("/dm/unreadCounts", {
@@ -35,9 +53,14 @@ async function renderPastChats(token) {
   ul.innerHTML = recent
     .map(
       (u) => `
-    <li data-user="${u}" class="flex justify-between px-2 py-1 hover:bg-gray-100 cursor-pointer">
-      <span class="username">${u}</span>
-      <span class="unread-badge ml-2 text-white bg-red-500 rounded-full px-2 text-xs ${
+    <li data-user="${u}" class="flex justify-between items-center px-3 py-2.5 hover:bg-indigo-50 rounded-lg cursor-pointer transition-colors">
+      <div class="flex items-center">
+        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center uppercase font-semibold mr-3">
+          ${u.charAt(0)}
+        </div>
+        <span class="username font-medium">${u}</span>
+      </div>
+      <span class="unread-badge ml-2 h-5 min-w-5 flex items-center justify-center text-white bg-indigo-600 rounded-full px-1.5 text-xs font-medium ${
         !unreadCounts[u] ? "hidden" : ""
       }">
         ${unreadCounts[u] || ""}
@@ -46,10 +69,19 @@ async function renderPastChats(token) {
   `
     )
     .join("");
+}
 
-  ul.querySelectorAll("li").forEach((li) => {
-    li.onclick = () => openChatWith(li.dataset.user);
-  });
+// ———————————
+// for optimistic UI
+// ———————————
+function makeTempId() {
+  return `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+// SCROLL HELPER: always keep chat at the bottom
+function scrollToBottom() {
+  const container = document.getElementById("messages-container");
+  container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -73,6 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     signupForm.classList.add("hidden");
     loginForm.classList.remove("hidden");
   };
+
+  document.getElementById("cancel-reply").addEventListener("click", (e) => {
+    e.preventDefault();
+    clearReplyPreview();
+  });
 
   // ─── SIGNUP: request OTP ───────────────────────────────────────────────
   document.getElementById("signup-btn").onclick = async () => {
@@ -160,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3) init live features
     initChat(token);
-    loadPastChats(token);
+    renderPastChats(token);
   }
 
   // ─── INIT SOCKET.IO DM NAMESPACE ──────────────────────────────────────
@@ -171,16 +208,54 @@ document.addEventListener("DOMContentLoaded", () => {
     dmSocket = io("/dm", { auth: { token } });
     dmSocket.on("connect_error", (e) => alert(e.message));
     dmSocket.on("dm message", (msg) => {
-      // 1) if it’s to me, bump unread
+      // 1) if it's to me, bump unread
       if (msg.to === me() && msg.from !== currentPeer) {
         unreadCounts[msg.from] = (unreadCounts[msg.from] || 0) + 1;
         updateBadge(msg.from);
       }
 
-      // 2) if it’s in my open chat, show it immediately
+      // 2) if it's in my open chat, show it immediately
       if (msg.from === currentPeer || msg.to === currentPeer) {
         appendMsg(msg);
       }
+
+      // ── 3) **real-time sidebar update**:
+      // if the DM is to me from a user not in the sidebar (i.e. new peer),
+      // rerun renderPastChats so they immediately appear at the top.
+      if (msg.to === me() && msg.from !== currentPeer) {
+        renderPastChats(token);
+      }
+    });
+
+    // when the server confirms the save, swap temp → real ID
+    dmSocket.on("dm message saved", ({ _tempId, _id }) => {
+      // swap the LI's data attribute
+      const li = document.querySelector(
+        `#dm-messages li[data-message-id="${_tempId}"]`
+      );
+      if (li) li.setAttribute("data-message-id", _id);
+
+      // move our in-memory slot
+      if (msgsById[_tempId]) {
+        msgsById[_id] = msgsById[_tempId];
+        delete msgsById[_tempId];
+      }
+
+      // if user is replying to that optimistic message, update replyTo
+      if (replyTo && replyTo._id === _tempId) {
+        replyTo._id = _id;
+      }
+    });
+
+    // ─── SHOW / HIDE TYPING INDICATOR ───────────────────────────────────
+    dmSocket.on("user typing", (user) => {
+      if (user === me()) return; // ignore yourself
+      const ind = document.getElementById("typing-indicator");
+      ind.textContent = `${user} is typing…`;
+    });
+    dmSocket.on("user stop typing", (user) => {
+      if (user === me()) return;
+      document.getElementById("typing-indicator").textContent = "";
     });
   }
 
@@ -204,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
       suggUl.innerHTML = users
         .map(
           (u) =>
-            `<li class="px-3 py-1 hover:bg-gray-100 cursor-pointer">${u}</li>`
+            `<li class="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition-colors">${u}</li>`
         )
         .join("");
       suggUl.classList.toggle("hidden", users.length === 0);
@@ -230,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ul.innerHTML = recent
       .map(
         (u) =>
-          `<li class="px-2 py-1 hover:bg-gray-100 cursor-pointer">${u}</li>`
+          `<li class="px-2 py-1 hover:bg-indigo-50 cursor-pointer">${u}</li>`
       )
       .join("");
 
@@ -238,6 +313,28 @@ document.addEventListener("DOMContentLoaded", () => {
       li.onclick = () => openChatWith(li.textContent);
     });
   }
+
+  const dmInput = document.getElementById("dm-input");
+  const TYPING_TIMER = 500; // milliseconds
+  let typing = false;
+  let lastTypingTime = 0;
+
+  dmInput.addEventListener("input", () => {
+    if (!currentPeer) return; // only when in an open chat
+    if (!typing) {
+      typing = true;
+      dmSocket.emit("typing", { to: currentPeer });
+    }
+    lastTypingTime = Date.now();
+
+    setTimeout(() => {
+      const delta = Date.now() - lastTypingTime;
+      if (typing && delta >= TYPING_TIMER) {
+        dmSocket.emit("stop typing", { to: currentPeer });
+        typing = false;
+      }
+    }, TYPING_TIMER);
+  });
 
   // ─── OPEN AN INDIVIDUAL CHAT ────────────────────────────────────────
   let currentPeer = null;
@@ -269,7 +366,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const msgUl = document.getElementById("dm-messages");
     msgUl.innerHTML = "";
     messages.forEach(appendMsg);
-    msgUl.scrollTop = msgUl.scrollHeight;
+
+    const msgContainer = document.getElementById("messages-container");
+    msgContainer.scrollTop = msgContainer.scrollHeight;
 
     // 5) Clear unread badge for this peer
     unreadCounts[username] = 0;
@@ -289,15 +388,98 @@ document.addEventListener("DOMContentLoaded", () => {
     input.focus();
   }
 
+  // ─── DELEGATED CLICK FOR RECENT CHATS ────────────────────────────────
+  document.getElementById("past-list").addEventListener("click", (evt) => {
+    // find the <li data-user="…"> that was clicked
+    const li = evt.target.closest("li[data-user]");
+    if (!li) return;
+    openChatWith(li.dataset.user);
+  });
+
   // ─── APPEND A MESSAGE TO THE UI ──────────────────────────────────────
   function appendMsg(msg) {
+    // 1) dedupe
+    if (
+      document.querySelector(`#dm-messages li[data-message-id="${msg._id}"]`)
+    ) {
+      return;
+    }
+
+    // 2) store in map
+    msgsById[msg._id] = { _id: msg._id, from: msg.from, message: msg.message };
+
+    // 3) build LI
     const li = document.createElement("li");
-    const me = localStorage.getItem("dmUsername");
-    li.textContent = `${msg.from}: ${msg.message}`;
-    li.className = me === msg.from ? "text-right" : "";
-    const ul = document.getElementById("dm-messages");
-    ul.appendChild(li);
-    ul.scrollTop = ul.scrollHeight;
+    li.setAttribute("data-message-id", msg._id);
+    li.className = `mb-3 ${
+      localStorage.getItem("dmUsername") === msg.from
+        ? "self-end"
+        : "self-start"
+    } new-message`;
+
+    // 4) if this is a reply, render a quote bubble
+    if (msg.replyTo && msgsById[msg.replyTo]) {
+      const parent = msgsById[msg.replyTo];
+      const qb = document.createElement("div");
+      qb.className =
+        "quote-bubble text-xs p-2 bg-gray-100 border-l-4 border-indigo-400 mb-1 cursor-pointer rounded-r";
+      qb.textContent = `${parent.from}: ${parent.message}`;
+      qb.addEventListener("click", () => {
+        const target = document.querySelector(
+          `#dm-messages li[data-message-id="${parent._id}"]`
+        );
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          target.classList.add("message-highlight");
+          setTimeout(() => target.classList.remove("message-highlight"), 3000);
+        }
+      });
+      li.appendChild(qb);
+    }
+
+    // 5) main message bubble
+    const isMe = localStorage.getItem("dmUsername") === msg.from;
+    const msgBubble = document.createElement("div");
+    msgBubble.className = `msg-bubble ${
+      isMe ? "msg-outgoing" : "msg-incoming"
+    }`;
+
+    // Create username and timestamp elements
+    const bubbleHeader = document.createElement("div");
+    bubbleHeader.className = "flex justify-between items-center mb-1";
+
+    const username = document.createElement("span");
+    username.className = `text-xs font-medium ${
+      isMe ? "text-indigo-700" : "text-gray-700"
+    }`;
+    username.textContent = msg.from;
+
+    const timestamp = document.createElement("span");
+    timestamp.className = "text-xs text-gray-500 ml-2";
+    const time = msg.timestamp ? new Date(msg.timestamp) : new Date();
+    timestamp.textContent = time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    bubbleHeader.appendChild(username);
+    bubbleHeader.appendChild(timestamp);
+
+    // Message content
+    const messageContent = document.createElement("div");
+    messageContent.className = "break-words";
+    messageContent.textContent = msg.message;
+
+    // Add double-click for reply functionality
+    msgBubble.ondblclick = () => showReplyPreview(msgsById[msg._id]);
+
+    msgBubble.appendChild(bubbleHeader);
+    msgBubble.appendChild(messageContent);
+    li.appendChild(msgBubble);
+
+    // 6) append + ALWAYS scroll
+    document.getElementById("dm-messages").appendChild(li);
+    scrollToBottom();
   }
 
   // ─── SEND A NEW MESSAGE ──────────────────────────────────────────────
@@ -305,9 +487,76 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("dm-input");
     const txt = input.value.trim();
     if (!txt || !currentPeer) return;
-    dmSocket.emit("dm message", { to: currentPeer, message: txt });
+
+    // 1) generate a tempId
+    const tempId = makeTempId();
+    const from = localStorage.getItem("dmUsername");
+    const optimistic = {
+      _id: tempId,
+      from,
+      to: currentPeer,
+      message: txt,
+      timestamp: new Date().toISOString(),
+      replyTo: replyTo ? replyTo._id : null, // ← carry the reply ID
+    };
+
+    // 2) append immediately (with replyTo!)
+    appendMsg(optimistic);
+
+    // 3) actually emit to server
+    dmSocket.emit("dm message", {
+      to: currentPeer,
+      message: txt,
+      _tempId: tempId,
+      replyTo: replyTo ? replyTo._id : null,
+    });
+
+    // 4) clear input & preview
     input.value = "";
+    clearReplyPreview();
+    input.focus();
   }
+
+  // ─── Swipe→Reply (touch) ─────────────────────────────────────────────
+  const dmMessages = document.getElementById("dm-messages");
+  let swipingLi = null,
+    startX = 0,
+    startY = 0;
+  const SWIPE_THRESHOLD = 60;
+
+  dmMessages.addEventListener("touchstart", (e) => {
+    const li = e.target.closest("li[data-message-id]");
+    if (!li) return;
+    swipingLi = li;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    li.style.transition = "none";
+  });
+
+  dmMessages.addEventListener("touchmove", (e) => {
+    if (!swipingLi) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    if (dx > 0) {
+      swipingLi.style.transform = `translateX(${dx}px)`;
+      e.preventDefault();
+    }
+  });
+
+  dmMessages.addEventListener("touchend", (e) => {
+    if (swipingLi) {
+      const dx = e.changedTouches[0].clientX - startX;
+      swipingLi.style.transition = "transform 0.3s ease";
+      swipingLi.style.transform = "translateX(0)";
+      if (dx > SWIPE_THRESHOLD) {
+        const mid = swipingLi.getAttribute("data-message-id");
+        const data = msgsById[mid];
+        if (data) showReplyPreview(data);
+      }
+    }
+    swipingLi = null;
+  });
 
   // ─── LOGOUT ──────────────────────────────────────────────────────────
   document.getElementById("logout-btn").onclick = () => {
@@ -326,4 +575,34 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("login-password").value = "";
     document.getElementById("login-error").textContent = "";
   };
+
+  // ─── Check for mobile viewport adjustments ───────────────────────────
+  function adjustForMobile() {
+    // Adjust for iOS safari viewport issues with keyboard
+    const isMobile = window.matchMedia("(max-width: 640px)").matches;
+
+    if (isMobile) {
+      // Add focus/blur handlers for better mobile keyboard experience
+      document.getElementById("dm-input").addEventListener("focus", () => {
+        // Small delay to ensure the keyboard is fully shown
+        setTimeout(() => {
+          const msgContainer = document.getElementById("messages-container");
+          msgContainer.scrollTop = msgContainer.scrollHeight;
+        }, 300);
+      });
+    }
+  }
+
+  // Run mobile adjustments
+  adjustForMobile();
+  window.addEventListener("resize", adjustForMobile);
+
+  // ─── Auto-login from localStorage if token exists ─────────────────────
+  const savedToken = localStorage.getItem("dmToken");
+  const savedUsername = localStorage.getItem("dmUsername");
+  const savedEmail = localStorage.getItem("dmEmail");
+
+  if (savedToken && savedUsername) {
+    onLoginSuccess(savedToken, savedUsername, savedEmail);
+  }
 });

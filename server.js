@@ -305,25 +305,48 @@ dmNamespace.use((socket, next) => {
 });
 
 dmNamespace.on("connection", (socket) => {
-  // join personal room
   socket.join(socket.user);
 
-  // handle a DM
-  socket.on("dm message", async ({ to, message }) => {
-    // ── A) build and store with `read: false`
-    const doc = {
-      from: socket.user,
+  socket.on("dm message", async ({ to, message, _tempId, replyTo }) => {
+    const from = socket.user;
+    const now = new Date();
+
+    // 1) optimistic broadcast (with replyTo)
+    const optimistic = {
+      _id: _tempId,
+      from,
       to,
       message,
-      timestamp: new Date(),
-      read: false, // ← ADD THIS
+      timestamp: now.toISOString(),
+      read: false,
+      replyTo: replyTo || null,
+    };
+    dmNamespace.to(to).emit("dm message", optimistic);
+    dmNamespace.to(from).emit("dm message", optimistic);
+
+    // 2) actual DB write
+    const doc = {
+      from,
+      to,
+      message,
+      timestamp: now,
+      read: false,
+      replyTo: replyTo || null,
     };
     const result = await dmsCollection.insertOne(doc);
-    doc._id = result.insertedId.toString(); // so front-end can key off it
+    const realId = result.insertedId.toString();
 
-    // ── B) emit enriched doc
-    dmNamespace.to(to).emit("dm message", doc);
-    dmNamespace.to(socket.user).emit("dm message", doc);
+    // 3) swap temp→real for both sides
+    dmNamespace.to(to).emit("dm message saved", { _tempId, _id: realId });
+    dmNamespace.to(from).emit("dm message saved", { _tempId, _id: realId });
+  });
+
+  // ─── NEW: typing indicator handlers ─────────────────────────────────────
+  socket.on("typing", ({ to }) => {
+    dmNamespace.to(to).emit("user typing", socket.user);
+  });
+  socket.on("stop typing", ({ to }) => {
+    dmNamespace.to(to).emit("user stop typing", socket.user);
   });
 });
 
