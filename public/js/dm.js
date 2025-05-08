@@ -180,10 +180,16 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document.getElementById("back-btn").addEventListener("click", () => {
-    // stop sending keep-alive pings as soon as we leave this chat
+    // stop sending keep-alive pings
     clearInterval(pingInterval);
+
+    // swap views
     document.getElementById("chat-container").classList.add("hidden");
     document.getElementById("chat-list").classList.remove("hidden");
+
+    // re-fetch your recent‐chat list so any newly‐added peer appears immediately
+    const token = localStorage.getItem("dmToken");
+    renderPastChats(token);
   });
 
   // ─── ON LOGIN SUCCESS ─────────────────────────────────────────────────
@@ -229,21 +235,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     dmSocket.on("dm message", (msg) => {
-      // 1) if it's to me, bump unread
+      // 1) bump my unread-badge if it's someone else messaging me
       if (msg.to === me() && msg.from !== currentPeer) {
         unreadCounts[msg.from] = (unreadCounts[msg.from] || 0) + 1;
         updateBadge(msg.from);
       }
 
-      // 2) if it's in my open chat, show it immediately
+      // 2) if the chat with this peer is open, show it
       if (msg.from === currentPeer || msg.to === currentPeer) {
         appendMsg(msg);
       }
 
-      // ── 3) **real-time sidebar update**:
-      // if the DM is to me from a user not in the sidebar (i.e. new peer),
-      // rerun renderPastChats so they immediately appear at the top.
+      // 3) if someone DMed me, refresh sidebar so they appear
       if (msg.to === me() && msg.from !== currentPeer) {
+        renderPastChats(token);
+      }
+
+      // 4) if I just sent a DM, refresh sidebar so my new peer appears
+      if (msg.from === me()) {
         renderPastChats(token);
       }
     });
@@ -519,7 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
     username.textContent = msg.from;
 
     const timestamp = document.createElement("span");
-    timestamp.className = "text-xs text-gray-500 ml-2";
+    timestamp.className = "text-xs text-gray-800 ml-2";
     const time = msg.timestamp ? new Date(msg.timestamp) : new Date();
     timestamp.textContent = time.toLocaleTimeString([], {
       hour: "2-digit",

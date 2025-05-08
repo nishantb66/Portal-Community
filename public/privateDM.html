@@ -56,12 +56,22 @@
     </script>
 
     <style>
-        body {
-            background-color: #f5f7fd;
-            background-image: radial-gradient(#dce3ff 0.5px, transparent 0.5px),
-                radial-gradient(#dce3ff 0.5px, #f5f7fd 0.5px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
+        /* Background pattern only visible on larger screens */
+        @media (min-width: 768px) {
+            body {
+                background-color: #f5f7fd;
+                background-image: radial-gradient(#dce3ff 0.5px, transparent 0.5px),
+                    radial-gradient(#dce3ff 0.5px, #f5f7fd 0.5px);
+                background-size: 20px 20px;
+                background-position: 0 0, 10px 10px;
+            }
+        }
+
+        /* On mobile, use a plain background */
+        @media (max-width: 767px) {
+            body {
+                background-color: #ffffff;
+            }
         }
 
         /* Prevent text selection in chat bubbles */
@@ -210,12 +220,19 @@
         .typing-dot:nth-child(3) {
             animation-delay: 0.4s;
         }
+
+        /* Safe area insets for mobile devices */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .safe-area-bottom {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
     </style>
 </head>
 
 <body class="h-screen flex flex-col font-sans text-surface-800">
     <!-- AUTH VIEWS -->
-    <div id="auth-container" class="w-full max-w-md mx-auto mt-8 md:mt-16 p-6 bg-white rounded-2xl shadow-raised">
+    <div id="auth-container" class="w-full max-w-md mx-auto mt-4 md:mt-16 p-6 bg-white md:rounded-2xl md:shadow-raised">
         <!-- Login -->
         <div id="login-form" class="space-y-4">
             <div class="text-center mb-8">
@@ -348,9 +365,9 @@
         </div>
     </div>
 
-    <!-- DM APP -->
+    <!-- DM APP - Full screen on mobile, centered on desktop -->
     <div id="dm-app"
-        class="hidden flex-1 flex flex-col overflow-hidden max-w-6xl mx-auto my-4 shadow-raised rounded-xl bg-white">
+        class="hidden flex-1 flex flex-col overflow-hidden w-full h-full md:max-w-6xl md:mx-auto md:my-4 md:shadow-raised md:rounded-xl bg-white">
         <!-- Top bar -->
         <header class="flex items-center justify-between bg-white px-4 py-2 border-b border-surface-100 z-10">
             <h1 class="font-heading font-semibold text-brand-600 text-base flex items-center">
@@ -359,7 +376,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                DMs
+                Chat Messages
             </h1>
             <button id="logout-btn"
                 class="text-xs py-1.5 px-3 bg-surface-100 hover:bg-surface-200 rounded-full text-surface-700 transition-colors flex items-center space-x-1">
@@ -454,7 +471,7 @@
 
                 <!-- Message input -->
                 <form id="dm-form"
-                    class="flex items-center px-3 py-3 border-t border-surface-100 sticky bottom-0 bg-white">
+                    class="flex items-center px-3 py-3 border-t border-surface-100 sticky bottom-0 bg-white safe-area-bottom">
                     <div class="flex-1 relative">
                         <input id="dm-input" type="text" placeholder="Type your message…"
                             class="w-full pl-4 pr-10 py-2.5 border border-surface-200 rounded-l-xl focus:ring-2 focus:ring-brand-300 focus:border-brand-500 focus:outline-none transition-all"
