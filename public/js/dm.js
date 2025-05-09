@@ -607,12 +607,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const usernameSpan = document.createElement("span");
     usernameSpan.className = `text-xs font-medium ${
-      isMe ? "text-indigo-700" : "text-gray-700"
+      isMe ? "text-indigo-400" : "text-gray-400"
     }`;
     usernameSpan.textContent = msg.from;
 
     const timestampSpan = document.createElement("span");
-    timestampSpan.className = "text-xs text-gray-800 ml-2";
+    timestampSpan.className = "text-xs text-gray-400 ml-2";
     timestampSpan.textContent = new Date(msg.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
