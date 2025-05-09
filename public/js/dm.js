@@ -614,11 +614,6 @@ document.addEventListener("DOMContentLoaded", () => {
     msgBubble.appendChild(messageContent);
     li.appendChild(msgBubble);
 
-    // ── DESKTOP: double-click to reply
-    msgBubble.addEventListener("dblclick", () => {
-      showReplyPreview(msgsById[msg._id]);
-    });
-
     // 6) append + ALWAYS scroll
     document.getElementById("dm-messages").appendChild(li);
     scrollToBottom();
@@ -660,8 +655,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ─── Swipe→Reply (touch) ─────────────────────────────────────────────
+
+  //
+  // ─── DELEGATED REPLY HANDLERS ────────────────────────────────────────
+  //
   const dmMessages = document.getElementById("dm-messages");
-  let swipingLi = null,
+
+  // double-click to reply (desktop)
+  dmMessages.addEventListener("dblclick", (e) => {
+    const bubble = e.target.closest(".msg-bubble");
+    if (!bubble) return;
+    const li = bubble.closest("li[data-message-id]");
+    if (!li) return;
+    const mid = li.getAttribute("data-message-id");
+    const msg = msgsById[mid];
+    if (!msg) return;
+    showReplyPreview(msg);
+  });
+
+  // swipe‐right to reply (touch/mobile)
+  let swipeItem = null,
     startX = 0,
     startY = 0;
   const SWIPE_THRESHOLD = 60;
@@ -669,36 +682,36 @@ document.addEventListener("DOMContentLoaded", () => {
   dmMessages.addEventListener("touchstart", (e) => {
     const li = e.target.closest("li[data-message-id]");
     if (!li) return;
-    swipingLi = li;
+    swipeItem = li;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     li.style.transition = "none";
   });
-
   dmMessages.addEventListener("touchmove", (e) => {
-    if (!swipingLi) return;
+    if (!swipeItem) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
     if (Math.abs(dy) > Math.abs(dx)) return;
     if (dx > 0) {
-      swipingLi.style.transform = `translateX(${dx}px)`;
+      swipeItem.style.transform = `translateX(${dx}px)`;
       e.preventDefault();
     }
   });
-
   dmMessages.addEventListener("touchend", (e) => {
-    if (swipingLi) {
-      const dx = e.changedTouches[0].clientX - startX;
-      swipingLi.style.transition = "transform 0.3s ease";
-      swipingLi.style.transform = "translateX(0)";
-      if (dx > SWIPE_THRESHOLD) {
-        const mid = swipingLi.getAttribute("data-message-id");
-        const data = msgsById[mid];
-        if (data) showReplyPreview(data);
-      }
+    if (!swipeItem) return;
+    // bounce back
+    swipeItem.style.transition = "transform 0.3s ease";
+    swipeItem.style.transform = "translateX(0)";
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx > SWIPE_THRESHOLD) {
+      const mid = swipeItem.getAttribute("data-message-id");
+      const msg = msgsById[mid];
+      if (msg) showReplyPreview(msg);
     }
-    swipingLi = null;
+    swipeItem = null;
   });
+  //
+  // ─── end delegated reply handlers ───────────────────────────────────
 
   // ─── DELEGATED DOUBLE‐CLICK FOR REPLY ──────────────────────────────
   // dmMessages.addEventListener("dblclick", (e) => {
