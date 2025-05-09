@@ -371,8 +371,48 @@ dmNamespace.on("connection", (socket) => {
   });
 
   // new DM message
+  // ─── in server.js, inside dmNamespace.on("connection", socket => { … })
+  // find the bit that starts with:
+  //   // new DM message
+  //   socket.on("dm message", async ({ to, message, _tempId, replyTo }) => { … })
+  // and replace the entire handler with this:
+
+  // ─── new DM message (robust reply embedding) ────────────────────────────
   socket.on("dm message", async ({ to, message, _tempId, replyTo }) => {
     const now = new Date();
+    const colName = getDmCollectionName(user, to);
+    const col = client.db("community").collection(colName);
+
+    // 1) figure out the full reply‐to payload
+    let replyToData = null;
+    if (replyTo) {
+      // If the client already sent us an embedded object, use it directly:
+      if (typeof replyTo === "object" && replyTo._id) {
+        replyToData = replyTo;
+      }
+      // Otherwise if it's a valid 24-char hex string, load from DB:
+      else if (
+        typeof replyTo === "string" &&
+        /^[0-9a-fA-F]{24}$/.test(replyTo)
+      ) {
+        try {
+          const parentDoc = await col.findOne({ _id: new ObjectId(replyTo) });
+          if (parentDoc) {
+            replyToData = {
+              _id: parentDoc._id.toString(),
+              from: parentDoc.from,
+              message: parentDoc.message,
+              timestamp: parentDoc.timestamp,
+            };
+          }
+        } catch (e) {
+          console.warn("Could not load parent message for reply:", e);
+        }
+      }
+      // else: it wasn’t a valid ID, so we just skip embedding
+    }
+
+    // 2) build optimistic payload with embedded replyToData (or null)
     const optimistic = {
       _id: _tempId,
       from: user,
@@ -380,17 +420,19 @@ dmNamespace.on("connection", (socket) => {
       message,
       timestamp: now.toISOString(),
       read: false,
-      replyTo: replyTo || null,
+      replyTo: replyToData, // <-- always an object or null
     };
+
+    // 3) broadcast that to both sides (instant UX)
     dmNamespace.to(to).emit("dm message", optimistic);
     dmNamespace.to(user).emit("dm message", optimistic);
 
-    const doc = { ...optimistic, timestamp: now };
-    const colName = getDmCollectionName(user, to);
-    const col = client.db("community").collection(colName);
-    const result = await col.insertOne(doc);
+    // 4) now persist (with replyToData inside)
+    const dbDoc = { ...optimistic, timestamp: now };
+    const result = await col.insertOne(dbDoc);
     const realId = result.insertedId.toString();
 
+    // 5) swap temp → real ID for both sides
     dmNamespace.to(to).emit("dm message saved", { _tempId, _id: realId });
     dmNamespace.to(user).emit("dm message saved", { _tempId, _id: realId });
   });

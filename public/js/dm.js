@@ -510,8 +510,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── APPEND A MESSAGE TO THE UI ──────────────────────────────────────
   function appendMsg(msg) {
-    // 0) DATE DIVIDER (Today / Yesterday / DD Mon YYYY) — IST
     const container = document.getElementById("dm-messages");
+
+    // 0) DATE DIVIDER (Today / Yesterday / DD Mon YYYY) — IST
     const msgDateKey = new Date(msg.timestamp).toLocaleDateString("en-GB", {
       timeZone: "Asia/Kolkata",
     });
@@ -550,23 +551,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // 2) Store in map for lookups
+    // 2) Store in map for lookups (replyTo becomes the parent’s _id)
     msgsById[msg._id] = {
       _id: msg._id,
       from: msg.from,
       message: msg.message,
-      replyTo: msg.replyTo || null,
+      timestamp: msg.timestamp,
+      replyTo: msg.replyTo ? msg.replyTo._id : null,
     };
 
     // 3) Build the <li>
     const li = document.createElement("li");
     li.setAttribute("data-message-id", msg._id);
-    const isMe = localStorage.getItem("dmUsername") === msg.from;
+    const isMe = me() === msg.from;
     li.className = `mb-3 ${isMe ? "self-end" : "self-start"} new-message`;
 
     // 4) If this is a reply, render the quoted bubble
-    if (msg.replyTo && msgsById[msg.replyTo]) {
-      const parent = msgsById[msg.replyTo];
+    if (msg.replyTo && msg.replyTo._id) {
+      const parent = msg.replyTo;
+      // seed the parent in our map so quote-click works
+      msgsById[parent._id] = {
+        _id: parent._id,
+        from: parent.from,
+        message: parent.message,
+        timestamp: parent.timestamp,
+        replyTo: parent.replyTo ? parent.replyTo._id : null,
+      };
+
       const quote = document.createElement("div");
       quote.className =
         "quote-bubble text-xs p-2 bg-gray-100 border-l-4 border-indigo-400 mb-1 cursor-pointer rounded-r";
@@ -590,7 +601,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isMe ? "msg-outgoing" : "msg-incoming"
     }`;
 
-    // Header: username + timestamp
+    // ─── Header: username + timestamp ─────────────────────────────
     const bubbleHeader = document.createElement("div");
     bubbleHeader.className = "flex justify-between items-center mb-1";
 
@@ -610,7 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bubbleHeader.appendChild(usernameSpan);
     bubbleHeader.appendChild(timestampSpan);
 
-    // Message text
+    // ─── Message text ────────────────────────────────────────────
     const messageContent = document.createElement("div");
     messageContent.className = "break-words";
     messageContent.textContent = msg.message;
@@ -629,6 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(li);
     scrollToBottom();
   }
+  
 
   // ─── SEND A NEW MESSAGE ──────────────────────────────────────────────
   // function sendMsg() {
@@ -671,21 +683,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!text || !currentPeer) return;
 
     const tempId = `temp-${Date.now()}`;
-    const optimistic = {
+    // pass replyTo._id so server can look up the full parent
+    const replyId = replyTo ? replyTo._id : null;
+
+    // Optimistic show
+    appendMsg({
       _id: tempId,
       from: me(),
       to: currentPeer,
       message: text,
       timestamp: new Date().toISOString(),
-      replyTo: replyTo ? replyTo._id : null,
-    };
-    appendMsg(optimistic);
+      replyTo: replyId,
+    });
 
     dmSocket.emit("dm message", {
       to: currentPeer,
       message: text,
       _tempId: tempId,
-      replyTo: replyTo ? replyTo._id : null,
+      replyTo: replyId,
     });
 
     input.value = "";
