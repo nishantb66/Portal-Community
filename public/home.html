@@ -5,66 +5,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chatterbox • Community Space</title>
-    <!-- Fonts: Outfit for headings, Inter for body text -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+    <!-- Fonts: Inter for clean, professional typography -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- GSAP for advanced animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Outfit', 'system-ui', 'sans-serif']
                     },
                     colors: {
-                        primary: {
-                            50: '#f0f7ff',
-                            100: '#e0eefe',
-                            200: '#bae0fd',
-                            300: '#7cc8fb',
-                            400: '#36aef6',
-                            500: '#0c96e6',
-                            600: '#0077c2',
-                            700: '#00609e',
-                            800: '#085282',
-                            900: '#0d446c',
-                            950: '#082b49',
-                        },
-                        neutral: {
-                            50: '#f8fafc',
-                            100: '#f0f5fa',
-                            200: '#e1e8f0',
-                            300: '#cad5e0',
-                            400: '#97a6b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#364152',
-                            800: '#27303f',
-                            900: '#1a202e',
-                            950: '#0f172a',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                            950: '#030712',
                         },
                     },
                     boxShadow: {
-                        'soft': '0 5px 30px -15px rgba(0, 0, 0, 0.05)',
-                        'glow': '0 0 15px rgba(56, 189, 248, 0.25)',
-                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.08)',
-                        'card-hover': '0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 20px -5px rgba(0, 0, 0, 0.05)',
-                        'button': '0 4px 12px -2px rgba(0, 119, 194, 0.2)',
-                    },
-                    backgroundImage: {
-                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+                        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                     },
                 }
             }
         }
     </script>
     <style>
-        /* Base styles */
         html {
             scroll-behavior: smooth;
         }
@@ -72,565 +48,131 @@
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-            background-color: #f8fafc;
-            touch-action: manipulation;
+            background-color: #ffffff;
+            color: #1f2937;
         }
 
-        /* Advanced background effects */
-        .mesh-gradient {
-            background-color: #f8fafc;
-            background-image: radial-gradient(at 80% 10%, rgb(224, 242, 254) 0px, transparent 50%),
-                radial-gradient(at 20% 80%, rgb(224, 231, 255) 0px, transparent 50%);
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -2;
+        /* Light subtle background pattern */
+        .bg-pattern {
+            background-color: #ffffff;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
         }
 
-        .bg-grid {
-            background-size: 40px 40px;
-            background-image:
-                linear-gradient(to right, rgba(209, 213, 219, 0.1) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(209, 213, 219, 0.1) 1px, transparent 1px);
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
+        /* Simple card styles */
+        .card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: box-shadow 0.2s ease-in-out;
         }
 
-        /* Floating objects - reduced visibility on mobile */
-        .floating-object {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(30px);
-            z-index: -1;
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        .floating-1 {
-            width: 300px;
-            height: 300px;
-            background: rgba(186, 230, 253, 0.4);
-            top: 10%;
-            left: 5%;
-            animation: float 25s ease-in-out infinite alternate;
-        }
-
-        .floating-2 {
-            width: 250px;
-            height: 250px;
-            background: rgba(196, 181, 253, 0.25);
-            bottom: 10%;
-            right: 5%;
-            animation: float 20s ease-in-out 1s infinite alternate-reverse;
-        }
-
-        .floating-3 {
-            width: 180px;
-            height: 180px;
-            background: rgba(252, 231, 243, 0.35);
-            top: 60%;
-            left: 15%;
-            animation: float 18s ease-in-out 2s infinite alternate;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) scale(1) rotate(0deg);
-            }
-
-            25% {
-                transform: translate(30px, -20px) scale(1.05) rotate(5deg);
-            }
-
-            50% {
-                transform: translate(-20px, 40px) scale(0.95) rotate(0deg);
-            }
-
-            75% {
-                transform: translate(20px, 20px) scale(1.05) rotate(-5deg);
-            }
-
-            100% {
-                transform: translate(0, 0) scale(1) rotate(0deg);
-            }
-        }
-
-        /* Animated borders and shapes - optimized for performance */
-        .animated-border {
-            position: relative;
-            z-index: 0;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .animated-border::before {
-            content: '';
-            position: absolute;
-            z-index: -2;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent,
-                    rgba(56, 189, 248, 0.2),
-                    transparent 30%);
-            animation: rotate 6s linear infinite;
-        }
-
-        .animated-border::after {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            inset: 1px;
-            background: #fff;
-            border-radius: 15px;
-        }
-
-        @keyframes rotate {
-            100% {
-                transform: rotate(1turn);
-            }
-        }
-
-        /* Blob animation - reduced intensity on mobile */
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(50px);
-            opacity: 0.7;
-            mix-blend-mode: screen;
-            animation: blob-pulse 20s infinite alternate;
-        }
-
-        .blob-1 {
-            width: 300px;
-            height: 300px;
-            background: rgba(58, 191, 248, 0.2);
-            top: 10%;
-            left: 20%;
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: rgba(139, 92, 246, 0.15);
-            bottom: 5%;
-            right: 10%;
-            animation-delay: 5s;
-        }
-
-        @keyframes blob-pulse {
-
-            0%,
-            100% {
-                transform: scale(1) translate(0, 0);
-            }
-
-            25% {
-                transform: scale(1.05) translate(20px, -30px);
-            }
-
-            50% {
-                transform: scale(0.95) translate(-20px, 20px);
-            }
-
-            75% {
-                transform: scale(1.05) translate(30px, 10px);
-            }
-        }
-
-        /* Fancy card effects - toned down on mobile for performance */
-        .fancy-card {
-            position: relative;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            transform: perspective(1500px) rotateY(0deg);
-            transform-style: preserve-3d;
-        }
-
-        .fancy-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            border-radius: inherit;
-            background: linear-gradient(120deg, #ffffff, #f0f5fa);
-            box-shadow:
-                0 0 0 2px rgba(255, 255, 255, 0.1),
-                0 10px 30px -10px rgba(0, 0, 0, 0.1);
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .fancy-card .card-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Glass morphism effects */
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Button hover effects - optimized for touch */
-        .btn-fancy {
-            position: relative;
-            isolation: isolate;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
-
-        .btn-fancy::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: all 0.6s ease;
-            z-index: -1;
-        }
-
-        .btn-fancy:active {
-            transform: translateY(1px);
-        }
-
-        /* Text stroke effect */
-        .text-outline {
-            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
-            color: transparent;
-        }
-
-        /* Advanced gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #0077c2, #36aef6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-
-        /* Cursor trail effect - desktop only */
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: rgba(56, 189, 248, 0.7);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease;
-        }
-
-        .cursor-trail {
-            width: 24px;
-            height: 24px;
-            border: 2px solid rgba(56, 189, 248, 0.3);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, border-color 0.4s;
-        }
-
-        /* Feature card hover effect - simplified for mobile */
-        .feature-card {
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-        }
-
-        .feature-card .icon-container {
-            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        /* Animated highlight text */
-        .highlight {
-            position: relative;
-            z-index: 1;
-            display: inline-block;
-        }
-
-        .highlight::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            background-color: rgba(56, 189, 248, 0.2);
-            z-index: -1;
-            transition: height 0.3s ease;
-        }
-
-        /* Modal and popup styling - mobile optimized */
+        /* Modal styles */
         .modal {
-            background-color: rgba(248, 250, 252, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.2s ease-in-out;
         }
 
         .modal-content {
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .modal.show .modal-content {
-            transform: translateY(0);
-            opacity: 1;
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
-        /* Particle effect */
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            overflow: hidden;
-            z-index: -1;
+        .btn-primary {
+            background-color: #4b5563;
+            color: white;
         }
 
-        .particle {
-            position: absolute;
-            display: block;
-            pointer-events: none;
-            width: 6px;
-            height: 6px;
-            background-color: rgba(176, 190, 197, 0.2);
-            border-radius: 50%;
+        .btn-primary:hover {
+            background-color: #374151;
         }
 
-        /* Custom animations */
-        @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .btn-secondary {
+            background-color: white;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
         }
 
-        .fade-slide-up {
-            animation: fadeSlideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        .btn-secondary:hover {
+            background-color: #f9fafb;
         }
 
-        .delay-1 {
-            animation-delay: 0.1s;
+        .btn-outline {
+            background-color: transparent;
+            color: #4b5563;
+            border: 1px solid #9ca3af;
         }
 
-        .delay-2 {
-            animation-delay: 0.2s;
-        }
-
-        .delay-3 {
-            animation-delay: 0.3s;
-        }
-
-        .delay-4 {
-            animation-delay: 0.4s;
-        }
-
-        .delay-5 {
-            animation-delay: 0.5s;
-        }
-
-        /* Enhanced mobile responsiveness */
-        @media (max-width: 768px) {
-
-            /* Scale down floating elements for mobile */
-            .floating-object {
-                opacity: 0.5;
-                transform: scale(0.6);
-            }
-
-            .blob {
-                opacity: 0.3;
-                transform: scale(0.5);
-            }
-
-            /* Disable fancy 3D effects on mobile */
-            .fancy-card:hover {
-                transform: none;
-            }
-
-            /* Ensure buttons are big enough for touch targets */
-            button,
-            .btn-fancy {
-                min-height: 48px;
-                min-width: 48px;
-            }
-
-            /* Improved touch ripple effect */
-            .tap-highlight::after {
-                content: '';
-                display: block;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-                pointer-events: none;
-                background-image: radial-gradient(circle, rgba(255, 255, 255, .4) 10%, transparent 10.01%);
-                background-repeat: no-repeat;
-                background-position: 50%;
-                transform: scale(10, 10);
-                opacity: 0;
-                transition: transform .5s, opacity 1s;
-            }
-
-            .tap-highlight:active::after {
-                transform: scale(0, 0);
-                opacity: .3;
-                transition: 0s;
-            }
-
-            /* Better spacing for mobile content */
-            .container {
-                padding-top: 1rem;
-                padding-bottom: 3rem;
-            }
-
-            /* Optimize modal for mobile */
-            .modal-content {
-                max-height: 90vh;
-                overflow-y: auto;
-                margin: 0 0.75rem;
-            }
-
-            /* Fix feature card grid on mobile */
-            .feature-card {
-                margin-bottom: 1rem;
-            }
-
-            /* Improve mobile typography */
-            h1 {
-                font-size: calc(1.5rem + 2vw);
-                line-height: 1.2;
-            }
-
-            /* Fix button layout on small screens */
-            .button-group {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 0.75rem;
-            }
-        }
-
-        /* Additional customizations for very small screens */
-        @media (max-width: 380px) {
-            .button-group {
-                grid-template-columns: 1fr;
-            }
-
-            /* Stack buttons on very small screens */
-            .btn-fancy {
-                width: 100%;
-            }
-
-            /* Reduce padding to save space */
-            .feature-card {
-                padding: 1.25rem !important;
-            }
-
-            .icon-container {
-                width: 3rem !important;
-                height: 3rem !important;
-            }
+        .btn-outline:hover {
+            background-color: #f9fafb;
         }
     </style>
 </head>
 
-<body>
-    <!-- Background elements -->
-    <div class="mesh-gradient"></div>
-    <div class="bg-grid"></div>
-
-    <!-- Floating objects - adjusted for responsiveness -->
-    <div class="floating-object floating-1"></div>
-    <div class="floating-object floating-2"></div>
-    <div class="floating-object floating-3"></div>
-
+<body class="bg-pattern">
     <!-- Main container -->
-    <div
-        class="container max-w-6xl mx-auto px-4 sm:px-5 py-10 sm:py-16 md:py-24 min-h-screen flex flex-col justify-center relative">
+    <div class="container max-w-6xl mx-auto px-4 py-12 min-h-screen flex flex-col justify-center">
         <!-- Main content wrapper -->
-        <div class="w-full flex flex-col lg:flex-row gap-8 lg:gap-16 items-center relative">
+        <div class="w-full flex flex-col lg:flex-row gap-8 items-center">
             <!-- Left section: Title and description -->
-            <div class="w-full lg:w-5/12 space-y-6 sm:space-y-8 opacity-0" id="hero-section">
-                <div class="overflow-hidden relative">
-                    <!-- Decorative element -->
-                    <div class="absolute w-24 sm:w-32 h-24 sm:h-32 rounded-full bg-gradient-to-r from-primary-100 to-primary-200 
-                        -top-10 -left-10 blur-2xl opacity-60 animate-pulse"></div>
-
-                    <!-- Logo/heading -->
-                    <div class="mb-3">
-                        <span class="inline-block py-1.5 px-3 text-xs font-medium bg-primary-50 text-primary-600 
-                            rounded-full mb-2">Community Platform</span>
-                    </div>
-
-                    <h1 class="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-neutral-900 
-                        tracking-tight leading-tight relative z-10">
-                        <span class="highlight">chill</span>
-                        <span class="gradient-text">chat</span>
-                        <br>
-                        <span class="relative inline-block">space</span>
-                    </h1>
+            <div class="w-full lg:w-5/12 space-y-6">
+                <!-- Logo/heading -->
+                <div class="mb-3">
+                    <span class="inline-block py-1 px-3 text-xs font-medium bg-gray-100 text-gray-700 
+                        rounded-full mb-2">Community Platform</span>
                 </div>
 
+                <h1 class="font-bold text-4xl sm:text-5xl md:text-6xl text-gray-800 
+                    tracking-tight leading-tight">
+                    <span>chill</span>
+                    <span class="text-gray-600">chat</span>
+                    <br>
+                    <span>space</span>
+                </h1>
+
                 <!-- Description -->
-                <p class="text-neutral-600 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl">
-                    A thoughtfully designed corner of the internet where you can <span class="highlight">connect with
-                        others</span>,
+                <p class="text-gray-600 text-base sm:text-lg leading-relaxed max-w-xl">
+                    A thoughtfully designed corner of the internet where you can connect with others,
                     share authentic moments, and build meaningful connections in a space that feels just right.
                 </p>
 
                 <!-- Buttons - improved for mobile -->
-                <div class="flex flex-wrap gap-3 sm:gap-4 button-group">
-                    <button onclick="location.href='/chat'" class="btn-fancy tap-highlight
-                        px-5 sm:px-8 py-3 sm:py-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl
-                        shadow-button transform transition-all duration-300 flex items-center justify-center gap-2.5">
+                <div class="flex flex-wrap gap-4">
+                    <a href="/chat" class="btn btn-primary px-6 py-3">
                         <span>Jump in</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20"
+                            fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
                         </svg>
-                    </button>
+                    </a>
 
-                    <button onclick="location.href='/privateDM.html'" class="btn-fancy tap-highlight
-                        px-5 sm:px-8 py-3 sm:py-4 bg-neutral-800 hover:bg-neutral-900 text-white font-medium rounded-xl
-                        transition-all duration-300 flex items-center justify-center gap-2.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    <a href="/privateDM.html" class="btn btn-secondary px-6 py-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                         </svg>
                         <span>Private DMs</span>
-                    </button>
+                    </a>
 
-                    <button id="showAbout" class="btn-fancy tap-highlight
-                        px-5 sm:px-8 py-3 sm:py-4 bg-white hover:bg-neutral-50 text-neutral-800 font-medium rounded-xl border border-neutral-200
-                        transition-all duration-300 flex items-center justify-center gap-2.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" fill="none"
+                    <button id="showAbout" class="btn btn-outline px-6 py-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -641,88 +183,74 @@
 
                 <!-- Author info -->
                 <div class="pt-4 flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-primary-400 to-primary-600 
-                        flex items-center justify-center text-white font-medium">NB</div>
                     <div>
-                        <div class="text-neutral-600 text-sm">Created with ♥ by</div>
-                        <div class="font-medium text-neutral-900">Nishant Baruah</div>
+                        <div class="text-gray-500 text-sm">Created by</div>
+                        <div class="font-medium text-gray-800">Nishant Baruah</div>
                     </div>
                 </div>
             </div>
 
             <!-- Right section: Feature cards - responsive grid -->
-            <div class="w-full lg:w-7/12 relative opacity-0" id="features-section">
-                <!-- Decorative blobs -->
-                <div class="blob blob-1"></div>
-                <div class="blob blob-2"></div>
-
+            <div class="w-full lg:w-7/12">
                 <!-- Features grid - responsive layout -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-8 relative z-10">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 relative">
                     <!-- Feature 1 -->
-                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.1">
-                        <div
-                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
+                    <div class="card p-6 h-full">
+                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
                             Authentic Conversations</h3>
-                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Express yourself freely in a
+                        <p class="text-gray-600 leading-relaxed">Express yourself freely in a
                             judgment-free zone where genuine connections thrive.</p>
                     </div>
 
                     <!-- Feature 2 -->
-                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.2">
-                        <div
-                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
+                    <div class="card p-6 h-full">
+                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
                             Real-Time Interaction</h3>
-                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Enjoy smooth, instantaneous
+                        <p class="text-gray-600 leading-relaxed">Enjoy smooth, instantaneous
                             messaging that makes conversations feel natural and engaging.</p>
                     </div>
 
                     <!-- Feature 3 -->
-                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.3">
-                        <div
-                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
+                    <div class="card p-6 h-full">
+                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
                             Community Connection</h3>
-                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Discover like-minded people who
+                        <p class="text-gray-600 leading-relaxed">Discover like-minded people who
                             share your interests, values, and conversation style.</p>
                     </div>
 
                     <!-- Feature 4 -->
-                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.4">
-                        <div
-                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
+                    <div class="card p-6 h-full">
+                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">Safe
+                        <h3 class="font-semibold text-gray-800 text-lg mb-2">Safe
                             Environment</h3>
-                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Enjoy peace of mind in a
+                        <p class="text-gray-600 leading-relaxed">Enjoy peace of mind in a
                             respectful space designed to foster positive interactions.</p>
                     </div>
                 </div>
@@ -730,17 +258,12 @@
         </div>
     </div>
 
-    <!-- Cursor effects (desktop only) -->
-    <div class="cursor-dot hidden md:block"></div>
-    <div class="cursor-trail hidden md:block"></div>
-
     <!-- About Modal - improved for mobile -->
-    <div id="aboutModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5">
-        <div
-            class="modal-content max-w-lg w-full bg-white rounded-2xl sm:rounded-3xl shadow-card border border-neutral-100 relative overflow-hidden">
-            <!-- Close button - larger touch target -->
-            <button id="closeModal" title="Close dialog" aria-label="Close dialog" class="absolute top-4 right-4 p-3 text-neutral-400 hover:text-neutral-600 
-                hover:bg-neutral-100 rounded-full transition-colors duration-200 z-10">
+    <div id="aboutModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content max-w-lg w-full bg-white rounded-lg shadow-lg border border-gray-200 relative">
+            <!-- Close button -->
+            <button id="closeModal" title="Close dialog" aria-label="Close dialog" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 
+                hover:bg-gray-100 rounded-full transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -748,112 +271,101 @@
             </button>
 
             <!-- Modal content - scrollable -->
-            <div class="p-6 sm:p-8 md:p-10 overflow-y-auto max-h-[80vh]">
+            <div class="p-6 overflow-y-auto max-h-[80vh]">
                 <!-- Header -->
-                <div class="flex items-start gap-4 sm:gap-5 mb-6 sm:mb-8">
-                    <div
-                        class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary-50 flex-shrink-0 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-primary-600"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-md bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div>
-                        <h3
-                            class="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-neutral-900 mb-1 sm:mb-2">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-1">
                             About ChillChat Space</h3>
-                        <p class="text-neutral-600 text-sm sm:text-base">Your cozy corner on the internet</p>
+                        <p class="text-gray-600 text-sm">Your corner on the internet</p>
                     </div>
                 </div>
 
                 <!-- Content -->
-                <div class="space-y-5 sm:space-y-6 text-neutral-700">
-                    <p class="text-base sm:text-lg">ChillChat is a modern community platform where you can connect with
-                        others in a relaxed,
-                        positive environment. Think of it like a digital living room where everyone is welcome.</p>
+                <div class="space-y-5 text-gray-700">
+                    <p>ChillChat is a modern community platform where you can connect with
+                        others in a relaxed, positive environment. Think of it like a digital living room where everyone
+                        is welcome.</p>
 
-                    <div
-                        class="bg-neutral-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-neutral-100 space-y-3 sm:space-y-4">
-                        <h4 class="font-display font-medium text-base sm:text-lg text-neutral-900">Good to know:</h4>
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 space-y-4">
+                        <h4 class="font-medium text-gray-800">Good to know:</h4>
 
-                        <ul class="space-y-2.5 sm:space-y-3">
+                        <ul class="space-y-3">
                             <li class="flex items-start gap-3">
                                 <div
-                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
-                                        fill="currentColor">
+                                    class="h-6 w-6 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                                        viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span class="text-sm sm:text-base">All messages are public in group chats</span>
+                                <span>All messages are public in group chats</span>
                             </li>
                             <li class="flex items-start gap-3">
                                 <div
-                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
-                                        fill="currentColor">
+                                    class="h-6 w-6 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                                        viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span class="text-sm sm:text-base">We prioritize your privacy—no personal data
-                                    collected</span>
+                                <span>We prioritize your privacy—no personal data collected</span>
                             </li>
                             <li class="flex items-start gap-3">
                                 <div
-                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
-                                        fill="currentColor">
+                                    class="h-6 w-6 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                                        viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span class="text-sm sm:text-base">Use any username that feels right to you</span>
+                                <span>Use any username that feels right to you</span>
                             </li>
                             <li class="flex items-start gap-3">
                                 <div
-                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
-                                        fill="currentColor">
+                                    class="h-6 w-6 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                                        viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span class="text-sm sm:text-base">Please be kind and respectful to everyone</span>
+                                <span>Please be kind and respectful to everyone</span>
                             </li>
                         </ul>
                     </div>
 
-                    <div
-                        class="bg-gradient-to-r from-primary-50 to-neutral-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-primary-100">
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                         <div class="flex items-start gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5 sm:h-6 sm:w-6 text-primary-600 flex-shrink-0 mt-0.5" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                             </svg>
-                            <p class="text-sm sm:text-base">This space is designed for casual conversations and making
+                            <p>This space is designed for casual conversations and making
                                 connections—like chatting with friends at a cozy café. We hope you enjoy your time here!
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action button - larger for better touch interaction -->
-                <div class="mt-6 sm:mt-8">
-                    <button id="confirmModal" class="w-full btn-fancy tap-highlight py-3.5 sm:py-4 bg-primary-600 hover:bg-primary-700 text-white 
-                        font-medium rounded-xl transition-all duration-300 shadow-button text-base sm:text-lg">
+                <!-- Action button -->
+                <div class="mt-6">
+                    <button id="confirmModal" class="w-full btn btn-primary py-3">
                         Got it, let's chat!
                     </button>
                 </div>
@@ -861,81 +373,10 @@
         </div>
     </div>
 
-    <!-- Particles - reduced for mobile -->
-    <div class="particles hidden sm:block"></div>
-
-    <!-- Scripts - optimized for mobile performance -->
+    <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Check if we're on a mobile device for performance optimizations
-            const isMobile = window.innerWidth < 768;
-
-            // GSAP animations for hero section
-            gsap.to("#hero-section", {
-                opacity: 1,
-                duration: 0.8,
-                ease: "power3.out"
-            });
-
-            // GSAP animations for features section
-            gsap.to("#features-section", {
-                opacity: 1,
-                duration: 0.8,
-                delay: 0.2,
-                ease: "power3.out"
-            });
-
-            // Staggered animation for feature cards - simplified for mobile
-            gsap.utils.toArray(".feature-card").forEach((card, i) => {
-                gsap.fromTo(card,
-                    { y: isMobile ? 10 : 30, opacity: 0 },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        duration: isMobile ? 0.6 : 0.8,
-                        delay: 0.3 + (i * (isMobile ? 0.1 : 0.15)),
-                        ease: "power3.out"
-                    }
-                );
-            });
-
-            // Magnetic effect on buttons - desktop only
-            if (!isMobile) {
-                const magneticBtns = document.querySelectorAll('.magnetic-btn');
-
-                magneticBtns.forEach(btn => {
-                    btn.addEventListener('mousemove', function (e) {
-                        const btnRect = this.getBoundingClientRect();
-                        const btnX = btnRect.left + btnRect.width / 2;
-                        const btnY = btnRect.top + btnRect.height / 2;
-
-                        const deltaX = e.clientX - btnX;
-                        const deltaY = e.clientY - btnY;
-
-                        // Calculate movement (less movement for a subtle effect)
-                        const moveX = deltaX * 0.1;
-                        const moveY = deltaY * 0.1;
-
-                        gsap.to(this, {
-                            x: moveX,
-                            y: moveY,
-                            duration: 0.3,
-                            ease: "power3.out"
-                        });
-                    });
-
-                    btn.addEventListener('mouseleave', function () {
-                        gsap.to(this, {
-                            x: 0,
-                            y: 0,
-                            duration: 0.5,
-                            ease: "elastic.out(1, 0.3)"
-                        });
-                    });
-                });
-            }
-
-            // Modal functionality - improved for mobile
+            // Modal functionality
             const aboutModal = document.getElementById('aboutModal');
             const showAbout = document.getElementById('showAbout');
             const closeModal = document.getElementById('closeModal');
@@ -943,28 +384,12 @@
 
             function openModal() {
                 aboutModal.classList.remove('hidden');
-                aboutModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
-
-                // Animate modal content with reduced animation on mobile
-                gsap.fromTo(".modal-content",
-                    { y: isMobile ? 10 : 20, opacity: 0 },
-                    { y: 0, opacity: 1, duration: isMobile ? 0.3 : 0.5, ease: "power3.out" }
-                );
             }
 
             function closeModalFunc() {
-                gsap.to(".modal-content", {
-                    y: isMobile ? 10 : 20,
-                    opacity: 0,
-                    duration: isMobile ? 0.2 : 0.4,
-                    ease: "power3.in",
-                    onComplete: () => {
-                        aboutModal.classList.add('hidden');
-                        aboutModal.classList.remove('show');
-                        document.body.style.overflow = '';
-                    }
-                });
+                aboutModal.classList.add('hidden');
+                document.body.style.overflow = '';
             }
 
             showAbout.addEventListener('click', openModal);
@@ -983,223 +408,6 @@
                 if (e.key === 'Escape' && !aboutModal.classList.contains('hidden')) {
                     closeModalFunc();
                 }
-            });
-
-            // Desktop cursor effects - only run on desktop
-            if (!isMobile) {
-                const cursorDot = document.querySelector('.cursor-dot');
-                const cursorTrail = document.querySelector('.cursor-trail');
-
-                document.addEventListener('mousemove', function (e) {
-                    gsap.to(cursorDot, {
-                        x: e.clientX,
-                        y: e.clientY,
-                        duration: 0.1
-                    });
-
-                    gsap.to(cursorTrail, {
-                        x: e.clientX,
-                        y: e.clientY,
-                        duration: 0.3
-                    });
-                });
-
-                // Show cursor elements
-                cursorDot.classList.remove('hidden');
-                cursorTrail.classList.remove('hidden');
-
-                // Special effect for interactive elements
-                const interactiveElements = document.querySelectorAll('button, a');
-
-                interactiveElements.forEach(el => {
-                    el.addEventListener('mouseenter', () => {
-                        gsap.to(cursorDot, {
-                            scale: 1.5,
-                            duration: 0.3
-                        });
-                        gsap.to(cursorTrail, {
-                            width: 40,
-                            height: 40,
-                            borderColor: 'rgba(56, 189, 248, 0.6)',
-                            duration: 0.3
-                        });
-                    });
-
-                    el.addEventListener('mouseleave', () => {
-                        gsap.to(cursorDot, {
-                            scale: 1,
-                            duration: 0.3
-                        });
-                        gsap.to(cursorTrail, {
-                            width: 24,
-                            height: 24,
-                            borderColor: 'rgba(56, 189, 248, 0.3)',
-                            duration: 0.3
-                        });
-                    });
-                });
-            }
-
-            // Create particles - fewer on mobile for performance
-            function createParticles() {
-                if (isMobile) return; // Skip particles on mobile for better performance
-
-                const particlesContainer = document.querySelector('.particles');
-                const particleCount = isMobile ? 15 : 30;
-
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('span');
-                    particle.classList.add('particle');
-
-                    // Random position
-                    const posX = Math.random() * 100;
-                    const posY = Math.random() * 100;
-                    particle.style.left = `${posX}%`;
-                    particle.style.top = `${posY}%`;
-
-                    // Random size
-                    const size = Math.random() * 4 + 2;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-
-                    // Random opacity
-                    const opacity = Math.random() * 0.3 + 0.1;
-                    particle.style.opacity = opacity;
-
-                    // Add animation with random duration and delay
-                    const duration = Math.random() * 20 + 10;
-                    const delay = Math.random() * 10;
-
-                    gsap.to(particle, {
-                        y: -200,
-                        x: Math.random() * 100 - 50,
-                        opacity: 0,
-                        duration: duration,
-                        delay: delay,
-                        ease: "power1.inOut",
-                        repeat: -1,
-                        onRepeat: () => {
-                            gsap.set(particle, {
-                                y: 200,
-                                x: 0,
-                                opacity: opacity
-                            });
-                        }
-                    });
-
-                    particlesContainer.appendChild(particle);
-                }
-            }
-
-            createParticles();
-
-            // Add tap highlight effect for mobile buttons
-            if (isMobile) {
-                const tapHighlights = document.querySelectorAll('.tap-highlight');
-
-                tapHighlights.forEach(highlight => {
-                    highlight.addEventListener('touchstart', function (e) {
-                        const rect = this.getBoundingClientRect();
-                        const x = e.touches[0].clientX - rect.left;
-                        const y = e.touches[0].clientY - rect.top;
-
-                        // Create the ripple effect
-                        const ripple = document.createElement('span');
-                        ripple.className = 'ripple-effect';
-                        ripple.style.position = 'absolute';
-                        ripple.style.width = '100px';
-                        ripple.style.height = '100px';
-                        ripple.style.left = x - 50 + 'px';
-                        ripple.style.top = y - 50 + 'px';
-                        ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                        ripple.style.borderRadius = '50%';
-                        ripple.style.transform = 'scale(0)';
-                        ripple.style.animation = 'ripple 0.6s linear';
-
-                        // Add keyframes for the ripple animation
-                        if (!document.querySelector('style#ripple-style')) {
-                            const style = document.createElement('style');
-                            style.id = 'ripple-style';
-                            style.innerHTML = `
-                                @keyframes ripple {
-                                    to {
-                                        transform: scale(3);
-                                        opacity: 0;
-                                    }
-                                }
-                            `;
-                            document.head.appendChild(style);
-                        }
-
-                        // Make sure we have correct positioning context
-                        if (getComputedStyle(this).position === 'static') {
-                            this.style.position = 'relative';
-                        }
-
-                        this.appendChild(ripple);
-
-                        // Remove the ripple after animation completes
-                        setTimeout(() => {
-                            ripple.remove();
-                        }, 600);
-                    });
-                });
-            }
-
-            // Optimize page for mobile users
-            if (isMobile) {
-                // Reduce animations for better performance
-                document.querySelectorAll('.floating-object').forEach(obj => {
-                    obj.style.animationDuration = '40s';
-                });
-
-                // Remove heavy animations that aren't essential for UX
-                document.querySelectorAll('.blob').forEach(blob => {
-                    blob.style.animationPlayState = 'paused';
-                    blob.style.opacity = '0.2';
-                });
-
-                // Make sure all text is readable on small screens
-                document.querySelectorAll('p').forEach(p => {
-                    if (window.innerWidth < 360) {
-                        p.style.fontSize = '0.875rem';
-                    }
-                });
-
-                // Ensure form inputs and buttons have adequate size for touch
-                document.querySelectorAll('button').forEach(button => {
-                    button.style.minHeight = '44px';
-                });
-            }
-
-            // Handle orientation change on mobile
-            window.addEventListener('orientationchange', function () {
-                // Small delay to allow browser to complete orientation change
-                setTimeout(() => {
-                    // Readjust any elements that need orientation-specific treatment
-                    if (isMobile) {
-                        // Reset any fixed heights that might cause issues
-                        document.querySelectorAll('.feature-card').forEach(card => {
-                            card.style.height = 'auto';
-                        });
-                    }
-                }, 300);
-            });
-
-            // Handle resize events for responsive adjustments
-            let resizeTimeout;
-            window.addEventListener('resize', function () {
-                // Use a timeout to avoid excessive function calls during resize
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    const newIsMobile = window.innerWidth < 768;
-
-                    // Only perform adjustments if we crossed the mobile breakpoint
-                    if (newIsMobile !== isMobile) {
-                        // Reload page for significant layout changes
-                        // Or make dynamic adjustments here
-                    }
-                }, 250);
             });
         });
     </script>
