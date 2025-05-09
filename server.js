@@ -66,7 +66,7 @@ app.get("/chat", (_req, res) =>
 // ─── MongoDB Setup ────────────────────────────────────────────────────────────
 const client = new MongoClient(process.env.MONGODB_URI);
 
-let usersCollection, otpsCollection; // for DM auth
+let usersCollection, otpsCollection, resetsCollection; // for DM auth
 
 async function initDb() {
   await client.connect();
@@ -79,6 +79,7 @@ async function initDb() {
   // DM‐related collections
   usersCollection = db.collection("users");
   otpsCollection = db.collection("otps");
+  resetsCollection = db.collection("password_resets");
 }
 initDb().catch((err) => {
   console.error("❌ Mongo init error:", err);
@@ -206,6 +207,99 @@ app.post("/dm/login", async (req, res) => {
       { expiresIn: "24h" }
     );
     res.json({ token, username: user.username, email: user.email });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+const RESET_EXPIRE_MS = 10 * 60 * 1000; // 10 minutes
+
+// ─── 1) Request reset OTP ────────────────────────────────────────────
+app.post("/password/forgot", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Missing email" });
+
+    // 1) Does user exist?
+    const user = await usersCollection.findOne({ email: email.trim() });
+    if (!user) {
+      return res.status(400).json({ message: "Email id not found" });
+    }
+
+    // 2) generate + store OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + RESET_EXPIRE_MS);
+    await resetsCollection.insertOne({ email, otp, expires });
+
+    // 3) send mail
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Your password-reset code",
+      text: `Hello ${user.username},\n\nYour password reset code is ${otp}. It expires in 10 minutes.\n\nIf you did not request this, please ignore.`,
+    });
+
+    // 4) return username + expiry so front-end can show countdown
+    res.json({ username: user.username, expires: expires.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ─── 2) Verify that the reset‐OTP is correct ───────────────────────────
+app.post("/password/verify-reset-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp)
+      return res.status(400).json({ message: "Missing fields" });
+
+    // find matching, non-expired document
+    const doc = await resetsCollection.findOne({
+      email,
+      otp,
+      expires: { $gt: new Date() },
+    });
+    if (!doc) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    // ok!
+    res.json({ message: "OTP verified" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ─── 3) Actually reset the password ────────────────────────────────────
+app.post("/password/reset", async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password)
+      return res.status(400).json({ message: "Missing fields" });
+
+    // 1) re-verify OTP + expiry
+    const doc = await resetsCollection.findOne({
+      email,
+      otp,
+      expires: { $gt: new Date() },
+    });
+    if (!doc) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    // 2) update user's password
+    await usersCollection.updateOne(
+      { email },
+      { $set: { password: password.trim() } }
+    );
+
+    // 3) clean up the reset token
+    await resetsCollection.deleteMany({ email });
+
+    res.json({ message: "Password reset successful" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

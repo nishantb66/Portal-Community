@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Forgot Password • Community Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- your tailwind.config and custom styles if any -->
+</head>
+
+<body class="h-screen flex items-center justify-center bg-surface-50">
+    <div class="w-full max-w-md space-y-6 p-6 bg-white rounded-xl shadow-raised">
+        <!-- 1) Email Input -->
+        <form id="email-form" class="space-y-4">
+            <h2 class="text-xl font-semibold">Forgot your password?</h2>
+            <p class="text-sm text-gray-600">Enter your registered email to receive a code.</p>
+            <input id="fp-email" type="email" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-300"
+                placeholder="you@example.com" />
+            <p id="email-error" class="text-red-500 text-sm hidden"></p>
+            <button type="submit" class="w-full py-2 bg-brand-600 text-gray-700 rounded-lg">Send Code</button>
+        </form>
+
+        <!-- 2) OTP Verification -->
+        <form id="otp-form" class="hidden space-y-4">
+            <h2 class="text-xl font-semibold">Hi, <span id="fp-username"></span></h2>
+            <p class="text-sm text-gray-600">Enter the 6-digit code we emailed you.</p>
+            <input id="fp-otp" type="text" maxlength="6" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-300" placeholder="000000" />
+            <p id="otp-error" class="text-red-500 text-sm hidden"></p>
+            <button type="submit" class="w-full py-2 bg-brand-600 text-gray-700 rounded-lg">Verify Code</button>
+            <p class="text-xs text-gray-500">Code expires in <span id="countdown">10:00</span></p>
+        </form>
+
+        <!-- 3) Reset Password -->
+        <form id="reset-form" class="hidden space-y-4">
+            <h2 class="text-xl font-semibold">Reset Password</h2>
+            <input id="fp-newpass" type="password" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-300"
+                placeholder="Enter new password" />
+            <input id="fp-confpass" type="password" required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-300"
+                placeholder="Confirm new password" />
+            <p id="reset-error" class="text-red-500 text-sm hidden"></p>
+            <button type="submit" class="w-full py-2 bg-brand-600 text-gray-700 rounded-lg">Set Password</button>
+        </form>
+
+        <p id="success-msg" class="text-green-600 text-center hidden">
+            Password has been reset! Redirecting…
+        </p>
+    </div>
+
+    <script src="/js/forget.js"></script>
+</body>
+
+</html>
