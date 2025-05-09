@@ -56,6 +56,31 @@
     </script>
 
     <style>
+        /* ─── Prevent the browser viewport from scrolling ───────────────────────── */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* ─── Ensure the two main columns flex, but don’t overflow the page ─────── */
+        body>div#dm-app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* ─── Only the chat‐message area scrolls internally ─────────────────────── */
+        #messages-container {
+            flex: 1;
+            /* fill remaining vertical space */
+            overflow-y: auto;
+            /* enable internal scroll */
+        }
+
+
+
         /* Background pattern only visible on larger screens */
         @media (min-width: 768px) {
             body {
