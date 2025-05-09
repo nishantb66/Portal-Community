@@ -5,460 +5,609 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chatterbox • Community Space</title>
-    <!-- Fonts: Outfit for headings, Nunito for body text -->
+    <!-- Fonts: Outfit for headings, Inter for body text -->
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Nunito', 'system-ui', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                         display: ['Outfit', 'system-ui', 'sans-serif']
                     },
                     colors: {
-                        white: {
-                            DEFAULT: '#ffffff',
-                            'pure': '#ffffff',
-                            'off': '#fafafa',
-                            'warm': '#f7f7f7',
-                            'cool': '#f5f7fa',
-                            'smoke': '#f0f2f5'
-                        }
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0eefe',
+                            200: '#bae0fd',
+                            300: '#7cc8fb',
+                            400: '#36aef6',
+                            500: '#0c96e6',
+                            600: '#0077c2',
+                            700: '#00609e',
+                            800: '#085282',
+                            900: '#0d446c',
+                            950: '#082b49',
+                        },
+                        neutral: {
+                            50: '#f8fafc',
+                            100: '#f0f5fa',
+                            200: '#e1e8f0',
+                            300: '#cad5e0',
+                            400: '#97a6b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#364152',
+                            800: '#27303f',
+                            900: '#1a202e',
+                            950: '#0f172a',
+                        },
                     },
                     boxShadow: {
-                        'soft': '0 2px 40px -15px rgba(0, 0, 0, 0.05)',
-                        'subtle': '0 2px 20px -8px rgba(0, 0, 0, 0.06)',
-                        'elevated': '0 10px 40px -12px rgba(0, 0, 0, 0.1)',
-                        'button': '0 4px 10px rgba(0, 0, 0, 0.05)',
-                        'card-hover': '0 15px 35px -15px rgba(0, 0, 0, 0.1)'
-                    }
+                        'soft': '0 5px 30px -15px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(56, 189, 248, 0.25)',
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 20px -5px rgba(0, 0, 0, 0.05)',
+                        'button': '0 4px 12px -2px rgba(0, 119, 194, 0.2)',
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+                    },
                 }
             }
         }
     </script>
     <style>
-        /* Desktop: Fixed height, no scroll */
-        @media (min-width: 768px) {
-
-            html,
-            body {
-                height: 100%;
-                overflow: hidden;
-            }
-        }
-
-        /* Mobile: Allow scrolling */
-        @media (max-width: 767px) {
-
-            html,
-            body {
-                height: auto;
-                overflow-y: auto;
-            }
-
-            /* Add padding for mobile scroll experience */
-            body {
-                padding-bottom: 2rem;
-            }
+        /* Base styles */
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            background-color: #f8fafc;
+            touch-action: manipulation;
         }
 
-        .elegant-gradient {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 100%);
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Background patterns */
-        .bg-dots {
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 18px 18px;
-        }
-
-        /* Moving dots background */
-        .moving-dots {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Advanced background effects */
+        .mesh-gradient {
+            background-color: #f8fafc;
+            background-image: radial-gradient(at 80% 10%, rgb(224, 242, 254) 0px, transparent 50%),
+                radial-gradient(at 20% 80%, rgb(224, 231, 255) 0px, transparent 50%);
+            position: fixed;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            top: 0;
+            left: 0;
+            z-index: -2;
+        }
+
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(209, 213, 219, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(209, 213, 219, 0.1) 1px, transparent 1px);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
             z-index: -1;
         }
 
-        .dot {
+        /* Floating objects - reduced visibility on mobile */
+        .floating-object {
             position: absolute;
             border-radius: 50%;
-            background-color: #f3f4f6;
-            opacity: 0.6;
-            transform: translate(-50%, -50%);
+            filter: blur(30px);
+            z-index: -1;
         }
 
-        .dot1 {
-            width: 180px;
-            height: 180px;
-            left: 10%;
-            top: 20%;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .dot2 {
-            width: 220px;
-            height: 220px;
-            right: 10%;
-            bottom: 10%;
+        .floating-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(186, 230, 253, 0.4);
+            top: 10%;
+            left: 5%;
             animation: float 25s ease-in-out infinite alternate;
         }
 
-        .dot3 {
-            width: 140px;
-            height: 140px;
-            left: 60%;
-            top: 15%;
-            animation: float 18s ease-in-out infinite alternate;
+        .floating-2 {
+            width: 250px;
+            height: 250px;
+            background: rgba(196, 181, 253, 0.25);
+            bottom: 10%;
+            right: 5%;
+            animation: float 20s ease-in-out 1s infinite alternate-reverse;
+        }
+
+        .floating-3 {
+            width: 180px;
+            height: 180px;
+            background: rgba(252, 231, 243, 0.35);
+            top: 60%;
+            left: 15%;
+            animation: float 18s ease-in-out 2s infinite alternate;
         }
 
         @keyframes float {
             0% {
-                transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) scale(1) rotate(0deg);
             }
 
             25% {
-                transform: translate(5px, 15px) rotate(2deg);
+                transform: translate(30px, -20px) scale(1.05) rotate(5deg);
             }
 
             50% {
-                transform: translate(-5px, 10px) rotate(-1deg);
+                transform: translate(-20px, 40px) scale(0.95) rotate(0deg);
             }
 
             75% {
-                transform: translate(10px, -5px) rotate(3deg);
+                transform: translate(20px, 20px) scale(1.05) rotate(-5deg);
             }
 
             100% {
-                transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) scale(1) rotate(0deg);
             }
         }
 
-        .feature-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: perspective(1000px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            background: linear-gradient(130deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+        /* Animated borders and shapes - optimized for performance */
+        .animated-border {
+            position: relative;
+            z-index: 0;
+            border-radius: 16px;
+            overflow: hidden;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px) perspective(1000px);
-            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.08);
-            border-color: rgba(255, 255, 255, 1);
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            z-index: -2;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent,
+                    rgba(56, 189, 248, 0.2),
+                    transparent 30%);
+            animation: rotate 6s linear infinite;
         }
 
-        .feature-card .icon-wrapper {
-            transition: all 0.4s ease;
+        .animated-border::after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            inset: 1px;
+            background: #fff;
+            border-radius: 15px;
         }
 
-        .feature-card:hover .icon-wrapper {
-            transform: scale(1.15) rotate(5deg);
+        @keyframes rotate {
+            100% {
+                transform: rotate(1turn);
+            }
         }
 
-        /* Blob shape animation */
-        @keyframes blobMorph {
+        /* Blob animation - reduced intensity on mobile */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.7;
+            mix-blend-mode: screen;
+            animation: blob-pulse 20s infinite alternate;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(58, 191, 248, 0.2);
+            top: 10%;
+            left: 20%;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(139, 92, 246, 0.15);
+            bottom: 5%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        @keyframes blob-pulse {
 
             0%,
             100% {
-                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+                transform: scale(1) translate(0, 0);
             }
 
             25% {
-                border-radius: 40% 60% 70% 30% / 30% 40% 60% 70%;
+                transform: scale(1.05) translate(20px, -30px);
             }
 
             50% {
-                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+                transform: scale(0.95) translate(-20px, 20px);
             }
 
             75% {
-                border-radius: 60% 40% 30% 60% / 60% 30% 70% 40%;
+                transform: scale(1.05) translate(30px, 10px);
             }
         }
 
-        .blob-shape {
-            animation: blobMorph 20s ease-in-out infinite;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.02);
+        /* Fancy card effects - toned down on mobile for performance */
+        .fancy-card {
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: perspective(1500px) rotateY(0deg);
+            transform-style: preserve-3d;
         }
 
-        /* Highlighter effect */
-        .highlight-text {
-            display: inline;
+        .fancy-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: inherit;
+            background: linear-gradient(120deg, #ffffff, #f0f5fa);
+            box-shadow:
+                0 0 0 2px rgba(255, 255, 255, 0.1),
+                0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .fancy-card .card-content {
             position: relative;
             z-index: 1;
         }
 
-        .highlight-text::after {
-            content: "";
-            position: absolute;
-            bottom: 0.1em;
-            left: -0.15em;
-            width: calc(100% + 0.3em);
-            height: 0.3em;
-            background: #f3f4f6;
-            z-index: -1;
-            transform: rotate(-1deg);
-            transition: all 0.3s ease;
+        /* Glass morphism effects */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
 
-        .highlight-text:hover::after {
-            height: 0.4em;
-            bottom: 0.05em;
-            background: #e5e7eb;
-        }
-
-        /* Button hover effect */
-        .btn-hover-effect {
+        /* Button hover effects - optimized for touch */
+        .btn-fancy {
             position: relative;
+            isolation: isolate;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
         }
 
-        .btn-hover-effect:after {
+        .btn-fancy::before {
             content: '';
             position: absolute;
-            width: 0%;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+            z-index: -1;
+        }
+
+        .btn-fancy:active {
+            transform: translateY(1px);
+        }
+
+        /* Text stroke effect */
+        .text-outline {
+            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+            color: transparent;
+        }
+
+        /* Advanced gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #0077c2, #36aef6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        /* Cursor trail effect - desktop only */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(56, 189, 248, 0.7);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+        }
+
+        .cursor-trail {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, border-color 0.4s;
+        }
+
+        /* Feature card hover effect - simplified for mobile */
+        .feature-card {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .feature-card .icon-container {
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* Animated highlight text */
+        .highlight {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background-color: rgba(56, 189, 248, 0.2);
+            z-index: -1;
+            transition: height 0.3s ease;
+        }
+
+        /* Modal and popup styling - mobile optimized */
+        .modal {
+            background-color: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .modal-content {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Particle effect */
+        .particles {
+            position: absolute;
+            width: 100%;
             height: 100%;
             top: 0;
-            left: -5%;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 100%;
-            transform: scale(0);
-            opacity: 0;
-            transition: 0.5s ease;
+            left: 0;
+            overflow: hidden;
+            z-index: -1;
         }
 
-        .btn-hover-effect:hover:after {
-            width: 110%;
-            opacity: 1;
-            transform: scale(3);
+        .particle {
+            position: absolute;
+            display: block;
+            pointer-events: none;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(176, 190, 197, 0.2);
+            border-radius: 50%;
         }
 
-        .btn-hover-effect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 640px) {
-            .mobile-touch-target {
-                min-height: 48px;
-                min-width: 48px;
-            }
-
-            .bubble-btn {
-                transform-origin: center;
-                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            }
-
-            .bubble-btn:active {
-                transform: scale(0.95);
-            }
-        }
-
-        /* Modal animation */
-        @keyframes fadeScale {
+        /* Custom animations */
+        @keyframes fadeSlideUp {
             from {
                 opacity: 0;
-                transform: scale(0.95);
+                transform: translateY(20px);
             }
 
             to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .popup-enter {
-            animation: fadeScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        .popup-backdrop {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.4s ease;
-        }
-
-        /* Mobile animation */
-        @keyframes floatUp {
-            0% {
-                opacity: 0;
-                transform: translateY(25px);
-            }
-
-            100% {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .float-animation {
-            animation: floatUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        .fade-slide-up {
+            animation: fadeSlideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
 
-        .float-delay-1 {
-            animation-delay: 0.15s;
-            opacity: 0;
+        .delay-1 {
+            animation-delay: 0.1s;
         }
 
-        .float-delay-2 {
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
             animation-delay: 0.3s;
-            opacity: 0;
         }
 
-        .float-delay-3 {
-            animation-delay: 0.45s;
-            opacity: 0;
-        }
-
-        .float-delay-4 {
-            animation-delay: 0.6s;
-            opacity: 0;
-        }
-
-        /* Text gradient */
-        .text-gradient {
-            background: linear-gradient(to right, #1f2937, #4b5563);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-        }
-
-        /* Sparkle effect */
-        .sparkle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #fff;
-            box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e5e7eb, 0 0 40px #e5e7eb;
-            animation: sparkle 1.5s infinite;
-        }
-
-        .sparkle:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .sparkle:nth-child(2) {
-            top: 60%;
-            left: 90%;
+        .delay-4 {
             animation-delay: 0.4s;
         }
 
-        .sparkle:nth-child(3) {
-            top: 80%;
-            left: 20%;
-            animation-delay: 0.8s;
+        .delay-5 {
+            animation-delay: 0.5s;
         }
 
-        .sparkle:nth-child(4) {
-            top: 30%;
-            left: 80%;
-            animation-delay: 1.2s;
-        }
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 768px) {
 
-        @keyframes sparkle {
+            /* Scale down floating elements for mobile */
+            .floating-object {
+                opacity: 0.5;
+                transform: scale(0.6);
+            }
 
-            0%,
-            100% {
+            .blob {
+                opacity: 0.3;
+                transform: scale(0.5);
+            }
+
+            /* Disable fancy 3D effects on mobile */
+            .fancy-card:hover {
+                transform: none;
+            }
+
+            /* Ensure buttons are big enough for touch targets */
+            button,
+            .btn-fancy {
+                min-height: 48px;
+                min-width: 48px;
+            }
+
+            /* Improved touch ripple effect */
+            .tap-highlight::after {
+                content: '';
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                background-image: radial-gradient(circle, rgba(255, 255, 255, .4) 10%, transparent 10.01%);
+                background-repeat: no-repeat;
+                background-position: 50%;
+                transform: scale(10, 10);
                 opacity: 0;
-                transform: scale(0);
+                transition: transform .5s, opacity 1s;
             }
 
-            50% {
-                opacity: 1;
-                transform: scale(1);
+            .tap-highlight:active::after {
+                transform: scale(0, 0);
+                opacity: .3;
+                transition: 0s;
+            }
+
+            /* Better spacing for mobile content */
+            .container {
+                padding-top: 1rem;
+                padding-bottom: 3rem;
+            }
+
+            /* Optimize modal for mobile */
+            .modal-content {
+                max-height: 90vh;
+                overflow-y: auto;
+                margin: 0 0.75rem;
+            }
+
+            /* Fix feature card grid on mobile */
+            .feature-card {
+                margin-bottom: 1rem;
+            }
+
+            /* Improve mobile typography */
+            h1 {
+                font-size: calc(1.5rem + 2vw);
+                line-height: 1.2;
+            }
+
+            /* Fix button layout on small screens */
+            .button-group {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
             }
         }
 
-        /* Touch ripple effect for mobile */
-        .touch-ripple {
-            position: relative;
-            overflow: hidden;
-        }
+        /* Additional customizations for very small screens */
+        @media (max-width: 380px) {
+            .button-group {
+                grid-template-columns: 1fr;
+            }
 
-        .touch-ripple::after {
-            content: '';
-            position: absolute;
-            opacity: 0;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.05);
-            transform: scale(0);
-            transition: opacity 0.6s, transform 0.6s;
-        }
+            /* Stack buttons on very small screens */
+            .btn-fancy {
+                width: 100%;
+            }
 
-        .touch-ripple:active::after {
-            transform: scale(2);
-            opacity: 1;
-            transition: 0s;
+            /* Reduce padding to save space */
+            .feature-card {
+                padding: 1.25rem !important;
+            }
+
+            .icon-container {
+                width: 3rem !important;
+                height: 3rem !important;
+            }
         }
     </style>
 </head>
 
-<body
-    class="font-sans antialiased text-gray-700 bg-white-cool bg-dots md:h-full md:flex md:items-center md:justify-center">
-    <!-- Moving background elements -->
-    <div class="moving-dots">
-        <div class="dot dot1"></div>
-        <div class="dot dot2"></div>
-        <div class="dot dot3"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-        <div class="sparkle"></div>
-    </div>
+<body>
+    <!-- Background elements -->
+    <div class="mesh-gradient"></div>
+    <div class="bg-grid"></div>
 
-    <!-- Main Content Wrapper -->
-    <div class="container max-w-5xl mx-auto px-5 pt-12 pb-8 md:px-6 md:py-0 md:h-full md:flex md:items-center relative">
-        <!-- Main Content -->
-        <div class="w-full flex flex-col md:flex-row gap-10 md:gap-16 relative">
-            <!-- Left Section: Title and Description -->
-            <div class="w-full md:w-5/12 flex flex-col justify-center float-animation">
-                <div class="mb-6 relative">
-                    <div class="blob-shape absolute -left-3 -top-3 w-16 h-16 bg-gray-100 -z-10"></div>
-                    <h1
-                        class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-gray-800 leading-tight relative z-10">
-                        <span class="highlight-text">chill</span>
-                        <span class="text-gradient">chat</span>
-                        <br class="md:hidden">
-                        <span class="relative">space</span>
+    <!-- Floating objects - adjusted for responsiveness -->
+    <div class="floating-object floating-1"></div>
+    <div class="floating-object floating-2"></div>
+    <div class="floating-object floating-3"></div>
+
+    <!-- Main container -->
+    <div
+        class="container max-w-6xl mx-auto px-4 sm:px-5 py-10 sm:py-16 md:py-24 min-h-screen flex flex-col justify-center relative">
+        <!-- Main content wrapper -->
+        <div class="w-full flex flex-col lg:flex-row gap-8 lg:gap-16 items-center relative">
+            <!-- Left section: Title and description -->
+            <div class="w-full lg:w-5/12 space-y-6 sm:space-y-8 opacity-0" id="hero-section">
+                <div class="overflow-hidden relative">
+                    <!-- Decorative element -->
+                    <div class="absolute w-24 sm:w-32 h-24 sm:h-32 rounded-full bg-gradient-to-r from-primary-100 to-primary-200 
+                        -top-10 -left-10 blur-2xl opacity-60 animate-pulse"></div>
+
+                    <!-- Logo/heading -->
+                    <div class="mb-3">
+                        <span class="inline-block py-1.5 px-3 text-xs font-medium bg-primary-50 text-primary-600 
+                            rounded-full mb-2">Community Platform</span>
+                    </div>
+
+                    <h1 class="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-neutral-900 
+                        tracking-tight leading-tight relative z-10">
+                        <span class="highlight">chill</span>
+                        <span class="gradient-text">chat</span>
+                        <br>
+                        <span class="relative inline-block">space</span>
                     </h1>
                 </div>
 
-                <p class="text-gray-600 text-lg sm:text-xl mb-8 leading-relaxed float-animation float-delay-1 max-w-lg">
-                    A cozy corner to hang out, share vibes, meet friends, and just be your authentic self.
+                <!-- Description -->
+                <p class="text-neutral-600 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl">
+                    A thoughtfully designed corner of the internet where you can <span class="highlight">connect with
+                        others</span>,
+                    share authentic moments, and build meaningful connections in a space that feels just right.
                 </p>
 
-                <div class="flex flex-col sm:flex-row gap-4 mb-8 float-animation float-delay-2">
-                    <button onclick="location.href='/chat'"
-                        class="px-7 py-4 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full shadow-button hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 btn-hover-effect mobile-touch-target text-base bubble-btn touch-ripple">
+                <!-- Buttons - improved for mobile -->
+                <div class="flex flex-wrap gap-3 sm:gap-4 button-group">
+                    <button onclick="location.href='/chat'" class="btn-fancy tap-highlight
+                        px-5 sm:px-8 py-3 sm:py-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl
+                        shadow-button transform transition-all duration-300 flex items-center justify-center gap-2.5">
                         <span>Jump in</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -467,246 +616,590 @@
                         </svg>
                     </button>
 
-                    <button onclick="location.href='/privateDM.html'"
-                        class="px-7 py-4 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-full shadow-button transition-all duration-300 btn-hover-effect mobile-touch-target text-base bubble-btn touch-ripple">
-                        DMs
-                    </button>
-
-
-                    <button id="showDisclaimer"
-                        class="px-7 py-4 border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors duration-300 flex items-center justify-center gap-2.5 mobile-touch-target text-base bubble-btn touch-ripple">
+                    <button onclick="location.href='/privateDM.html'" class="btn-fancy tap-highlight
+                        px-5 sm:px-8 py-3 sm:py-4 bg-neutral-800 hover:bg-neutral-900 text-white font-medium rounded-xl
+                        transition-all duration-300 flex items-center justify-center gap-2.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        <span>Private DMs</span>
+                    </button>
+
+                    <button id="showAbout" class="btn-fancy tap-highlight
+                        px-5 sm:px-8 py-3 sm:py-4 bg-white hover:bg-neutral-50 text-neutral-800 font-medium rounded-xl border border-neutral-200
+                        transition-all duration-300 flex items-center justify-center gap-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>What's this?</span>
+                        <span>Learn more</span>
                     </button>
                 </div>
 
-                <div class="text-sm text-gray-500 float-animation float-delay-3 flex items-center">
-                    <span class="italic mr-2">Crafted by</span>
-                    <span class="font-medium text-gray-700">Nishant Baruah</span>
-                    <div class="inline-flex ml-2">
-                        <div class="h-4 w-4 bg-gray-100 rounded-full animate-pulse"></div>
+                <!-- Author info -->
+                <div class="pt-4 flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-primary-400 to-primary-600 
+                        flex items-center justify-center text-white font-medium">NB</div>
+                    <div>
+                        <div class="text-neutral-600 text-sm">Created with ♥ by</div>
+                        <div class="font-medium text-neutral-900">Nishant Baruah</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Section: Feature Cards -->
-            <div class="w-full md:w-7/12 mt-4 md:mt-0">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation touch-ripple">
+            <!-- Right section: Feature cards - responsive grid -->
+            <div class="w-full lg:w-7/12 relative opacity-0" id="features-section">
+                <!-- Decorative blobs -->
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+
+                <!-- Features grid - responsive layout -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-8 relative z-10">
+                    <!-- Feature 1 -->
+                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.1">
                         <div
-                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform rotate-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Real Talk</h3>
-                        <p class="text-gray-600 leading-relaxed">No filters, just be yourself and chat about whatever's
-                            on your mind</p>
+                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                            Authentic Conversations</h3>
+                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Express yourself freely in a
+                            judgment-free zone where genuine connections thrive.</p>
                     </div>
 
-                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-1 touch-ripple">
+                    <!-- Feature 2 -->
+                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.2">
                         <div
-                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform -rotate-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Instant Vibes</h3>
-                        <p class="text-gray-600 leading-relaxed">Messages appear instantly so conversations flow
-                            naturally</p>
+                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                            Real-Time Interaction</h3>
+                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Enjoy smooth, instantaneous
+                            messaging that makes conversations feel natural and engaging.</p>
                     </div>
 
-                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-2 touch-ripple">
+                    <!-- Feature 3 -->
+                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.3">
                         <div
-                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform rotate-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Find Your People</h3>
-                        <p class="text-gray-600 leading-relaxed">Connect with others who share your interests and vibe
-                        </p>
+                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">
+                            Community Connection</h3>
+                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Discover like-minded people who
+                            share your interests, values, and conversation style.</p>
                     </div>
 
-                    <div class="feature-card p-6 rounded-3xl shadow-subtle float-animation float-delay-3 touch-ripple">
+                    <!-- Feature 4 -->
+                    <div class="feature-card p-5 sm:p-6 md:p-7 rounded-2xl" data-delay="0.4">
                         <div
-                            class="icon-wrapper h-14 w-14 rounded-2xl bg-white-warm flex items-center justify-center mb-5 border border-gray-100 shadow-soft transform -rotate-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
+                            class="icon-container h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 rounded-xl bg-primary-50 flex items-center justify-center mb-4 sm:mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <h3 class="font-display font-semibold text-gray-800 text-xl mb-2">Drama-Free Zone</h3>
-                        <p class="text-gray-600 leading-relaxed">Just good vibes and friendly chats without the nonsense
-                        </p>
+                        <h3 class="font-display font-semibold text-neutral-900 text-lg sm:text-xl mb-2 sm:mb-3">Safe
+                            Environment</h3>
+                        <p class="text-neutral-600 leading-relaxed text-sm sm:text-base">Enjoy peace of mind in a
+                            respectful space designed to foster positive interactions.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Info Popup - Casual Version -->
-    <div id="disclaimerPopup" class="hidden fixed inset-0 z-50 popup-backdrop flex items-center justify-center p-4">
+    <!-- Cursor effects (desktop only) -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-trail hidden md:block"></div>
+
+    <!-- About Modal - improved for mobile -->
+    <div id="aboutModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5">
         <div
-            class="popup-enter bg-white max-w-md w-full rounded-3xl shadow-elevated p-7 md:p-8 relative mx-3 border border-gray-50">
-            <!-- Close button -->
-            <button id="closePopup" title="Close popup"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2.5 rounded-full hover:bg-white-warm transition-colors mobile-touch-target bubble-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" aria-hidden="true">
+            class="modal-content max-w-lg w-full bg-white rounded-2xl sm:rounded-3xl shadow-card border border-neutral-100 relative overflow-hidden">
+            <!-- Close button - larger touch target -->
+            <button id="closeModal" title="Close dialog" aria-label="Close dialog" class="absolute top-4 right-4 p-3 text-neutral-400 hover:text-neutral-600 
+                hover:bg-neutral-100 rounded-full transition-colors duration-200 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span class="sr-only">Close popup</span>
             </button>
 
-            <!-- Popup header -->
-            <div class="flex items-center mb-6">
-                <div
-                    class="blob-shape h-14 w-14 bg-white-warm flex items-center justify-center mr-4 flex-shrink-0 border border-gray-100 shadow-soft">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-2xl font-display font-semibold text-gray-800">About This Space</h3>
-            </div>
-
-            <!-- Popup content -->
-            <div class="prose prose-sm max-w-none mb-7 text-gray-600">
-                <p class="mb-4">This is just a <strong class="text-gray-800">casual hangout spot</strong> where you can
-                    chat with others, share thoughts, and make new friends.</p>
-
-                <p class="mb-3">Just FYI:</p>
-                <ul class="list-none pl-1 space-y-2.5">
-                    <li class="flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
+            <!-- Modal content - scrollable -->
+            <div class="p-6 sm:p-8 md:p-10 overflow-y-auto max-h-[80vh]">
+                <!-- Header -->
+                <div class="flex items-start gap-4 sm:gap-5 mb-6 sm:mb-8">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary-50 flex-shrink-0 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-primary-600"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Everyone can see what you post (no secret DMs yet)
-                    </li>
-                    <li class="flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        We don't collect any personal info
-                    </li>
-                    <li class="flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Use any nickname you want
-                    </li>
-                    <li class="flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Just be nice to each other!
-                    </li>
-                </ul>
-
-                <div class="mt-5 p-4 bg-white-smoke rounded-2xl text-gray-700 text-sm border border-gray-100">
-                    <p class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Think of this like chatting with friends at a coffee shop - keep it casual and fun!
-                    </p>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-neutral-900 mb-1 sm:mb-2">
+                            About ChillChat Space</h3>
+                        <p class="text-neutral-600 text-sm sm:text-base">Your cozy corner on the internet</p>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="space-y-5 sm:space-y-6 text-neutral-700">
+                    <p class="text-base sm:text-lg">ChillChat is a modern community platform where you can connect with
+                        others in a relaxed,
+                        positive environment. Think of it like a digital living room where everyone is welcome.</p>
+
+                    <div
+                        class="bg-neutral-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-neutral-100 space-y-3 sm:space-y-4">
+                        <h4 class="font-display font-medium text-base sm:text-lg text-neutral-900">Good to know:</h4>
+
+                        <ul class="space-y-2.5 sm:space-y-3">
+                            <li class="flex items-start gap-3">
+                                <div
+                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm sm:text-base">All messages are public in group chats</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div
+                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm sm:text-base">We prioritize your privacy—no personal data
+                                    collected</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div
+                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm sm:text-base">Use any username that feels right to you</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div
+                                    class="h-6 w-6 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm sm:text-base">Please be kind and respectful to everyone</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-r from-primary-50 to-neutral-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-primary-100">
+                        <div class="flex items-start gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 sm:h-6 sm:w-6 text-primary-600 flex-shrink-0 mt-0.5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                            <p class="text-sm sm:text-base">This space is designed for casual conversations and making
+                                connections—like chatting with friends at a cozy café. We hope you enjoy your time here!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action button - larger for better touch interaction -->
+                <div class="mt-6 sm:mt-8">
+                    <button id="confirmModal" class="w-full btn-fancy tap-highlight py-3.5 sm:py-4 bg-primary-600 hover:bg-primary-700 text-white 
+                        font-medium rounded-xl transition-all duration-300 shadow-button text-base sm:text-lg">
+                        Got it, let's chat!
+                    </button>
                 </div>
             </div>
-
-            <!-- Confirm button -->
-            <button id="confirmPopup"
-                class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-2xl shadow-button hover:shadow-lg transition-all duration-300 btn-hover-effect bubble-btn">
-                Got it, let's chat!
-            </button>
         </div>
     </div>
 
+    <!-- Particles - reduced for mobile -->
+    <div class="particles hidden sm:block"></div>
 
-    <!-- Script for popup functionality -->
+    <!-- Scripts - optimized for mobile performance -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const disclaimerPopup = document.getElementById('disclaimerPopup');
-            const showDisclaimer = document.getElementById('showDisclaimer');
-            const closePopup = document.getElementById('closePopup');
-            const confirmPopup = document.getElementById('confirmPopup');
+            // Check if we're on a mobile device for performance optimizations
+            const isMobile = window.innerWidth < 768;
 
-            // Show popup
-            function showPopup() {
-                disclaimerPopup.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling
-            }
-
-            showDisclaimer.addEventListener('click', showPopup);
-
-            // Hide popup functions
-            function hidePopup() {
-                disclaimerPopup.classList.add('hidden');
-                document.body.style.overflow = ''; // Re-enable scrolling
-            }
-
-            closePopup.addEventListener('click', hidePopup);
-            confirmPopup.addEventListener('click', hidePopup);
-
-            // Close when clicking outside the popup
-            disclaimerPopup.addEventListener('click', function (e) {
-                if (e.target === disclaimerPopup) {
-                    hidePopup();
-                }
+            // GSAP animations for hero section
+            gsap.to("#hero-section", {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power3.out"
             });
 
-            // Close on escape key
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && !disclaimerPopup.classList.contains('hidden')) {
-                    hidePopup();
-                }
+            // GSAP animations for features section
+            gsap.to("#features-section", {
+                opacity: 1,
+                duration: 0.8,
+                delay: 0.2,
+                ease: "power3.out"
             });
 
-            // Add touch ripple effect for mobile
-            const touchElements = document.querySelectorAll('.touch-ripple');
-
-            touchElements.forEach(el => {
-                el.addEventListener('touchstart', function (e) {
-                    const rect = el.getBoundingClientRect();
-                    const x = e.touches[0].clientX - rect.left;
-                    const y = e.touches[0].clientY - rect.top;
-
-                    const ripple = el.querySelector('.ripple');
-                    if (ripple) {
-                        ripple.remove();
+            // Staggered animation for feature cards - simplified for mobile
+            gsap.utils.toArray(".feature-card").forEach((card, i) => {
+                gsap.fromTo(card,
+                    { y: isMobile ? 10 : 30, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: isMobile ? 0.6 : 0.8,
+                        delay: 0.3 + (i * (isMobile ? 0.1 : 0.15)),
+                        ease: "power3.out"
                     }
+                );
+            });
 
-                    const rippleEl = document.createElement('span');
-                    rippleEl.classList.add('ripple');
-                    rippleEl.style.left = x + 'px';
-                    rippleEl.style.top = y + 'px';
+            // Magnetic effect on buttons - desktop only
+            if (!isMobile) {
+                const magneticBtns = document.querySelectorAll('.magnetic-btn');
 
-                    el.appendChild(rippleEl);
+                magneticBtns.forEach(btn => {
+                    btn.addEventListener('mousemove', function (e) {
+                        const btnRect = this.getBoundingClientRect();
+                        const btnX = btnRect.left + btnRect.width / 2;
+                        const btnY = btnRect.top + btnRect.height / 2;
 
-                    setTimeout(() => {
-                        if (rippleEl) {
-                            rippleEl.remove();
-                        }
-                    }, 600);
+                        const deltaX = e.clientX - btnX;
+                        const deltaY = e.clientY - btnY;
+
+                        // Calculate movement (less movement for a subtle effect)
+                        const moveX = deltaX * 0.1;
+                        const moveY = deltaY * 0.1;
+
+                        gsap.to(this, {
+                            x: moveX,
+                            y: moveY,
+                            duration: 0.3,
+                            ease: "power3.out"
+                        });
+                    });
+
+                    btn.addEventListener('mouseleave', function () {
+                        gsap.to(this, {
+                            x: 0,
+                            y: 0,
+                            duration: 0.5,
+                            ease: "elastic.out(1, 0.3)"
+                        });
+                    });
                 });
+            }
+
+            // Modal functionality - improved for mobile
+            const aboutModal = document.getElementById('aboutModal');
+            const showAbout = document.getElementById('showAbout');
+            const closeModal = document.getElementById('closeModal');
+            const confirmModal = document.getElementById('confirmModal');
+
+            function openModal() {
+                aboutModal.classList.remove('hidden');
+                aboutModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                // Animate modal content with reduced animation on mobile
+                gsap.fromTo(".modal-content",
+                    { y: isMobile ? 10 : 20, opacity: 0 },
+                    { y: 0, opacity: 1, duration: isMobile ? 0.3 : 0.5, ease: "power3.out" }
+                );
+            }
+
+            function closeModalFunc() {
+                gsap.to(".modal-content", {
+                    y: isMobile ? 10 : 20,
+                    opacity: 0,
+                    duration: isMobile ? 0.2 : 0.4,
+                    ease: "power3.in",
+                    onComplete: () => {
+                        aboutModal.classList.add('hidden');
+                        aboutModal.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+            showAbout.addEventListener('click', openModal);
+            closeModal.addEventListener('click', closeModalFunc);
+            confirmModal.addEventListener('click', closeModalFunc);
+
+            // Close on backdrop click
+            aboutModal.addEventListener('click', function (e) {
+                if (e.target === aboutModal) {
+                    closeModalFunc();
+                }
+            });
+
+            // Close on ESC key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !aboutModal.classList.contains('hidden')) {
+                    closeModalFunc();
+                }
+            });
+
+            // Desktop cursor effects - only run on desktop
+            if (!isMobile) {
+                const cursorDot = document.querySelector('.cursor-dot');
+                const cursorTrail = document.querySelector('.cursor-trail');
+
+                document.addEventListener('mousemove', function (e) {
+                    gsap.to(cursorDot, {
+                        x: e.clientX,
+                        y: e.clientY,
+                        duration: 0.1
+                    });
+
+                    gsap.to(cursorTrail, {
+                        x: e.clientX,
+                        y: e.clientY,
+                        duration: 0.3
+                    });
+                });
+
+                // Show cursor elements
+                cursorDot.classList.remove('hidden');
+                cursorTrail.classList.remove('hidden');
+
+                // Special effect for interactive elements
+                const interactiveElements = document.querySelectorAll('button, a');
+
+                interactiveElements.forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        gsap.to(cursorDot, {
+                            scale: 1.5,
+                            duration: 0.3
+                        });
+                        gsap.to(cursorTrail, {
+                            width: 40,
+                            height: 40,
+                            borderColor: 'rgba(56, 189, 248, 0.6)',
+                            duration: 0.3
+                        });
+                    });
+
+                    el.addEventListener('mouseleave', () => {
+                        gsap.to(cursorDot, {
+                            scale: 1,
+                            duration: 0.3
+                        });
+                        gsap.to(cursorTrail, {
+                            width: 24,
+                            height: 24,
+                            borderColor: 'rgba(56, 189, 248, 0.3)',
+                            duration: 0.3
+                        });
+                    });
+                });
+            }
+
+            // Create particles - fewer on mobile for performance
+            function createParticles() {
+                if (isMobile) return; // Skip particles on mobile for better performance
+
+                const particlesContainer = document.querySelector('.particles');
+                const particleCount = isMobile ? 15 : 30;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('span');
+                    particle.classList.add('particle');
+
+                    // Random position
+                    const posX = Math.random() * 100;
+                    const posY = Math.random() * 100;
+                    particle.style.left = `${posX}%`;
+                    particle.style.top = `${posY}%`;
+
+                    // Random size
+                    const size = Math.random() * 4 + 2;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+
+                    // Random opacity
+                    const opacity = Math.random() * 0.3 + 0.1;
+                    particle.style.opacity = opacity;
+
+                    // Add animation with random duration and delay
+                    const duration = Math.random() * 20 + 10;
+                    const delay = Math.random() * 10;
+
+                    gsap.to(particle, {
+                        y: -200,
+                        x: Math.random() * 100 - 50,
+                        opacity: 0,
+                        duration: duration,
+                        delay: delay,
+                        ease: "power1.inOut",
+                        repeat: -1,
+                        onRepeat: () => {
+                            gsap.set(particle, {
+                                y: 200,
+                                x: 0,
+                                opacity: opacity
+                            });
+                        }
+                    });
+
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            createParticles();
+
+            // Add tap highlight effect for mobile buttons
+            if (isMobile) {
+                const tapHighlights = document.querySelectorAll('.tap-highlight');
+
+                tapHighlights.forEach(highlight => {
+                    highlight.addEventListener('touchstart', function (e) {
+                        const rect = this.getBoundingClientRect();
+                        const x = e.touches[0].clientX - rect.left;
+                        const y = e.touches[0].clientY - rect.top;
+
+                        // Create the ripple effect
+                        const ripple = document.createElement('span');
+                        ripple.className = 'ripple-effect';
+                        ripple.style.position = 'absolute';
+                        ripple.style.width = '100px';
+                        ripple.style.height = '100px';
+                        ripple.style.left = x - 50 + 'px';
+                        ripple.style.top = y - 50 + 'px';
+                        ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                        ripple.style.borderRadius = '50%';
+                        ripple.style.transform = 'scale(0)';
+                        ripple.style.animation = 'ripple 0.6s linear';
+
+                        // Add keyframes for the ripple animation
+                        if (!document.querySelector('style#ripple-style')) {
+                            const style = document.createElement('style');
+                            style.id = 'ripple-style';
+                            style.innerHTML = `
+                                @keyframes ripple {
+                                    to {
+                                        transform: scale(3);
+                                        opacity: 0;
+                                    }
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+
+                        // Make sure we have correct positioning context
+                        if (getComputedStyle(this).position === 'static') {
+                            this.style.position = 'relative';
+                        }
+
+                        this.appendChild(ripple);
+
+                        // Remove the ripple after animation completes
+                        setTimeout(() => {
+                            ripple.remove();
+                        }, 600);
+                    });
+                });
+            }
+
+            // Optimize page for mobile users
+            if (isMobile) {
+                // Reduce animations for better performance
+                document.querySelectorAll('.floating-object').forEach(obj => {
+                    obj.style.animationDuration = '40s';
+                });
+
+                // Remove heavy animations that aren't essential for UX
+                document.querySelectorAll('.blob').forEach(blob => {
+                    blob.style.animationPlayState = 'paused';
+                    blob.style.opacity = '0.2';
+                });
+
+                // Make sure all text is readable on small screens
+                document.querySelectorAll('p').forEach(p => {
+                    if (window.innerWidth < 360) {
+                        p.style.fontSize = '0.875rem';
+                    }
+                });
+
+                // Ensure form inputs and buttons have adequate size for touch
+                document.querySelectorAll('button').forEach(button => {
+                    button.style.minHeight = '44px';
+                });
+            }
+
+            // Handle orientation change on mobile
+            window.addEventListener('orientationchange', function () {
+                // Small delay to allow browser to complete orientation change
+                setTimeout(() => {
+                    // Readjust any elements that need orientation-specific treatment
+                    if (isMobile) {
+                        // Reset any fixed heights that might cause issues
+                        document.querySelectorAll('.feature-card').forEach(card => {
+                            card.style.height = 'auto';
+                        });
+                    }
+                }, 300);
+            });
+
+            // Handle resize events for responsive adjustments
+            let resizeTimeout;
+            window.addEventListener('resize', function () {
+                // Use a timeout to avoid excessive function calls during resize
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const newIsMobile = window.innerWidth < 768;
+
+                    // Only perform adjustments if we crossed the mobile breakpoint
+                    if (newIsMobile !== isMobile) {
+                        // Reload page for significant layout changes
+                        // Or make dynamic adjustments here
+                    }
+                }, 250);
             });
         });
     </script>

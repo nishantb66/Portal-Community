@@ -113,9 +113,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── SIGNUP: request OTP ───────────────────────────────────────────────
   document.getElementById("signup-btn").onclick = async () => {
-    const email = document.getElementById("signup-email").value;
-    const user = document.getElementById("signup-username").value;
-    const pass = document.getElementById("signup-password").value;
+    // 1) grab & strip spaces
+    const email = document.getElementById("signup-email").value.trim();
+    const user = document
+      .getElementById("signup-username")
+      .value.replace(/\s+/g, "");
+    const pass = document
+      .getElementById("signup-password")
+      .value.replace(/\s+/g, "");
     const err = document.getElementById("signup-error");
     err.textContent = "";
 
@@ -159,8 +164,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── LOGIN ────────────────────────────────────────────────────────────
   document.getElementById("login-btn").onclick = async () => {
-    const user = document.getElementById("login-username").value;
-    const pass = document.getElementById("login-password").value;
+    // strip spaces on client too
+    const user = document
+      .getElementById("login-username")
+      .value.replace(/\s+/g, "");
+    const pass = document
+      .getElementById("login-password")
+      .value.replace(/\s+/g, "");
     const err = document.getElementById("login-error");
     err.textContent = "";
 
@@ -277,6 +287,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (replyTo && replyTo._id === _tempId) {
         replyTo._id = _id;
       }
+
+      renderPastChats(token);
     });
 
     // ─── SHOW / HIDE TYPING INDICATOR ───────────────────────────────────
@@ -602,6 +614,11 @@ document.addEventListener("DOMContentLoaded", () => {
     msgBubble.appendChild(messageContent);
     li.appendChild(msgBubble);
 
+    // ── DESKTOP: double-click to reply
+    msgBubble.addEventListener("dblclick", () => {
+      showReplyPreview(msgsById[msg._id]);
+    });
+
     // 6) append + ALWAYS scroll
     document.getElementById("dm-messages").appendChild(li);
     scrollToBottom();
@@ -684,18 +701,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ─── DELEGATED DOUBLE‐CLICK FOR REPLY ──────────────────────────────
-  dmMessages.addEventListener("dblclick", (e) => {
-    // find the message bubble
-    const bubble = e.target.closest(".msg-bubble");
-    if (!bubble) return;
-    // find its <li data-message-id="…">
-    const li = bubble.closest("li[data-message-id]");
-    if (!li) return;
-    const mid = li.getAttribute("data-message-id");
-    const msg = msgsById[mid];
-    if (!msg) return;
-    showReplyPreview(msg);
-  });
+  // dmMessages.addEventListener("dblclick", (e) => {
+  //   // find the message bubble
+  //   const bubble = e.target.closest(".msg-bubble");
+  //   if (!bubble) return;
+  //   // find its <li data-message-id="…">
+  //   const li = bubble.closest("li[data-message-id]");
+  //   if (!li) return;
+  //   const mid = li.getAttribute("data-message-id");
+  //   const msg = msgsById[mid];
+  //   if (!msg) return;
+  //   showReplyPreview(msg);
+  // });
 
   // ─── LOGOUT ──────────────────────────────────────────────────────────
   document.getElementById("logout-btn").onclick = () => {

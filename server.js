@@ -13,6 +13,11 @@ function getDmCollectionName(u1, u2) {
   return `dms_${a}_${b}`;
 }
 
+// ─── UTIL: remove every space character from a string ───────────────────
+function stripSpaces(str) {
+  return str.replace(/\s+/g, "");
+}
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -104,16 +109,33 @@ const transporter = nodemailer.createTransport({
 // ─── 1) DM‐Signup → send OTP ─────────────────────────────────────────────────
 app.post("/dm/signup", async (req, res) => {
   try {
-    const { email, username, password } = req.body;
+    let { email, username, password } = req.body;
     if (!email || !username || !password)
       return res.status(400).json({ message: "Missing fields" });
 
-    const exists = await usersCollection.findOne({
-      $or: [{ email }, { username }],
-    });
-    if (exists)
-      return res.status(400).json({ message: "Email or username taken" });
+    // 1) strip whitespace everywhere
+    email = email.trim();
+    username = stripSpaces(username);
+    password = stripSpaces(password);
 
+    // 2) check uniqueness
+    if (await usersCollection.findOne({ email })) {
+      return res
+        .status(400)
+        .json({ message: "That email is already registered." });
+    }
+    if (await usersCollection.findOne({ username })) {
+      return res
+        .status(400)
+        .json({ message: "That username is already taken." });
+    }
+    if (await usersCollection.findOne({ password })) {
+      return res
+        .status(400)
+        .json({ message: "Please choose a different password." });
+    }
+
+    // 3) proceed with OTP generation
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date(Date.now() + 10 * 60 * 1000);
     await otpsCollection.insertOne({ email, otp, expires });
@@ -160,15 +182,24 @@ app.post("/dm/verify-otp", async (req, res) => {
 // ─── 3) DM‐Login ─────────────────────────────────────────────────────────────
 app.post("/dm/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
     if (!username || !password)
       return res.status(400).json({ message: "Missing fields" });
 
-    const user = await usersCollection.findOne({ username });
-    if (!user) return res.status(400).json({ message: "User not found" });
-    if (user.password !== password)
-      return res.status(400).json({ message: "Invalid password" });
+    // 1) strip whitespace everywhere
+    username = stripSpaces(username);
+    password = stripSpaces(password);
 
+    // 2) find & verify
+    const user = await usersCollection.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    // 3) issue JWT
     const token = jwt.sign(
       { username: user.username, email: user.email },
       process.env.JWT_SECRET,
