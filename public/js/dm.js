@@ -63,6 +63,11 @@ function updateBadge(user) {
 
 // C) rebuild the Recent Chats list, injecting badges
 async function renderPastChats(token) {
+  const sidebarLoading = document.getElementById("sidebar-loading");
+  const pastList = document.getElementById("past-list");
+  sidebarLoading.classList.remove("hidden");
+  pastList.classList.add("hidden");
+
   await loadUnreadCounts(token);
   const res = await fetch("/dm/past", {
     headers: { Authorization: `Bearer ${token}` },
@@ -88,6 +93,10 @@ async function renderPastChats(token) {
   `
     )
     .join("");
+
+  // hide spinner, show list
+  sidebarLoading.classList.add("hidden");
+  pastList.classList.remove("hidden");
 }
 
 // ———————————
@@ -441,26 +450,28 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPeer = null;
   async function openChatWith(username) {
     lastDate = null;
-
     currentPeer = username;
 
-    // ─── NEW: clear out old msgsById so we only map messages for this peer ───
+    // ─── clear out old msgsById & reply UI ───────────────────────────────
     Object.keys(msgsById).forEach((k) => delete msgsById[k]);
-    clearReplyPreview(); // also clear any dangling reply UI
+    clearReplyPreview();
 
-    // 1) Toggle views: hide sidebar, show chat
+    // ─── 1) Toggle views: hide sidebar, show chat ───────────────────────
     document.getElementById("chat-list").classList.add("hidden");
     document.getElementById("chat-container").classList.remove("hidden");
 
-    // 2) Update header
+    // ─── 2) Update header & presence ────────────────────────────────────
     document.getElementById("chat-with").textContent = username;
-
-    // clear old status…
     document.getElementById("chat-status").textContent = "";
-    // ask server immediately for this peer’s current presence
     dmSocket.emit("get presence", { user: username });
 
-    // 3) Fetch DM history (server also marks them read)
+    // ─── 3) Show chat‐loading spinner, hide old messages ────────────────
+    const chatLoading = document.getElementById("chat-loading");
+    const msgUl = document.getElementById("dm-messages");
+    chatLoading.classList.remove("hidden");
+    msgUl.classList.add("hidden");
+
+    // ─── Fetch DM history (server also marks them read) ────────────────
     const token = localStorage.getItem("dmToken");
     let res;
     try {
@@ -470,23 +481,30 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error("Network response was not OK");
     } catch (err) {
       console.error("Failed to load history:", err);
+      // hide spinner if error
+      chatLoading.classList.add("hidden");
+      msgUl.classList.remove("hidden");
       return;
     }
+
     const { messages } = await res.json();
 
-    // 4) Render messages & scroll to bottom
-    const msgUl = document.getElementById("dm-messages");
+    // ─── 4) Render messages & scroll to bottom ─────────────────────────
     msgUl.innerHTML = "";
     messages.forEach(appendMsg);
+
+    // ─── 5) Hide spinner, show loaded messages ────────────────────────
+    chatLoading.classList.add("hidden");
+    msgUl.classList.remove("hidden");
 
     const msgContainer = document.getElementById("messages-container");
     msgContainer.scrollTop = msgContainer.scrollHeight;
 
-    // 5) Clear unread badge for this peer
+    // ─── 6) Clear unread badge for this peer ───────────────────────────
     unreadCounts[username] = 0;
     updateBadge(username);
 
-    // 6) Hook up the send form (remove any old handler first)
+    // ─── 7) Hook up the send form ──────────────────────────────────────
     const form = document.getElementById("dm-form");
     form.onsubmit = null;
     form.onsubmit = (e) => {
@@ -494,7 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sendMsg();
     };
 
-    // 7) Clear & focus the input
+    // ─── 8) Clear & focus the input ──────────────────────────────────
     const input = document.getElementById("dm-input");
     input.value = "";
     input.focus();
@@ -640,7 +658,6 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(li);
     scrollToBottom();
   }
-  
 
   // ─── SEND A NEW MESSAGE ──────────────────────────────────────────────
   // function sendMsg() {
