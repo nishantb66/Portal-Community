@@ -456,23 +456,6 @@
             return div;
         }
 
-        /* JWT check / 5-min redirect — unchanged ----------------------------*/
-        (function () {
-            const token = localStorage.getItem("dmToken");
-            const redirect = () => setTimeout(() => {
-                localStorage.removeItem("dmToken");
-                localStorage.removeItem("dmUsername");
-                localStorage.removeItem("dmEmail");
-                window.location.href = "/";
-            }, 5 * 60 * 1000);
-            if (!token) { redirect(); return; }
-            try {
-                const [h, p, s] = token.split(".");
-                if (!s) throw Error("bad");
-                const payload = JSON.parse(atob(p));
-                if (payload.exp * 1000 < Date.now()) throw Error("expired");
-            } catch (e) { redirect(); }
-        })();
     </script>
 </body>
 

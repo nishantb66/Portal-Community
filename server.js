@@ -203,7 +203,7 @@ app.post("/dm/login", async (req, res) => {
     const token = jwt.sign(
       { username: user.username, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
     res.json({ token, username: user.username, email: user.email });
   } catch (err) {
