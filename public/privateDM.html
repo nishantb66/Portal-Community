@@ -64,11 +64,15 @@
             overflow: hidden;
         }
 
-        /* ─── Ensure the two main columns flex, but don’t overflow the page ─────── */
+        /* Always stretch to full height… */
         body>div#dm-app {
+            height: 100%;
+        }
+
+        /* …but only become flex when the `hidden` class has been removed */
+        body>div#dm-app:not(.hidden) {
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
         /* ─── Only the chat‐message area scrolls internally ─────────────────────── */
