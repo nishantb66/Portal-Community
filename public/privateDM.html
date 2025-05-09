@@ -124,17 +124,45 @@
             @apply flex items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-white font-medium shrink-0;
         }
 
+        #typing-floating {
+            position: absolute;
+            bottom: 68px;
+            /* just above the input bar */
+            left: 1rem;
+            /* align with form padding */
+            z-index: 10;
+            pointer-events: none;
+        }
+
         /* typing dots */
         .typing-dot {
-            @apply inline-block w-1.5 h-1.5 mx-[2px] rounded-full bg-current animate-pulse;
+            width: 6px;
+            height: 6px;
+            background-color: #5c6ef5;
+            /* brand-500 */
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1s infinite ease-in-out;
         }
 
         .typing-dot:nth-child(2) {
-            animation-delay: .2s
+            animation-delay: 0.2s;
         }
 
         .typing-dot:nth-child(3) {
-            animation-delay: .4s
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
         }
 
         /* safe-area support */
@@ -339,7 +367,7 @@
             </aside>
 
             <!-- B) Chat window ----------------------------------------------------->
-            <section id="chat-container" class="hidden flex-1 flex flex-col min-h-0 bg-white">
+            <section id="chat-container" class="relative hidden flex-1 flex flex-col min-h-0 bg-white">
 
                 <!-- chat header (mobile back btn) -->
                 <div class="flex items-center gap-3 px-4 py-2.5 border-b border-surface-100 sticky top-0 bg-white">
@@ -357,7 +385,7 @@
                         <span class="text-xs text-surface-500 flex items-center gap-1">
                             • <span id="chat-status">offline</span>
                         </span>
-                        <div id="typing-indicator" class="h-4 text-[11px] text-surface-500"></div>
+                        <!-- <div id="typing-indicator" class="h-4 text-[11px] text-surface-500"></div> -->
                     </div>
                 </div>
 
@@ -385,6 +413,16 @@
                         </svg>
                     </button>
                 </div>
+
+                <!-- ═══ Floating Typing Indicator ═══ -->
+                <div id="typing-floating" class="hidden">
+                    <div class="typing-dots flex space-x-1">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+
 
                 <!-- compose bar -->
                 <form id="dm-form"

@@ -3,17 +3,36 @@ const me = () => localStorage.getItem("dmUsername");
 
 // ─── REPLY FEATURE STATE ─────────────────────────────────────────────
 const msgsById = {}; // map message‐ID → { _id, from, message }
-let replyTo = null; // currently replying to { _id, from, message }
 
+// let replyTo = null; // currently replying to { _id, from, message }
+
+// function showReplyPreview(msg) {
+//   replyTo = msg;
+//   document.getElementById(
+//     "reply-text"
+//   ).textContent = `Replying to ${msg.from}: ${msg.message}`;
+//   document.getElementById("reply-preview").classList.remove("hidden");
+//   document.getElementById("dm-input").focus();
+// }
+
+// function clearReplyPreview() {
+//   replyTo = null;
+//   document.getElementById("reply-preview").classList.add("hidden");
+// }
+
+let replyTo = null;
+
+// show the preview banner
 function showReplyPreview(msg) {
   replyTo = msg;
+  const preview = document.getElementById("reply-preview");
   document.getElementById(
     "reply-text"
   ).textContent = `Replying to ${msg.from}: ${msg.message}`;
-  document.getElementById("reply-preview").classList.remove("hidden");
-  document.getElementById("dm-input").focus();
+  preview.classList.remove("hidden");
 }
 
+// hide the preview banner
 function clearReplyPreview() {
   replyTo = null;
   document.getElementById("reply-preview").classList.add("hidden");
@@ -106,11 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.classList.remove("hidden");
   };
 
-  document.getElementById("cancel-reply").addEventListener("click", (e) => {
+  document.getElementById("cancel-reply").onclick = (e) => {
     e.preventDefault();
     clearReplyPreview();
-  });
-
+  };
   // ─── SIGNUP: request OTP ───────────────────────────────────────────────
   document.getElementById("signup-btn").onclick = async () => {
     // 1) grab & strip spaces
@@ -229,6 +247,20 @@ document.addEventListener("DOMContentLoaded", () => {
     dmSocket = io("/dm", { auth: { token } });
     dmSocket.on("connect_error", (e) => alert(e.message));
 
+    // ─── Floating typing indicator setup ───────────────────────
+    const typingFloating = document.getElementById("typing-floating");
+
+    dmSocket.on("user typing", (user) => {
+      if (user === me()) return;
+      typingFloating.classList.remove("hidden");
+    });
+
+    dmSocket.on("user stop typing", (user) => {
+      if (user === me()) return;
+      typingFloating.classList.add("hidden");
+    });
+    // ───────────────────────────────────────────────────────────
+
     // — KEEP-ALIVE PINGS —
     // every 30s, if we have an open peer chat, emit “ping”
     if (typeof pingInterval !== "undefined") clearInterval(pingInterval);
@@ -289,17 +321,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderPastChats(token);
-    });
-
-    // ─── SHOW / HIDE TYPING INDICATOR ───────────────────────────────────
-    dmSocket.on("user typing", (user) => {
-      if (user === me()) return; // ignore yourself
-      const ind = document.getElementById("typing-indicator");
-      ind.textContent = `${user} is typing…`;
-    });
-    dmSocket.on("user stop typing", (user) => {
-      if (user === me()) return;
-      document.getElementById("typing-indicator").textContent = "";
     });
 
     // ─── PRESENCE UPDATES ───────────────────────────────────────────────
@@ -400,14 +421,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, STOP_TYPING_DELAY);
   }
 
-  // fire immediately on keydown (best for mobile) and also on input
-  dmInput.addEventListener("keydown", () => {
-    startTyping();
-    scheduleStopTyping();
-  });
-  dmInput.addEventListener("input", () => {
-    startTyping();
-    scheduleStopTyping();
+  // — Enhanced typing triggers for desktop & mobile —
+  ["keydown", "input", "compositionstart"].forEach((evt) => {
+    dmInput.addEventListener(evt, () => {
+      startTyping();
+      scheduleStopTyping();
+    });
   });
 
   // as soon as the field loses focus, clear the typing indicator
@@ -491,15 +510,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ─── APPEND A MESSAGE TO THE UI ──────────────────────────────────────
   function appendMsg(msg) {
-    // 0) DATE DIVIDER (Today / Yesterday / DD Mon YYYY)
-    //    in IST, once per day block
+    // 0) DATE DIVIDER (Today / Yesterday / DD Mon YYYY) — IST
     const container = document.getElementById("dm-messages");
-    // key for this msg’s date in IST
     const msgDateKey = new Date(msg.timestamp).toLocaleDateString("en-GB", {
       timeZone: "Asia/Kolkata",
     });
     if (msgDateKey !== lastDate) {
-      // build label
       const todayKey = new Date().toLocaleDateString("en-GB", {
         timeZone: "Asia/Kolkata",
       });
@@ -529,15 +545,12 @@ document.addEventListener("DOMContentLoaded", () => {
       lastDate = msgDateKey;
     }
 
-    // 1) dedupe
-    if (
-      document.querySelector(`#dm-messages li[data-message-id="${msg._id}"]`)
-    ) {
+    // 1) Deduplicate
+    if (container.querySelector(`li[data-message-id="${msg._id}"]`)) {
       return;
     }
 
-    // 2) store in map
-    // new — also remember replyTo on each msg
+    // 2) Store in map for lookups
     msgsById[msg._id] = {
       _id: msg._id,
       from: msg.from,
@@ -545,25 +558,22 @@ document.addEventListener("DOMContentLoaded", () => {
       replyTo: msg.replyTo || null,
     };
 
-    // 3) build LI
+    // 3) Build the <li>
     const li = document.createElement("li");
     li.setAttribute("data-message-id", msg._id);
-    li.className = `mb-3 ${
-      localStorage.getItem("dmUsername") === msg.from
-        ? "self-end"
-        : "self-start"
-    } new-message`;
+    const isMe = localStorage.getItem("dmUsername") === msg.from;
+    li.className = `mb-3 ${isMe ? "self-end" : "self-start"} new-message`;
 
-    // 4) if this is a reply, render a quote bubble
+    // 4) If this is a reply, render the quoted bubble
     if (msg.replyTo && msgsById[msg.replyTo]) {
       const parent = msgsById[msg.replyTo];
-      const qb = document.createElement("div");
-      qb.className =
+      const quote = document.createElement("div");
+      quote.className =
         "quote-bubble text-xs p-2 bg-gray-100 border-l-4 border-indigo-400 mb-1 cursor-pointer rounded-r";
-      qb.textContent = `${parent.from}: ${parent.message}`;
-      qb.addEventListener("click", () => {
-        const target = document.querySelector(
-          `#dm-messages li[data-message-id="${parent._id}"]`
+      quote.textContent = `${parent.from}: ${parent.message}`;
+      quote.addEventListener("click", () => {
+        const target = container.querySelector(
+          `li[data-message-id="${parent._id}"]`
         );
         if (target) {
           target.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -571,87 +581,115 @@ document.addEventListener("DOMContentLoaded", () => {
           setTimeout(() => target.classList.remove("message-highlight"), 3000);
         }
       });
-      li.appendChild(qb);
+      li.appendChild(quote);
     }
 
-    // 5) main message bubble
-    const isMe = localStorage.getItem("dmUsername") === msg.from;
+    // 5) Main message bubble
     const msgBubble = document.createElement("div");
     msgBubble.className = `msg-bubble ${
       isMe ? "msg-outgoing" : "msg-incoming"
     }`;
 
-    // Create username and timestamp elements
+    // Header: username + timestamp
     const bubbleHeader = document.createElement("div");
     bubbleHeader.className = "flex justify-between items-center mb-1";
 
-    const username = document.createElement("span");
-    username.className = `text-xs font-medium ${
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = `text-xs font-medium ${
       isMe ? "text-indigo-700" : "text-gray-700"
     }`;
-    username.textContent = msg.from;
+    usernameSpan.textContent = msg.from;
 
-    const timestamp = document.createElement("span");
-    timestamp.className = "text-xs text-gray-800 ml-2";
-    const time = msg.timestamp ? new Date(msg.timestamp) : new Date();
-    timestamp.textContent = time.toLocaleTimeString([], {
+    const timestampSpan = document.createElement("span");
+    timestampSpan.className = "text-xs text-gray-800 ml-2";
+    timestampSpan.textContent = new Date(msg.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
 
-    bubbleHeader.appendChild(username);
-    bubbleHeader.appendChild(timestamp);
+    bubbleHeader.appendChild(usernameSpan);
+    bubbleHeader.appendChild(timestampSpan);
 
-    // Message content
+    // Message text
     const messageContent = document.createElement("div");
     messageContent.className = "break-words";
     messageContent.textContent = msg.message;
 
-    // Add double-click for reply functionality
-    // msgBubble.ondblclick = () => showReplyPreview(msgsById[msg._id]);
-
     msgBubble.appendChild(bubbleHeader);
     msgBubble.appendChild(messageContent);
+
+    // 6) Double-click → start a reply
+    msgBubble.addEventListener("dblclick", () => {
+      showReplyPreview(msgsById[msg._id]);
+    });
+
     li.appendChild(msgBubble);
 
-    // 6) append + ALWAYS scroll
-    document.getElementById("dm-messages").appendChild(li);
+    // 7) Append and scroll
+    container.appendChild(li);
     scrollToBottom();
   }
 
   // ─── SEND A NEW MESSAGE ──────────────────────────────────────────────
+  // function sendMsg() {
+  //   const input = document.getElementById("dm-input");
+  //   const txt = input.value.trim();
+  //   if (!txt || !currentPeer) return;
+
+  //   // 1) generate a tempId
+  //   const tempId = makeTempId();
+  //   const from = localStorage.getItem("dmUsername");
+  //   const optimistic = {
+  //     _id: tempId,
+  //     from,
+  //     to: currentPeer,
+  //     message: txt,
+  //     timestamp: new Date().toISOString(),
+  //     replyTo: replyTo ? replyTo._id : null, // ← carry the reply ID
+  //   };
+
+  //   // 2) append immediately (with replyTo!)
+  //   appendMsg(optimistic);
+
+  //   // 3) actually emit to server
+  //   dmSocket.emit("dm message", {
+  //     to: currentPeer,
+  //     message: txt,
+  //     _tempId: tempId,
+  //     replyTo: replyTo ? replyTo._id : null,
+  //   });
+
+  //   // 4) clear input & preview
+  //   input.value = "";
+  //   clearReplyPreview();
+  //   input.focus();
+  // }
+
   function sendMsg() {
     const input = document.getElementById("dm-input");
-    const txt = input.value.trim();
-    if (!txt || !currentPeer) return;
+    const text = input.value.trim();
+    if (!text || !currentPeer) return;
 
-    // 1) generate a tempId
-    const tempId = makeTempId();
-    const from = localStorage.getItem("dmUsername");
+    const tempId = `temp-${Date.now()}`;
     const optimistic = {
       _id: tempId,
-      from,
+      from: me(),
       to: currentPeer,
-      message: txt,
+      message: text,
       timestamp: new Date().toISOString(),
-      replyTo: replyTo ? replyTo._id : null, // ← carry the reply ID
+      replyTo: replyTo ? replyTo._id : null,
     };
-
-    // 2) append immediately (with replyTo!)
     appendMsg(optimistic);
 
-    // 3) actually emit to server
     dmSocket.emit("dm message", {
       to: currentPeer,
-      message: txt,
+      message: text,
       _tempId: tempId,
       replyTo: replyTo ? replyTo._id : null,
     });
 
-    // 4) clear input & preview
     input.value = "";
     clearReplyPreview();
-    input.focus();
   }
 
   // ─── Swipe→Reply (touch) ─────────────────────────────────────────────
@@ -662,53 +700,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const dmMessages = document.getElementById("dm-messages");
 
   // double-click to reply (desktop)
-  dmMessages.addEventListener("dblclick", (e) => {
-    const bubble = e.target.closest(".msg-bubble");
-    if (!bubble) return;
-    const li = bubble.closest("li[data-message-id]");
+  document.getElementById("dm-messages").addEventListener("dblclick", (e) => {
+    const bub = e.target.closest(".msg-bubble");
+    if (!bub) return;
+    const li = bub.closest("li[data-message-id]");
     if (!li) return;
-    const mid = li.getAttribute("data-message-id");
-    const msg = msgsById[mid];
-    if (!msg) return;
-    showReplyPreview(msg);
+    const mid = li.dataset.messageId;
+    if (msgsById[mid]) showReplyPreview(msgsById[mid]);
   });
 
-  // swipe‐right to reply (touch/mobile)
-  let swipeItem = null,
-    startX = 0,
-    startY = 0;
-  const SWIPE_THRESHOLD = 60;
+  // swipe-right to reply (mobile)
+  let swipeLi = null,
+    startX = 0;
+  const THRESH = 60;
+  const msgsCont = document.getElementById("dm-messages");
 
-  dmMessages.addEventListener("touchstart", (e) => {
+  msgsCont.addEventListener("touchstart", (e) => {
     const li = e.target.closest("li[data-message-id]");
     if (!li) return;
-    swipeItem = li;
+    swipeLi = li;
     startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    li.style.transition = "none";
   });
-  dmMessages.addEventListener("touchmove", (e) => {
-    if (!swipeItem) return;
+  msgsCont.addEventListener("touchmove", (e) => {
+    if (!swipeLi) return;
     const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    if (Math.abs(dy) > Math.abs(dx)) return;
-    if (dx > 0) {
-      swipeItem.style.transform = `translateX(${dx}px)`;
-      e.preventDefault();
-    }
+    if (dx > 0) swipeLi.style.transform = `translateX(${dx}px)`;
   });
-  dmMessages.addEventListener("touchend", (e) => {
-    if (!swipeItem) return;
-    // bounce back
-    swipeItem.style.transition = "transform 0.3s ease";
-    swipeItem.style.transform = "translateX(0)";
+  msgsCont.addEventListener("touchend", (e) => {
+    if (!swipeLi) return;
     const dx = e.changedTouches[0].clientX - startX;
-    if (dx > SWIPE_THRESHOLD) {
-      const mid = swipeItem.getAttribute("data-message-id");
-      const msg = msgsById[mid];
-      if (msg) showReplyPreview(msg);
+    swipeLi.style.transform = "";
+    if (dx > THRESH) {
+      const mid = swipeLi.dataset.messageId;
+      if (msgsById[mid]) showReplyPreview(msgsById[mid]);
     }
-    swipeItem = null;
+    swipeLi = null;
   });
   //
   // ─── end delegated reply handlers ───────────────────────────────────
