@@ -220,6 +220,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // stop sending keep-alive pings
     clearInterval(pingInterval);
 
+    // clear the “current peer” so no stray presence updates sneak through
+    currentPeer = null;
+    // clear the header status text
+    const statusEl = document.getElementById("chat-status");
+    if (statusEl) statusEl.textContent = "";
+
     // swap views
     document.getElementById("chat-container").classList.add("hidden");
     document.getElementById("chat-list").classList.remove("hidden");
@@ -334,15 +340,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ─── PRESENCE UPDATES ───────────────────────────────────────────────
     dmSocket.on("presence", ({ user, status, lastSeen }) => {
+      // only if the chat panel is open AND it's the peer we're looking at:
+      const chatContainer = document.getElementById("chat-container");
+      if (chatContainer.classList.contains("hidden")) return;
       if (user !== currentPeer) return;
+
       const el = document.getElementById("chat-status");
       if (status === "online") {
         el.textContent = "Online";
       } else {
-        const d = new Date(lastSeen);
-        const hh = String(d.getHours()).padStart(2, "0");
-        const mm = String(d.getMinutes()).padStart(2, "0");
-        el.textContent = `Last seen at ${hh}:${mm}`;
+        if (lastSeen) {
+          // show real timestamp
+          const d = new Date(lastSeen);
+          const hh = String(d.getHours()).padStart(2, "0");
+          const mm = String(d.getMinutes()).padStart(2, "0");
+          el.textContent = `Last seen at ${hh}:${mm}`;
+        } else {
+          // user never connected before
+          el.textContent = "Offline";
+        }
       }
     });
   }

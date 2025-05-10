@@ -450,16 +450,25 @@ dmNamespace.on("connection", (socket) => {
   dmNamespace.emit("presence", { user, status: "online" });
   socket.join(user);
 
-  // respond to presence queries
+  // ─── respond to presence queries ───────────────────────────────────────
   socket.on("get presence", ({ user: target }) => {
     if (dmOnlineCount.has(target)) {
+      // user is actually online right now
       socket.emit("presence", { user: target, status: "online" });
-    } else {
-      const last = dmLastSeen.get(target) || new Date();
+    } else if (dmLastSeen.has(target)) {
+      // user has connected before, show their real last‐disconnect time
+      const last = dmLastSeen.get(target);
       socket.emit("presence", {
         user: target,
         status: "offline",
         lastSeen: last.toISOString(),
+      });
+    } else {
+      // user never connected → show simply “Offline” (no timestamp)
+      socket.emit("presence", {
+        user: target,
+        status: "offline",
+        lastSeen: null,
       });
     }
   });
