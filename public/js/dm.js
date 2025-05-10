@@ -119,7 +119,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const otpForm = document.getElementById("otp-form");
   const authContainer = document.getElementById("auth-container");
   const dmApp = document.getElementById("dm-app");
+  const emptyState = document.getElementById("empty-state");
 
+  const newChatBtn = document.getElementById("new-chat-btn");
+  if (newChatBtn) {
+    newChatBtn.addEventListener("click", () => {
+      document.getElementById("user-search").focus();
+    });
+  }
   let tempSignup = {};
 
   // ─── Toggle between Login & Signup ────────────────────────────────────
@@ -229,6 +236,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // swap views
     document.getElementById("chat-container").classList.add("hidden");
     document.getElementById("chat-list").classList.remove("hidden");
+
+    if (emptyState) emptyState.classList.remove("hidden");
 
     // re-fetch your recent‐chat list so any newly‐added peer appears immediately
     const token = localStorage.getItem("dmToken");
@@ -465,6 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ─── OPEN AN INDIVIDUAL CHAT ────────────────────────────────────────
   let currentPeer = null;
   async function openChatWith(username) {
+    if (emptyState) emptyState.classList.add("hidden");
     lastDate = null;
     currentPeer = username;
 
@@ -850,4 +860,42 @@ document.addEventListener("DOMContentLoaded", () => {
   if (savedToken && savedUsername) {
     onLoginSuccess(savedToken, savedUsername, savedEmail);
   }
+
+  // ─── MOBILE SIDEBAR TOGGLE ────────────────────────────────────
+  const menuBtn = document.getElementById("menu-btn");
+  const chatList = document.getElementById("chat-list");
+  const overlay = document.getElementById("overlay");
+
+  function openMenu() {
+    chatList.classList.remove("hidden");
+    chatList.classList.add("open");
+    overlay.classList.add("active");
+  }
+  function closeMenu() {
+    chatList.classList.remove("open");
+    chatList.classList.add("hidden");
+    overlay.classList.remove("active");
+  }
+
+  if (menuBtn) {
+    menuBtn.addEventListener("click", openMenu);
+    overlay.addEventListener("click", closeMenu);
+  }
+
+  // wire up the new “×” button
+  const closeMenuBtn = document.getElementById("close-menu-btn");
+  if (closeMenuBtn) {
+    closeMenuBtn.addEventListener("click", closeMenu);
+  }
+
+  // whenever you pick a chat or hit back, hide the sidebar again…
+  function hideMenuIfMobile() {
+    if (window.innerWidth < 768) closeMenu();
+  }
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", hideMenuIfMobile);
+  document
+    .getElementById("past-list")
+    .addEventListener("click", hideMenuIfMobile);
 });

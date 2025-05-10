@@ -172,9 +172,47 @@
             }
         }
     </style>
+
+    <style>
+        @media (max-width: 767px) {
+
+            /* slide‐in sidebar: when #chat-list has class .open */
+            #chat-list.open {
+                transform: translateX(0);
+            }
+
+            #chat-list {
+                transform: translateX(-100%);
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 30;
+                background: white;
+            }
+
+            /* dim the rest when sidebar is open */
+            #overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.3);
+                z-index: 20;
+                display: none;
+            }
+
+            #overlay.active {
+                display: block;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="h-svh flex flex-col font-sans text-surface-800">
+
+    <!-- for mobile menu -->
+    <div id="overlay"></div>
+
 
     <!-- ╔═════════════ 1) AUTH VIEWS ══════════════════════════════════════════╗-->
     <div id="auth-container" class="w-full max-w-md mx-auto mt-6 md:mt-16 p-6 bg-white md:rounded-2xl md:shadow-raised">
@@ -318,6 +356,13 @@
 
         <!-- Top bar ------------------------------------------------------------->
         <header class="flex items-center justify-between bg-white px-4 py-2 border-b border-surface-100">
+            <!-- ↑ insert this as the very first child of <header> -->
+            <button id="menu-btn" class="md:hidden p-2 mr-2 rounded hover:bg-surface-100" aria-label="Menu"
+                title="Open menu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-surface-700" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg> </button>
             <h1 class="font-heading font-semibold text-brand-600 text-sm flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -342,15 +387,28 @@
         <div class="flex flex-1 min-h-0 overflow-hidden">
             <!-- A) Sidebar --------------------------------------------------------->
             <aside id="chat-list"
-                class="w-full md:w-80 bg-gray-50 border-r border-gray-100 flex flex-col min-h-0 overflow-hidden transition-all duration-200">
+                class="hidden md:flex w-full md:w-80 bg-white border-r border-gray-200 flex-col min-h-0 overflow-hidden transition-transform duration-300 shadow-sm">
+
+                <!-- ─── Mobile “Close” button ─────────────────── -->
+                <div class="flex justify-end md:hidden p-2 border-b border-gray-200">
+                    <button id="close-menu-btn" class="p-1.5 rounded hover:bg-surface-100" aria-label="Close menu"
+                        title="Close menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-surface-700" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+
                 <!-- Search ---------------------------------------------------------->
-                <div class="p-4 border-b border-gray-100 relative">
+                <div class="p-5 border-b border-gray-200 relative">
                     <div class="relative">
                         <input id="user-search" type="text" placeholder="Search users…"
-                            class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm
-                                        focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 transition-all" />
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm
+                                focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent transition-all shadow-sm" aria-label="Search users" />
                         <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                            class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -358,20 +416,20 @@
                     </div>
 
                     <ul id="search-suggestions"
-                        class="mt-1 border rounded-lg bg-white max-h-48 overflow-auto hidden shadow-md absolute inset-x-0 z-20">
+                        class="mt-2 border rounded-lg bg-white max-h-52 overflow-auto hidden shadow-lg absolute inset-x-0 z-20">
                     </ul>
                 </div>
 
                 <!-- Recent chats ---------------------------------------------------->
                 <section class="flex-1 overflow-y-auto">
-                    <div class="sticky top-0 …">
-                        <h2 class="text-xs font-medium uppercase tracking-wider text-gray-500 flex items-center">
+                    <div class="sticky top-0 bg-white px-5 py-4 z-10 border-b border-gray-100">
+                        <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-600 flex items-center">
                             Recent Chats
                         </h2>
                     </div>
-                    <div class="px-2 pb-4">
+                    <div class="px-4 py-3">
                         <!-- loading spinner -->
-                        <div id="sidebar-loading" class="flex items-center justify-center py-6">
+                        <div id="sidebar-loading" class="flex items-center justify-center py-8">
                             <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -381,11 +439,43 @@
                             </svg>
                         </div>
                         <!-- chat list, hidden until loaded -->
-                        <ul id="past-list" class="space-y-1 hidden"></ul>
+                        <ul id="past-list" class="space-y-2 hidden"></ul>
                     </div>
                 </section>
-
             </aside>
+
+            <!-- ══════ Empty State (when no DM is open) ══════ -->
+            <div id="empty-state"
+                class="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-brand-50 to-white p-6 sm:p-8 lg:p-12 relative overflow-hidden">
+                <!-- Decorative top-right bubble (visible on md+) -->
+                <div class="hidden md:block absolute -top-16 -right-16 w-64 h-64 bg-brand-100 rounded-full opacity-20">
+                </div>
+
+                <div class="relative z-10 max-w-xs text-center space-y-4">
+                    <!-- Animated icon in a soft circle -->
+                    <div
+                        class="mx-auto w-16 h-16 flex items-center justify-center bg-brand-200 rounded-full animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-brand-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M7 8h10M7 12h8m-4 8a9 9 0 110-18 9 9 0 010 18z" />
+                        </svg>
+                    </div>
+
+                    <!-- Headline -->
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+                        All caught up!
+                    </h2>
+
+                    <!-- Subtext -->
+                    <p class="text-gray-500 leading-relaxed">
+                        Select a conversation from your chat list to view your private messages
+                        and start chatting.
+                    </p>
+                </div>
+            </div>
+
+
 
             <!-- B) Chat window ----------------------------------------------------->
             <section id="chat-container" class="relative hidden flex-1 flex flex-col min-h-0 bg-white">
