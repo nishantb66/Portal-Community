@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatterbox • Community Space</title>
-    <!-- Fonts: Inter for clean, professional typography -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <title>Chatterbox • Modern Community Hub</title>
+    <!-- Fonts: Inter and Poppins for modern, elegant typography -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600&display=swap">
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,30 +16,53 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Poppins', 'system-ui', 'sans-serif'],
                     },
                     colors: {
-                        gray: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            300: '#d1d5db',
-                            400: '#9ca3af',
-                            500: '#6b7280',
-                            600: '#4b5563',
-                            700: '#374151',
-                            800: '#1f2937',
-                            900: '#111827',
-                            950: '#030712',
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#7c7c7c',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
                         },
                     },
                     boxShadow: {
-                        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'card': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                     },
-                }
-            }
-        }
+                    borderRadius: {
+                        'xl': '1rem',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        };
     </script>
     <style>
         html {
@@ -48,38 +72,42 @@
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #ffffff;
-            color: #1f2937;
+            background-color: #fafafa;
+            color: #171717;
         }
 
-        /* Light subtle background pattern */
-        .bg-pattern {
-            background-color: #ffffff;
-            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        /* Subtle gradient background */
+        .bg-gradient {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fafafa 100%);
         }
 
-        /* Simple card styles */
+        /* Glassmorphism card effect */
         .card {
-            background-color: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            transition: box-shadow 0.2s ease-in-out;
+            background: rgba(255, 255, 255, 0.8);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-5px);
+            box-shadow: 0 4px 25px -5px rgba(0, 0, 0, 0.2);
         }
 
         /* Modal styles */
         .modal {
-            background-color: rgba(0, 0, 0, 0.5);
-            transition: opacity 0.2s ease-in-out;
+            background: rgba(0, 0, 0, 0.6);
+            transition: opacity 0.3s ease;
         }
 
         .modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         /* Button styles */
@@ -87,73 +115,89 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0.375rem;
+            border-radius: 0.75rem;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
-            background-color: #4b5563;
+            background: #3b82f6;
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #374151;
+            background: #2563eb;
+            transform: translateY(-2px);
         }
 
         .btn-secondary {
-            background-color: white;
-            color: #4b5563;
-            border: 1px solid #e5e7eb;
+            background: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
         }
 
         .btn-secondary:hover {
-            background-color: #f9fafb;
+            background: #e0f2fe;
+            transform: translateY(-2px);
         }
 
         .btn-outline {
-            background-color: transparent;
-            color: #4b5563;
-            border: 1px solid #9ca3af;
+            background: transparent;
+            color: #525252;
+            border: 1px solid #d4d4d4;
         }
 
         .btn-outline:hover {
-            background-color: #f9fafb;
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .modal-content {
+                width: 100%;
+                margin: 1rem;
+            }
         }
     </style>
 </head>
 
-<body class="bg-pattern">
+<body class="bg-gradient">
     <!-- Main container -->
-    <div class="container max-w-6xl mx-auto px-4 py-12 min-h-screen flex flex-col justify-center">
+    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-screen flex flex-col justify-center">
         <!-- Main content wrapper -->
-        <div class="w-full flex flex-col lg:flex-row gap-8 items-center">
+        <div class="w-full flex flex-col lg:flex-row gap-12 items-center">
             <!-- Left section: Title and description -->
-            <div class="w-full lg:w-5/12 space-y-6">
+            <div class="w-full lg:w-1/2 space-y-8 animate-slide-up">
                 <!-- Logo/heading -->
-                <div class="mb-3">
-                    <span class="inline-block py-1 px-3 text-xs font-medium bg-gray-100 text-gray-700 
-                        rounded-full mb-2">Community Platform</span>
+                <div class="mb-4">
+                    <span
+                        class="inline-block py-2 px-4 text-sm font-medium bg-primary-50 text-primary-600 rounded-full">Community
+                        Hub</span>
                 </div>
 
-                <h1 class="font-bold text-4xl sm:text-5xl md:text-6xl text-gray-800 
-                    tracking-tight leading-tight">
-                    <span>chill</span>
-                    <span class="text-gray-600">chat</span>
-                    <br>
-                    <span>space</span>
+                <h1
+                    class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-neutral-900 tracking-tight leading-tight">
+                    Connect.<br>
+                    <span class="text-primary-600">Chat.</span><br>
+                    Thrive.
                 </h1>
 
                 <!-- Description -->
-                <p class="text-gray-600 text-base sm:text-lg leading-relaxed max-w-xl">
-                    A thoughtfully designed corner of the internet where you can connect with others,
-                    share authentic moments, and build meaningful connections in a space that feels just right.
+                <p class="text-neutral-600 text-lg leading-relaxed max-w-md">
+                    A modern, elegant platform designed for meaningful connections. Engage in vibrant community
+                    discussions or private conversations in a space that’s both intuitive and secure.
                 </p>
 
-                <!-- Buttons - improved for mobile -->
+                <!-- Buttons -->
                 <div class="flex flex-wrap gap-4">
-                    <a href="/chat" class="btn btn-primary px-6 py-3">
-                        <span>Jump in</span>
+                    <a href="/chat" class="btn btn-primary px-6 py-3 text-base">
+                        Start Chatting
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20"
                             fill="currentColor">
                             <path fill-rule="evenodd"
@@ -162,251 +206,234 @@
                         </svg>
                     </a>
 
-                    <a href="/privateDM.html" class="btn btn-secondary px-6 py-3">
+                    <a href="/privateDM.html" class="btn btn-secondary px-6 py-3 text-base">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                         </svg>
-                        <span>Private DMs</span>
+                        Private Messages
                     </a>
 
-                    <button id="showAbout" class="btn btn-outline px-6 py-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                    <button id="showAbout" class="btn btn-outline px-6 py-3 text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>Learn more</span>
+                        Discover More
                     </button>
                 </div>
 
                 <!-- Author info -->
-                <div class="pt-4 flex items-center gap-3">
+                <div class="pt-6 flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-full bg-primary-50 flex items-center justify-center">
+                        <span class="text-primary-600 font-medium">NB</span>
+                    </div>
                     <div>
-                        <div class="text-gray-500 text-sm">Created by</div>
-                        <div class="font-medium text-gray-800">Nishant Baruah</div>
+                        <div class="text-neutral-500 text-sm">Crafted by</div>
+                        <div class="font-medium text-neutral-800">Nishant Baruah</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right section: Feature cards - responsive grid -->
-            <div class="w-full lg:w-7/12">
-                <!-- Features grid - responsive layout -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 relative">
+            <!-- Right section: Feature cards -->
+            <div class="w-full lg:w-1/2">
+                <!-- Features grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- Feature 1 -->
-                    <div class="card p-6 h-full">
-                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                    <div class="card p-6 h-full animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="h-12 w-12 rounded-lg bg-primary-50 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                             </svg>
                         </div>
-                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
-                            Authentic Conversations</h3>
-                        <p class="text-gray-600 leading-relaxed">Express yourself freely in a
-                            judgment-free zone where genuine connections thrive.</p>
+                        <h3 class="font-display font-semibold text-neutral-800 text-lg mb-2">Authentic Dialogues</h3>
+                        <p class="text-neutral-600 text-sm leading-relaxed">Engage in open, judgment-free conversations
+                            that foster genuine connections.</p>
                     </div>
 
                     <!-- Feature 2 -->
-                    <div class="card p-6 h-full">
-                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                    <div class="card p-6 h-full animate-slide-up" style="animation-delay: 0.2s;">
+                        <div class="h-12 w-12 rounded-lg bg-primary-50 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
-                            Real-Time Interaction</h3>
-                        <p class="text-gray-600 leading-relaxed">Enjoy smooth, instantaneous
-                            messaging that makes conversations feel natural and engaging.</p>
+                        <h3 class="font-display font-semibold text-neutral-800 text-lg mb-2">Seamless Interaction</h3>
+                        <p class="text-neutral-600 text-sm leading-relaxed">Experience fluid, real-time messaging for
+                            natural, engaging conversations.</p>
                     </div>
 
                     <!-- Feature 3 -->
-                    <div class="card p-6 h-full">
-                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                    <div class="card p-6 h-full animate-slide-up" style="animation-delay: 0.3s;">
+                        <div class="h-12 w-12 rounded-lg bg-primary-50 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <h3 class="font-semibold text-gray-800 text-lg mb-2">
-                            Community Connection</h3>
-                        <p class="text-gray-600 leading-relaxed">Discover like-minded people who
-                            share your interests, values, and conversation style.</p>
+                        <h3 class="font-display font-semibold text-neutral-800 text-lg mb-2">Vibrant Community</h3>
+                        <p class="text-neutral-600 text-sm leading-relaxed">Connect with like-minded individuals who
+                            share your passions and values.</p>
                     </div>
 
                     <!-- Feature 4 -->
-                    <div class="card p-6 h-full">
-                        <div class="h-12 w-12 rounded-md bg-gray-100 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                    <div class="card p-6 h-full animate-slide-up" style="animation-delay: 0.4s;">
+                        <div class="h-12 w-12 rounded-lg bg-primary-50 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <h3 class="font-semibold text-gray-800 text-lg mb-2">Safe
-                            Environment</h3>
-                        <p class="text-gray-600 leading-relaxed">Enjoy peace of mind in a
-                            respectful space designed to foster positive interactions.</p>
+                        <h3 class="font-display font-semibold text-neutral-800 text-lg mb-2">Secure Environment</h3>
+                        <p class="text-neutral-600 text-sm leading-relaxed">Interact confidently in a safe, respectful
+                            space built for positivity.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- About Modal — updated content for dual chat modes -->
-    <div id="aboutModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="modal-content max-w-lg w-full bg-white rounded-lg shadow-lg border border-gray-200 relative">
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6">
+        <div class="modal-content max-w-2xl w-full relative">
             <!-- Close button -->
-            <button id="closeModal" title="Close dialog" aria-label="Close dialog" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 
-                     hover:bg-gray-100 rounded-full transition-colors">
+            <button id="closeModal" title="Close dialog" aria-label="Close dialog"
+                class="absolute top-4 right-4 p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
 
-            <!-- Modal content — scrollable -->
-            <div class="p-6 overflow-y-auto max-h-[80vh]">
+            <!-- Modal content -->
+            <div class="p-6 sm:p-8 overflow-y-auto max-h-[80vh]">
                 <!-- Header -->
                 <div class="flex items-start gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-md bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                    <div class="w-12 h-12 rounded-lg bg-primary-50 flex-shrink-0 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-1">
-                            About ChillChat Space
-                        </h3>
-                        <p class="text-gray-600 text-sm">
-                            Two ways to connect—public community rooms or one-on-one conversations.
-                        </p>
+                        <h3 class="font-display text-2xl font-semibold text-neutral-800 mb-1">About Our Platform</h3>
+                        <p class="text-neutral-600 text-base">Connect through vibrant community rooms or private, secure
+                            conversations.</p>
                     </div>
                 </div>
 
                 <!-- Description -->
-                <div class="space-y-5 text-gray-700">
-                    <p>
-                        Welcome to <strong>ChillChat Space</strong>! We offer:
-                    </p>
+                <div class="space-y-6 text-neutral-700">
+                    <p class="text-base">Welcome to a modern platform designed for meaningful interactions. Explore two
+                        ways to connect:</p>
 
                     <!-- Community Chat -->
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 space-y-2">
-                        <h4 class="font-medium text-gray-800">1. Community Chat</h4>
-                        <p class="text-gray-600">
-                            Jump into any public room and join the conversation. Share ideas, react to messages, and
-                            engage
-                            with our friendly community in real time.
-                        </p>
-                        <ul class="list-disc pl-5 space-y-1 text-gray-600 text-sm">
-                            <li>Multiple topic channels for focused discussions</li>
-                            <li>Reactions, replies & threaded messages</li>
-                            <li>Live user count & typing indicators</li>
+                    <div class="bg-white p-6 rounded-xl border border-neutral-100 shadow-soft space-y-3">
+                        <h4 class="font-display font-medium text-neutral-800 text-lg">Community Rooms</h4>
+                        <p class="text-neutral-600 text-sm">Dive into public rooms for lively discussions. Share ideas,
+                            react, and connect in real time.</p>
+                        <ul class="list-disc pl-5 space-y-1 text-neutral-600 text-sm">
+                            <li>Topic-specific channels for focused conversations</li>
+                            <li>Interactive reactions and threaded replies</li>
+                            <li>Real-time user presence and typing indicators</li>
                         </ul>
                     </div>
 
                     <!-- Direct Messages -->
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 space-y-2">
-                        <h4 class="font-medium text-gray-800">2. Private DMs</h4>
-                        <p class="text-gray-600">
-                            Register for an account and chat one-on-one with friends. Your private conversations are
-                            secure
-                            and only visible to you and your peer.
-                        </p>
-                        <ul class="list-disc pl-5 space-y-1 text-gray-600 text-sm">
-                            <li>End-to-end styled responsive interface</li>
-                            <li>Message search and history sync</li>
-                            <li>Online and last seen status</li>
+                    <div class="bg-white p-6 rounded-xl border border-neutral-100 shadow-soft space-y-3">
+                        <h4 class="font-display font-medium text-neutral-800 text-lg">Private Messaging</h4>
+                        <p class="text-neutral-600 text-sm">Sign up for secure, one-on-one chats with friends, visible
+                            only to you and your contact.</p>
+                        <ul class="list-disc pl-5 space-y-1 text-neutral-600 text-sm">
+                            <li>Responsive, end-to-end encrypted interface</li>
+                            <li>Searchable message history with sync</li>
+                            <li>Online status and last seen indicators</li>
                         </ul>
                     </div>
 
-                    <!-- Good to know -->
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                        <h4 class="font-medium text-gray-800 mb-2">Good to know:</h4>
-                        <ul class="space-y-3 text-gray-600 text-sm">
+                    <!-- Key Info -->
+                    <div class="bg-white p-6 rounded-xl border border-neutral-100 shadow-soft">
+                        <h4 class="font-display font-medium text-neutral-800 text-lg mb-4">Key Information</h4>
+                        <ul class="space-y-4 text-neutral-600 text-sm">
                             <li class="flex items-start gap-3">
-                                <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center mt-0.5">
-                                    <span class="text-gray-600">💬</span>
+                                <div class="h-6 w-6 rounded-full bg-primary-50 flex items-center justify-center">
+                                    <span class="text-primary-600">💬</span>
                                 </div>
-                                All community messages are public—feel free to join in!
+                                Community rooms are open to all—jump in and engage!
                             </li>
                             <li class="flex items-start gap-3">
-                                <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center mt-0.5">
-                                    <span class="text-gray-600">🔒</span>
+                                <div class="h-6 w-6 rounded-full bg-primary-50 flex items-center justify-center">
+                                    <span class="text-primary-600">🔒</span>
                                 </div>
-                                Your DMs stay private—only you and your chat partner see them.
+                                Private messages are secure and exclusive to you and your contact.
                             </li>
                             <li class="flex items-start gap-3">
-                                <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center mt-0.5">
-                                    <span class="text-gray-600">😊</span>
+                                <div class="h-6 w-6 rounded-full bg-primary-50 flex items-center justify-center">
+                                    <span class="text-primary-600">😊</span>
                                 </div>
-                                Use any username—just keep it friendly and respectful.
+                                Choose any username, but keep it friendly and respectful.
                             </li>
                             <li class="flex items-start gap-3">
-                                <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center mt-0.5">
-                                    <span class="text-gray-600">⏳</span>
+                                <div class="h-6 w-6 rounded-full bg-primary-50 flex items-center justify-center">
+                                    <span class="text-primary-600">⏳</span>
                                 </div>
-                                For DMs, verification is fast—just sign up and you’re in!
+                                Quick verification for private messaging—just sign up!
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <!-- Action button -->
-                <div class="mt-6">
-                    <button id="confirmModal" class="w-full btn btn-primary py-3">
-                        Got it, let’s chat!
-                    </button>
+                <div class="mt-8">
+                    <button id="confirmModal" class="w-full btn btn-primary py-3 text-base">Let’s Get Started!</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ─── Footer ──────────────────────────────────────────────────────────── -->
-    <footer class="w-full bg-gray-50 py-10 text-gray-600 text-center text-sm">
-        <div>© ChillChat 2025</div>
+    <!-- Footer -->
+    <footer class="w-full bg-neutral-50 py-8 text-neutral-600 text-center text-sm">
+        <div>© Chatterbox 2025. All rights reserved.</div>
     </footer>
-
 
     <!-- Scripts -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Modal functionality
+        document.addEventListener('DOMContentLoaded', () => {
             const aboutModal = document.getElementById('aboutModal');
             const showAbout = document.getElementById('showAbout');
             const closeModal = document.getElementById('closeModal');
             const confirmModal = document.getElementById('confirmModal');
 
-            function openModal() {
+            const openModal = () => {
                 aboutModal.classList.remove('hidden');
+                aboutModal.classList.add('flex');
                 document.body.style.overflow = 'hidden';
-            }
+            };
 
-            function closeModalFunc() {
+            const closeModalFunc = () => {
                 aboutModal.classList.add('hidden');
+                aboutModal.classList.remove('flex');
                 document.body.style.overflow = '';
-            }
+            };
 
             showAbout.addEventListener('click', openModal);
             closeModal.addEventListener('click', closeModalFunc);
             confirmModal.addEventListener('click', closeModalFunc);
 
-            // Close on backdrop click
-            aboutModal.addEventListener('click', function (e) {
-                if (e.target === aboutModal) {
-                    closeModalFunc();
-                }
+            aboutModal.addEventListener('click', (e) => {
+                if (e.target === aboutModal) closeModalFunc();
             });
 
-            // Close on ESC key
-            document.addEventListener('keydown', function (e) {
+            document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && !aboutModal.classList.contains('hidden')) {
                     closeModalFunc();
                 }
